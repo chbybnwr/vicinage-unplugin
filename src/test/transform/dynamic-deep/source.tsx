@@ -1,0 +1,37 @@
+export { Hero }
+
+function Hero({ fontSize }: { fontSize: string }) {
+  return (
+    <h1
+      {...apply({
+        fontSize: {
+          default: () => fontSize,
+          '@media (min-width: 768px)': {
+            default: () => fontSize,
+            ':hover': '2.25rem',
+          },
+        },
+        '::before': {
+          color: () => 'black',
+          [color.primary]: {
+            default: () => 'blue',
+            '@container (width > 1440px)': {
+              default: 'green',
+              ':hover': () => 'red',
+            },
+          },
+        },
+      })}
+    >
+      Welcome back
+    </h1>
+  )
+}
+
+const color = stylex.defineVars({
+  primary: null,
+})
+
+import { apply } from 'vicinage'
+import * as stylex from '@stylexjs/stylex'
+//
