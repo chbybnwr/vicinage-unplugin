@@ -1,0 +1,21 @@
+{
+  "extends": [
+    "@txe/tsconfig/tsconfig.base.json",
+    "@txe/tsconfig/tsconfig.dom.json",
+    "@txe/tsconfig/tsconfig.bundled.json"
+  ],
+  "include": ["src/test/**/*.tsx", "src/test/**/*.dom.ts"],
+  "exclude": [],
+
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.dom.tsbuildinfo",
+
+    "paths": {
+      "#/*": ["./src/*"]
+    },
+
+    "noEmit": true,
+
+    "noUnusedLocals": false
+  }
+}

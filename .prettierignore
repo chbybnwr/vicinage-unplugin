@@ -1,0 +1,3 @@
+/etc/
+pnpm-lock.yaml
+src/test/**/target.tsx

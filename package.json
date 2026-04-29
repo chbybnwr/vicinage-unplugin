@@ -1,0 +1,124 @@
+{
+  "name": "@vicinage/unplugin",
+  "version": "0.12.0",
+  "description": "Universal bundler plugin for Vicinage",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chbybnwr/vicinage-unplugin.git"
+  },
+  "homepage": "https://github.com/chbybnwr/vicinage-unplugin",
+  "bugs": {
+    "url": "https://github.com/chbybnwr/vicinage-unplugin/issues"
+  },
+  "keywords": [
+    "bundler",
+    "css",
+    "inline",
+    "jsx",
+    "plugin",
+    "stylex",
+    "unplugin",
+    "vite"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "imports": {
+    "#/*": "./dist/*"
+  },
+  "scripts": {
+    "check": "run-s \"test -- --coverage --reporter=verbose\" lint \"format -- --check\" spellcheck",
+    "prepack": "shx cp package.json package.backup.json && npm pkg delete scripts packageManager devDependencies",
+    "postpack": "shx rm package.json && shx mv package.backup.json package.json",
+    "build": "tsdown",
+    "compile": "shx rm -rf ./lib/ && tsc --project tsconfig.build.json",
+    "test": "vitest run",
+    "lint": "eslint ./ --cache",
+    "format": "prettier ./",
+    "spellcheck": "cspell ./",
+    "local-pack": "shx rm -rf ./dist/ && npm run build && npm pack"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "dependencies": {
+    "@babel/parser": "^7.29.2",
+    "@babel/traverse": "^7.29.0",
+    "@babel/types": "^7.29.0",
+    "magic-string": "^0.30.21",
+    "unplugin": "^3.0.0"
+  },
+  "peerDependencies": {
+    "@farmfe/core": ">=1",
+    "@nuxt/kit": "^3",
+    "@nuxt/schema": "^3",
+    "esbuild": "*",
+    "rollup": "^3",
+    "vite": ">=3",
+    "webpack": "^4 || ^5"
+  },
+  "peerDependenciesMeta": {
+    "@farmfe/core": {
+      "optional": true
+    },
+    "@nuxt/kit": {
+      "optional": true
+    },
+    "@nuxt/schema": {
+      "optional": true
+    },
+    "esbuild": {
+      "optional": true
+    },
+    "rollup": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    },
+    "webpack": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@eslint/json": "^1.2.0",
+    "@eslint/markdown": "^8.0.1",
+    "@nuxt/kit": "^3.21.2",
+    "@nuxt/schema": "^3.21.2",
+    "@stylexjs/stylex": "^0.18.3",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@txe/eslint-plugin-x": "~0.2.1",
+    "@txe/tsconfig": "file:modules/txe-tsconfig-0.1.0.tgz",
+    "@types/babel__traverse": "^7.28.0",
+    "@types/jsdom": "^28.0.1",
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@typescript-eslint/parser": "^8.59.0",
+    "@typescript/native-preview": "7.0.0-dev.20260422.1",
+    "@vitest/coverage-v8": "^4.1.5",
+    "@vitest/eslint-plugin": "^1.6.16",
+    "cspell": "^10.0.0",
+    "eslint": "^10.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import-x": "^4.16.2",
+    "eslint-plugin-n": "^17.24.0",
+    "eslint-plugin-unicorn": "^64.0.0",
+    "globals": "^17.5.0",
+    "nodemon": "^3.1.14",
+    "npm-run-all2": "^8.0.4",
+    "prettier": "^3.8.3",
+    "react": "^19.2.5",
+    "rollup": "^4.60.2",
+    "shx": "~0.4.0",
+    "tsdown": "^0.21.9",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.0",
+    "vicinage": "file:modules/vicinage-0.5.0.tgz",
+    "vite": "^8.0.9",
+    "vitest": "^4.1.5",
+    "webpack": "^5.106.2"
+  }
+}
