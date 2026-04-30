@@ -1,6 +1,6 @@
 # @vicinage/unplugin
 
-Universal bundler plugin for [Vicinage](https://github.com/chbyb/vicinage).
+Universal bundler plugin for [Vicinage](https://github.com/chbybnwr/vicinage).
 
 ## Setup
 
