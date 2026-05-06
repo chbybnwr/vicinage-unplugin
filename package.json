@@ -19,7 +19,8 @@
     "plugin",
     "stylex",
     "unplugin",
-    "vite"
+    "vite",
+    "vicinage"
   ],
   "type": "module",
   "exports": {
