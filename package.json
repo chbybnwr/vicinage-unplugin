@@ -25,9 +25,9 @@
   "type": "module",
   "exports": {
     ".": {
-      "default": "./dist/adapters/index.js",
-      "import": "./dist/adapters/index.js",
-      "require": "./dist/adapters/index.cjs"
+      "default": "./dist/index.js",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./astro": {
       "default": "./dist/adapters/astro.js",
