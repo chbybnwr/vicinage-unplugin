@@ -1,4 +1,4 @@
-# @vicinage/unplugin
+# @vicinage/unplugin &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/chbybnwr/vicinage-unplugin/blob/prototype/LICENSE) [![npm version](https://img.shields.io/npm/v/@vicinage/unplugin.svg?style=flat)](https://www.npmjs.com/package/@vicinage/unplugin)
 
 Universal bundler plugin for [Vicinage](https://github.com/chbybnwr/vicinage).
 
