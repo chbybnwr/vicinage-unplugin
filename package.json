@@ -81,15 +81,14 @@
   },
   "scripts": {
     "check": "run-s \"test -- --coverage --reporter=verbose\" lint \"format -- --check\" spellcheck",
-    "prepack": "shx cp package.json package.backup.json && npm pkg delete scripts packageManager devDependencies",
+    "prepack": "shx rm -rf ./dist/ && npm run build && shx cp package.json package.backup.json && npm pkg delete scripts packageManager devDependencies",
     "postpack": "shx rm package.json && shx mv package.backup.json package.json",
     "build": "tsdown",
     "compile": "shx rm -rf ./lib/ && tsc --project tsconfig.build.json",
     "test": "vitest run",
     "lint": "eslint ./ --cache",
     "format": "prettier ./",
-    "spellcheck": "cspell ./",
-    "local-pack": "shx rm -rf ./dist/ && npm run build && npm pack"
+    "spellcheck": "cspell ./"
   },
   "packageManager": "pnpm@10.33.0",
   "dependencies": {
