@@ -19,4 +19,5 @@ const tsdownConfig = {
 
   minify: true,
   fixedExtension: false,
+  format: ['esm', 'cjs'],
 }
