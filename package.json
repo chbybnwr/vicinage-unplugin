@@ -25,54 +25,54 @@
   "type": "module",
   "exports": {
     ".": {
-      "default": "./dist/index.js",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
     },
     "./astro": {
-      "default": "./dist/adapters/astro.js",
       "import": "./dist/adapters/astro.js",
-      "require": "./dist/adapters/astro.cjs"
+      "require": "./dist/adapters/astro.cjs",
+      "default": "./dist/adapters/astro.js"
     },
     "./babel": {
-      "default": "./dist/adapters/babel.js",
       "import": "./dist/adapters/babel.js",
-      "require": "./dist/adapters/babel.cjs"
+      "require": "./dist/adapters/babel.cjs",
+      "default": "./dist/adapters/babel.js"
     },
     "./esbuild": {
-      "default": "./dist/adapters/esbuild.js",
       "import": "./dist/adapters/esbuild.js",
-      "require": "./dist/adapters/esbuild.cjs"
+      "require": "./dist/adapters/esbuild.cjs",
+      "default": "./dist/adapters/esbuild.js"
     },
     "./farm": {
-      "default": "./dist/adapters/farm.js",
       "import": "./dist/adapters/farm.js",
-      "require": "./dist/adapters/farm.cjs"
+      "require": "./dist/adapters/farm.cjs",
+      "default": "./dist/adapters/farm.js"
     },
     "./nuxt": {
-      "default": "./dist/adapters/nuxt.js",
       "import": "./dist/adapters/nuxt.js",
-      "require": "./dist/adapters/nuxt.cjs"
+      "require": "./dist/adapters/nuxt.cjs",
+      "default": "./dist/adapters/nuxt.js"
     },
     "./rollup": {
-      "default": "./dist/adapters/rollup.js",
       "import": "./dist/adapters/rollup.js",
-      "require": "./dist/adapters/rollup.cjs"
+      "require": "./dist/adapters/rollup.cjs",
+      "default": "./dist/adapters/rollup.js"
     },
     "./rspack": {
-      "default": "./dist/adapters/rspack.js",
       "import": "./dist/adapters/rspack.js",
-      "require": "./dist/adapters/rspack.cjs"
+      "require": "./dist/adapters/rspack.cjs",
+      "default": "./dist/adapters/rspack.js"
     },
     "./vite": {
-      "default": "./dist/adapters/vite.js",
       "import": "./dist/adapters/vite.js",
-      "require": "./dist/adapters/vite.cjs"
+      "require": "./dist/adapters/vite.cjs",
+      "default": "./dist/adapters/vite.js"
     },
     "./webpack": {
-      "default": "./dist/adapters/webpack.js",
       "import": "./dist/adapters/webpack.js",
-      "require": "./dist/adapters/webpack.cjs"
+      "require": "./dist/adapters/webpack.cjs",
+      "default": "./dist/adapters/webpack.js"
     },
     "./package.json": "./package.json"
   },
