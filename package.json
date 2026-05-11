@@ -26,53 +26,11 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.js"
+      "require": "./dist/index.cjs"
     },
-    "./astro": {
-      "import": "./dist/adapters/astro.js",
-      "require": "./dist/adapters/astro.cjs",
-      "default": "./dist/adapters/astro.js"
-    },
-    "./babel": {
-      "import": "./dist/adapters/babel.js",
-      "require": "./dist/adapters/babel.cjs",
-      "default": "./dist/adapters/babel.js"
-    },
-    "./esbuild": {
-      "import": "./dist/adapters/esbuild.js",
-      "require": "./dist/adapters/esbuild.cjs",
-      "default": "./dist/adapters/esbuild.js"
-    },
-    "./farm": {
-      "import": "./dist/adapters/farm.js",
-      "require": "./dist/adapters/farm.cjs",
-      "default": "./dist/adapters/farm.js"
-    },
-    "./nuxt": {
-      "import": "./dist/adapters/nuxt.js",
-      "require": "./dist/adapters/nuxt.cjs",
-      "default": "./dist/adapters/nuxt.js"
-    },
-    "./rollup": {
-      "import": "./dist/adapters/rollup.js",
-      "require": "./dist/adapters/rollup.cjs",
-      "default": "./dist/adapters/rollup.js"
-    },
-    "./rspack": {
-      "import": "./dist/adapters/rspack.js",
-      "require": "./dist/adapters/rspack.cjs",
-      "default": "./dist/adapters/rspack.js"
-    },
-    "./vite": {
-      "import": "./dist/adapters/vite.js",
-      "require": "./dist/adapters/vite.cjs",
-      "default": "./dist/adapters/vite.js"
-    },
-    "./webpack": {
-      "import": "./dist/adapters/webpack.js",
-      "require": "./dist/adapters/webpack.cjs",
-      "default": "./dist/adapters/webpack.js"
+    "./*": {
+      "import": "./dist/adapters/*.js",
+      "require": "./dist/adapters/*.cjs"
     },
     "./package.json": "./package.json"
   },
