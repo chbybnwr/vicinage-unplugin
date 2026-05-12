@@ -6,5 +6,5 @@ const esbuildPlugin: (options?: Options) => EsbuildPlugin =
 import { createEsbuildPlugin } from 'unplugin'
 import { createPlugin } from '#/plugin'
 import type { Plugin as EsbuildPlugin } from 'esbuild'
-import type { Options } from '#/plugin'
+import type { Options } from '#/options'
 //

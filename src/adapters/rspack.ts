@@ -5,6 +5,6 @@ const rspackPlugin: (options?: Options) => RspackPluginInstance =
 
 import { createPlugin } from '#/plugin'
 import { createRspackPlugin } from 'unplugin'
-import type { Options } from '#/plugin'
+import type { Options } from '#/options'
 import type { RspackPluginInstance } from 'unplugin'
 //

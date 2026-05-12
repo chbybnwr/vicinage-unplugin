@@ -5,6 +5,6 @@ const webpackPlugin: (options?: Options) => WebpackPluginInstance =
 
 import { createPlugin } from '#/plugin'
 import { createWebpackPlugin } from 'unplugin'
-import type { Options } from '#/plugin'
+import type { Options } from '#/options'
 import type { WebpackPluginInstance } from 'unplugin'
 //

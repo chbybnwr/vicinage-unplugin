@@ -2,17 +2,12 @@
 
 export { createPlugin }
 export { pluginName }
-export type { Options }
 
 const pluginName = 'vicinage'
 
-/**
- * @public
- */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-interface Options {}
-
-const createPlugin: UnpluginFactory<Options | undefined, false> = () => ({
+const createPlugin: UnpluginFactory<Options | undefined, false> = (
+  options,
+) => ({
   name: pluginName,
   enforce: 'pre',
 
@@ -21,10 +16,10 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = () => ({
       id: /\.(?<file>t|j)sx?$/u,
     },
 
-    handler,
+    handler: useTransform(options),
   },
 })
 
-import { handler } from '#/handler.js'
+import type { Options } from '#/options'
 import type { UnpluginFactory } from 'unplugin'
-//
+import { useTransform } from '#/transform'

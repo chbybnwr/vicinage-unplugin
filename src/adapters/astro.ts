@@ -23,7 +23,7 @@ interface AstroContext {
   }
 }
 
-import type { Options } from '#/plugin'
+import type { Options } from '#/options'
 import { pluginName } from '#/plugin'
 import { unplugin } from '#/adapters/unplugin'
 //

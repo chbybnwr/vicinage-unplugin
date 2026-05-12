@@ -2,8 +2,8 @@
 /* eslint-disable no-continue */
 /* eslint no-magic-numbers: ["warn", { "ignore": [-1, 0, 1] }] */
 
-export { handler }
 export { pluginName }
+export { useTransform }
 
 const pluginName = 'vicinage'
 const apply = 'apply'
@@ -16,7 +16,7 @@ const contextualClosureBaseLevel = 3
 const traverse =
   (traversal as { default?: typeof traversal }).default ?? traversal
 
-function handler(code: string, id: string) {
+const useTransform = (options?: Options) => (code: string, id: string) => {
   if (
     !(
       !id.includes('node_modules') &&
@@ -27,6 +27,7 @@ function handler(code: string, id: string) {
     return null
   }
 
+  const applyAs = options?.applyAs ?? 'props'
   const ms = new MagicString(code)
   const hoistedStyles = new Set<string>()
   const stylexImports = new Set<string>()
@@ -353,7 +354,7 @@ function handler(code: string, id: string) {
       switch (macro) {
         case apply: {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          ms.overwrite(callee.start!, callee.end!, '__stylex_props')
+          ms.overwrite(callee.start!, callee.end!, `__stylex_${applyAs}`)
 
           if (argList.length > 0) {
             const start = argList[0]?.start
@@ -368,7 +369,7 @@ function handler(code: string, id: string) {
           }
 
           stylexImports.add(
-            `import { props as __stylex_props } from '@stylexjs/stylex'`,
+            `import { ${applyAs} as __stylex_${applyAs} } from '@stylexjs/stylex'`,
           )
 
           break
@@ -488,6 +489,7 @@ import MagicString from 'magic-string'
 import type { Node } from '@babel/types'
 import type { ObjectMethod } from '@babel/types'
 import type { ObjectProperty } from '@babel/types'
+import type { Options } from '#/options'
 import { parse } from '@babel/parser'
 import traversal from '@babel/traverse'
 //

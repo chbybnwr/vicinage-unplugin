@@ -3,12 +3,13 @@ export { babelPlugin as default }
 
 const babelPlugin: (
   api: object,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  options: Record<string, any> | null | undefined,
+  options: Options | null | undefined,
   dirname: string,
-) => PluginObj = declare((api) => {
+) => PluginObj = declare((api, options) => {
   // eslint-disable-next-line no-magic-numbers
   api.assertVersion(7)
+
+  const transform = useTransform(options)
 
   return {
     name: pluginName,
@@ -22,7 +23,7 @@ const babelPlugin: (
         }
 
         const source = state.file.code
-        const result = handler(source, filename)
+        const result = transform(source, filename)
 
         if (result?.code) {
           state.file.code = result.code
@@ -45,8 +46,9 @@ const babelPlugin: (
 })
 
 import { declare } from '@babel/helper-plugin-utils'
-import { handler } from '#/handler.js'
+import type { Options } from '#/options'
 import { parse } from '@babel/parser'
 import { pluginName } from '#/plugin.js'
 import type { PluginObj } from '@babel/core'
+import { useTransform } from '#/transform.js'
 //
