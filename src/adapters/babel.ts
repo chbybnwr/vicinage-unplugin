@@ -22,24 +22,25 @@ const babelPlugin: (
           return
         }
 
-        const source = state.file.code
-        const result = transform(source, filename)
+        const result = transform(state.file.code, filename)
 
-        if (result?.code) {
-          state.file.code = result.code
-
-          const ast = parse(result.code, {
-            sourceType: 'module',
-            plugins: [
-              'typescript',
-              'jsx',
-              //
-            ],
-          })
-
-          path.node.body = ast.program.body
-          path.node.directives = ast.program.directives
+        if (result?.code == null) {
+          return
         }
+
+        state.file.code = result.code
+
+        const ast = parse(result.code, {
+          sourceType: 'module',
+          plugins: [
+            'typescript',
+            'jsx',
+            //
+          ],
+        })
+
+        path.node.body = ast.program.body
+        path.node.directives = ast.program.directives
       },
     },
   }
