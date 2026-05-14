@@ -3,6 +3,7 @@
 !/src/
 !/etc/
 
+!/.github
 !/.npmignore
 !/.node-version
 
