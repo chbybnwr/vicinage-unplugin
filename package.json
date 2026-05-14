@@ -39,6 +39,7 @@
     "#/*": "./dist/*"
   },
   "scripts": {
+    "prepublishOnly": "npm run build && npm pkg delete scripts packageManager devDependencies",
     "check": "run-s \"test -- --coverage --reporter=verbose\" lint \"format -- --check\" spellcheck",
     "prepack": "shx rm -rf ./dist/ && npm run build && shx cp package.json package.backup.json && npm pkg delete scripts packageManager devDependencies",
     "postpack": "shx rm package.json && shx mv package.backup.json package.json",
