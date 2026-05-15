@@ -6,7 +6,6 @@ interface ModuleOptions extends Options {
   //
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 const nuxtModule: NuxtModule<ModuleOptions, ModuleOptions> =
   defineNuxtModule<ModuleOptions>({
     meta: {
@@ -18,9 +17,7 @@ const nuxtModule: NuxtModule<ModuleOptions, ModuleOptions> =
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setup(options: ModuleOptions, _nuxt: any) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       addVitePlugin(() => vitePlugin(options))
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       addWebpackPlugin(() => webpackPlugin(options))
     },
   })
