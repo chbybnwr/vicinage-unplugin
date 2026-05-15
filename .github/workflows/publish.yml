@@ -11,7 +11,7 @@ permissions:
 jobs:
   publish:
     environment: production
-    needs: [test, lint]
+    needs: [compile, test, lint]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -23,6 +23,18 @@ jobs:
           package-manager-cache: false
       - run: pnpm install
       - run: npm publish
+
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.node-version'
+          cache: 'pnpm'
+      - run: pnpm install
+      - run: npm run compile
 
   test:
     runs-on: ubuntu-latest
