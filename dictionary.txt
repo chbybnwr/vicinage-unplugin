@@ -1,5 +1,6 @@
 Chabib
 chbybnwr
+esbuild
 farmfe
 mjsx
 mtsx
@@ -7,4 +8,5 @@ rspack
 stylex
 stylexjs
 txee
+unrs
 Vicinage
