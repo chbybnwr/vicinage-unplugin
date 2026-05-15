@@ -1,9 +1,9 @@
 {
   "extends": [
-    "@txe/tsconfig/tsconfig.base.json",
-    "@txe/tsconfig/tsconfig.node24.json",
-    "@txe/tsconfig/tsconfig.library.json",
-    "@txe/tsconfig/tsconfig.bundled.json"
+    "@chbybnwr/tsconfig/tsconfig.base.json",
+    "@chbybnwr/tsconfig/tsconfig.node24.json",
+    "@chbybnwr/tsconfig/tsconfig.library.json",
+    "@chbybnwr/tsconfig/tsconfig.bundled.json"
   ],
   "include": ["src"],
   "exclude": ["src/**/*.spec*.*", "src/test/**/*"],
