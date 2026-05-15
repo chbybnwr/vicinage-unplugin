@@ -57,7 +57,6 @@
   },
   "packageManager": "pnpm@11.1.1",
   "dependencies": {
-    "@babel/core": "^7.29.0",
     "@babel/helper-plugin-utils": "^7.28.6",
     "@babel/parser": "^7.29.3",
     "@babel/traverse": "^7.29.0",
@@ -78,6 +77,7 @@
     }
   },
   "devDependencies": {
+    "@babel/core": "^7.29.0",
     "@chbybnwr/tsconfig": "github:chbybnwr/tsconfig",
     "@eslint/js": "^10.0.1",
     "@eslint/json": "^1.2.0",

@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@babel/core':
-        specifier: ^7.29.0
-        version: 7.29.0
       '@babel/helper-plugin-utils':
         specifier: ^7.28.6
         version: 7.28.6
@@ -30,6 +27,9 @@ importers:
         specifier: ^3.0.0
         version: 3.0.0
     devDependencies:
+      '@babel/core':
+        specifier: ^7.29.0
+        version: 7.29.0
       '@chbybnwr/tsconfig':
         specifier: github:chbybnwr/tsconfig
         version: https://codeload.github.com/chbybnwr/tsconfig/tar.gz/642e42bd201c9b071761b39f1b559c0a1c765b5e
