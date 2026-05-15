@@ -48,6 +48,25 @@
     "format": "prettier ./",
     "spellcheck": "cspell ./"
   },
+  "engines": {
+    "runtime": {
+      "name": "node",
+      "version": "^22 || ^24 || ^25 || ^26",
+      "onFail": "error"
+    }
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^26",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11",
+      "onFail": "error"
+    }
+  },
   "packageManager": "pnpm@11.1.1",
   "dependencies": {
     "@babel/core": "^7.29.0",
