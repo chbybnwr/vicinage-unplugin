@@ -59,7 +59,6 @@
     "unplugin": "^3.0.0"
   },
   "peerDependencies": {
-    "@farmfe/core": ">=1",
     "@nuxt/kit": "^3",
     "@nuxt/schema": "^3",
     "esbuild": "*",
@@ -68,9 +67,6 @@
     "webpack": "^4 || ^5"
   },
   "peerDependenciesMeta": {
-    "@farmfe/core": {
-      "optional": true
-    },
     "@nuxt/kit": {
       "optional": true
     },
@@ -94,6 +90,7 @@
     "@eslint/js": "^10.0.1",
     "@eslint/json": "^1.2.0",
     "@eslint/markdown": "^8.0.1",
+    "@farmfe/core": "^1.7.11",
     "@nuxt/kit": "^3.21.4",
     "@nuxt/schema": "^3.21.4",
     "@stylexjs/stylex": "^0.18.3",
