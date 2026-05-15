@@ -44,7 +44,7 @@
     "build": "tsdown",
     "compile": "tsc --project tsconfig.build.json",
     "test": "vitest run",
-    "lint": "eslint ./ --cache",
+    "lint": "eslint ./",
     "format": "prettier ./",
     "spellcheck": "cspell ./"
   },
