@@ -60,13 +60,9 @@
       "name": "node",
       "version": "^26",
       "onFail": "error"
-    },
-    "packageManager": {
-      "name": "pnpm",
-      "version": "^11",
-      "onFail": "error"
     }
   },
+  "packageManager": "pnpm@11.1.1",
   "dependencies": {
     "@babel/core": "^7.29.0",
     "@babel/helper-plugin-utils": "^7.28.6",
