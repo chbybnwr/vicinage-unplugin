@@ -91,7 +91,6 @@
     "@types/babel__core": "^7.20.5",
     "@types/babel__helper-plugin-utils": "^7.10.3",
     "@types/babel__traverse": "^7.28.0",
-    "@types/jsdom": "^28.0.3",
     "@types/node": "^25.7.0",
     "@types/react": "^19.2.14",
     "@typescript-eslint/parser": "^8.59.3",
@@ -107,16 +106,12 @@
     "eslint-plugin-n": "^17.24.0",
     "eslint-plugin-unicorn": "^64.0.0",
     "globals": "^17.6.0",
-    "npm-run-all2": "^8.0.4",
     "prettier": "^3.8.3",
     "react": "^19.2.6",
-    "rollup": "^4.60.3",
     "tsdown": "^0.22.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.3",
     "vicinage": "^0.5.3",
-    "vite": "^8.0.12",
-    "vitest": "^4.1.6",
-    "webpack": "^5.106.2"
+    "vitest": "^4.1.6"
   }
 }
