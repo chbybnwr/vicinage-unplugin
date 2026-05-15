@@ -51,7 +51,7 @@
   "engines": {
     "runtime": {
       "name": "node",
-      "version": "^22 || ^24 || ^25 || ^26",
+      "version": "^24 || ^25 || ^26",
       "onFail": "error"
     }
   },
