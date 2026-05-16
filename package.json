@@ -65,14 +65,34 @@
     "unplugin": "^3.0.0"
   },
   "peerDependencies": {
-    "@nuxt/kit": "^3",
-    "@nuxt/schema": "^3"
+    "@farmfe/core": ">=1",
+    "@nuxt/kit": "^4",
+    "@nuxt/schema": "^4",
+    "esbuild": "*",
+    "rollup": "^3",
+    "vite": ">=3",
+    "webpack": "^4 || ^5"
   },
   "peerDependenciesMeta": {
+    "@farmfe/core": {
+      "optional": true
+    },
     "@nuxt/kit": {
       "optional": true
     },
     "@nuxt/schema": {
+      "optional": true
+    },
+    "esbuild": {
+      "optional": true
+    },
+    "rollup": {
+      "optional": true
+    },
+    "vite": {
+      "optional": true
+    },
+    "webpack": {
       "optional": true
     }
   },
