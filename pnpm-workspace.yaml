@@ -1,3 +1,5 @@
+minimumReleaseAgeExclude:
+  - vicinage
 allowBuilds:
   core-js: false
   esbuild: false
