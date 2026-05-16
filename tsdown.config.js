@@ -19,6 +19,16 @@ const tsdownConfig = {
 
   deps: {
     onlyBundle: [],
+    neverBundle: [
+      '@farmfe/core',
+      '@nuxt/kit',
+      '@nuxt/schema',
+      'esbuild',
+      'rollup',
+      'vite',
+      'webpack',
+      //
+    ],
   },
 
   outputOptions: {
