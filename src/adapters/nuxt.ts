@@ -18,7 +18,6 @@ const nuxtModule: NuxtModule<ModuleOptions, ModuleOptions> =
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setup(options: ModuleOptions, _nuxt: any) {
       addVitePlugin(() => vitePlugin(options))
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       addWebpackPlugin(() => webpackPlugin(options))
     },
   })
