@@ -1,6 +1,9 @@
+/// <reference types="vitest/config" />
+
 export { vitestConfig as default }
 
-const vitestConfig = defineConfig({
+/** @type {import("vite").UserConfig} */
+const vitestConfig = {
   test: {
     coverage: {
       exclude: ['src/test/**/*'],
@@ -20,8 +23,7 @@ const vitestConfig = defineConfig({
       },
     ],
   },
-})
+}
 
-import { defineConfig } from 'vitest/config'
 import { fileURLToPath } from 'node:url'
 //
