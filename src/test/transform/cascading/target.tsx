@@ -20,7 +20,7 @@ const typography = stylex.create({
   },
 })
 
-import { apply } from 'vicinage'
+// import { apply } from 'vicinage'
 import * as stylex from '@stylexjs/stylex'
 //
 

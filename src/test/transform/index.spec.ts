@@ -13,6 +13,9 @@ test.each([
   { label: 'sheet-empty' },
   { label: 'sheet-multiple' },
   { label: 'stylex-vars' },
+
+  { label: 'side-effect-import' },
+  { label: 'other-module' },
 ])('$label', async ({ label }) => {
   const [source, target] = await Promise.all(
     [...fixtureFileNameSet].map(async (fixtureFileName) => {

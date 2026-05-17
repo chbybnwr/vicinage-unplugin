@@ -405,6 +405,17 @@ const useTransform = (options?: Options) => (code: string, id: string) => {
 
       path.skip()
     },
+
+    ImportDeclaration: (path) => {
+      const { source } = path.node
+
+      if (source.value === pluginName) {
+        const { start, end } = path.node
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        ms.overwrite(start!, end!, `// ${code.slice(start!, end!)}`)
+        hasChanges = true
+      }
+    },
   })
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition

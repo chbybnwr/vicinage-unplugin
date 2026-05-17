@@ -14,7 +14,7 @@ const color = stylex.defineVars({
   primary: null,
 })
 
-import { apply } from 'vicinage'
+// import { apply } from 'vicinage'
 import * as stylex from '@stylexjs/stylex'
 //
 

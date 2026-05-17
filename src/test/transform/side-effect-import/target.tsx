@@ -1,6 +1,6 @@
 export { App }
 
-import 'vicinage'
+// import 'vicinage'
 
 function App() {
   return <div {...apply()} />
@@ -9,4 +9,5 @@ function App() {
 function apply() {
   return {}
 }
+
 //

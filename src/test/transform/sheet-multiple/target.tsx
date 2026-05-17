@@ -9,7 +9,7 @@ function Feed() {
 }
 
 import { Post } from '#/test/fixtures/post'
-import { sheet } from 'vicinage'
+// import { sheet } from 'vicinage'
 //
 
 const style_8_9 = __stylex_create({

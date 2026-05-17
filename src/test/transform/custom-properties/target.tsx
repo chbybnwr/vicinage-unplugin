@@ -10,7 +10,7 @@ function Sidebar() {
   )
 }
 
-import { apply } from 'vicinage'
+// import { apply } from 'vicinage'
 //
 
 const style_6_17 = __stylex_create({

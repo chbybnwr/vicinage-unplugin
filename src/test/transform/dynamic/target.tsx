@@ -8,7 +8,7 @@ function ProgressBar({ percent }: { percent: number }) {
   )
 }
 
-import { apply } from 'vicinage'
+// import { apply } from 'vicinage'
 //
 
 const style_7_9 = __stylex_create({

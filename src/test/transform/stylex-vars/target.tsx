@@ -21,7 +21,7 @@ const color = stylex.defineVars({
   secondary: null,
 })
 
-import { apply } from 'vicinage'
+// import { apply } from 'vicinage'
 import type { ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
 //

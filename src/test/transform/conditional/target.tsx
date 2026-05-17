@@ -10,7 +10,7 @@ function SaveButton({ isEnabled }: { isEnabled: boolean }) {
   )
 }
 
-import { apply } from 'vicinage'
+// import { apply } from 'vicinage'
 //
 
 const style_7_9_x_7_38 = __stylex_create({
