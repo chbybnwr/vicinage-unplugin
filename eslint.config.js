@@ -235,6 +235,7 @@ const eslintConfig = defineConfig([
     name: 'markdown',
     files: ['**/*.md'],
     plugins: {
+      // @ts-expect-error
       markdown: markdownPlugin,
     },
     extends: ['markdown/recommended'],
