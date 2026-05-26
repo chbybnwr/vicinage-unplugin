@@ -1,27 +1,17 @@
-/// <reference types="vitest/config" />
-
 export { vitestConfig as default }
 
-/** @type {import("vite").UserConfig} */
+/** @type {import("vitest/config").ViteUserConfig} */
 const vitestConfig = {
+  resolve: {
+    alias: {
+      '#': fileURLToPath(new URL('src', import.meta.url)),
+    },
+  },
+
   test: {
     coverage: {
       exclude: ['src/test/**/*'],
     },
-
-    projects: [
-      {
-        resolve: {
-          alias: {
-            '#': fileURLToPath(new URL('src', import.meta.url)),
-          },
-        },
-
-        test: {
-          name: 'unit',
-        },
-      },
-    ],
   },
 }
 
