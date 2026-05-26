@@ -120,6 +120,9 @@ importers:
       react:
         specifier: ^19.2.6
         version: 19.2.6
+      solarwindcss:
+        specifier: ^0.35.7
+        version: 0.35.7
       tsdown:
         specifier: ^0.22.0
         version: 0.22.0(@typescript/native-preview@7.0.0-dev.20260515.1)(typescript@6.0.3)
@@ -3278,6 +3281,9 @@ packages:
   smol-toml@1.6.1:
     resolution: {integrity: sha512-dWUG8F5sIIARXih1DTaQAX4SsiTXhInKf1buxdY9DIg4ZYPZK5nGM1VRIYmEbDbsHt7USo99xSLFu5Q1IqTmsg==}
     engines: {node: '>= 18'}
+
+  solarwindcss@0.35.7:
+    resolution: {integrity: sha512-VtgVd4UdBrWTumz3KYGE/OYwfSIuPZ8it6rVL92UQL3xHANk1m7ZzMu5PeNNEwZKFWj/JDUME1IIQNo5AAbfzQ==}
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -7091,6 +7097,10 @@ snapshots:
   slash@3.0.0: {}
 
   smol-toml@1.6.1: {}
+
+  solarwindcss@0.35.7:
+    dependencies:
+      '@stylexjs/stylex': 0.18.3
 
   source-map-js@1.2.1: {}
 

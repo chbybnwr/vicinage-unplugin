@@ -96,6 +96,7 @@
     "globals": "^17.6.0",
     "prettier": "^3.8.3",
     "react": "^19.2.6",
+    "solarwindcss": "^0.35.7",
     "tsdown": "^0.22.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.3",
