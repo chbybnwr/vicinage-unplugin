@@ -9,7 +9,7 @@ const babelPlugin: (
   // eslint-disable-next-line no-magic-numbers
   api.assertVersion(7)
 
-  const transform = useTransform(options)
+  const transform = useTransformMacros(options)
 
   return {
     name: pluginName,
@@ -51,5 +51,5 @@ import type { Options } from '#/options'
 import { parse } from '@babel/parser'
 import { pluginName } from '#/plugin.js'
 import type { PluginObj } from '@babel/core'
-import { useTransform } from '#/transform.js'
+import { useTransformMacros } from '#/transform-macros.js'
 //

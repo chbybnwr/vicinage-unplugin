@@ -1,9 +1,9 @@
+export { pluginName }
+export { transform as useTransformMacros }
+
 /* eslint-disable max-lines */
 /* eslint-disable no-continue */
 /* eslint no-magic-numbers: ["warn", { "ignore": [-1, 0, 1] }] */
-
-export { pluginName }
-export { useTransform }
 
 const pluginName = 'vicinage'
 const apply = 'apply'
@@ -16,7 +16,7 @@ const contextualClosureBaseLevel = 3
 const traverse =
   (traversal as { default?: typeof traversal }).default ?? traversal
 
-const useTransform = (options?: Options) => (code: string, id: string) => {
+const transform = (options?: Options) => (code: string, id: string) => {
   if (
     !(
       !id.includes('node_modules') &&

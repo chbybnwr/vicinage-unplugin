@@ -16,10 +16,10 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (
       id: /\.(?<file>t|j)sx?$/u,
     },
 
-    handler: useTransform(options),
+    handler: useTransformMacros(options),
   },
 })
 
 import type { Options } from '#/options'
 import type { UnpluginFactory } from 'unplugin'
-import { useTransform } from '#/transform'
+import { useTransformMacros } from '#/transform-macros.js'
