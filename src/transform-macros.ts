@@ -4,6 +4,8 @@ export { transform as useTransformMacros }
 /* eslint-disable max-lines */
 /* eslint-disable no-continue */
 /* eslint no-magic-numbers: ["warn", { "ignore": [-1, 0, 1] }] */
+/* eslint-disable max-params */
+/* eslint-disable max-depth */
 
 const pluginName = 'vicinage'
 const apply = 'apply'
@@ -185,6 +187,67 @@ const transform = (options?: Options) => (code: string, id: string) => {
     }
   }
 
+  function shredWithinPseudo(
+    node: Node,
+    sheetPrefix: string,
+    pseudoElementKey: string,
+    propertyKey: string,
+  ): string {
+    if (isConditionalExpression(node)) {
+      const { test } = node
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const condition = code.slice(test.start!, test.end!)
+      const consequent = shredWithinPseudo(
+        node.consequent,
+        sheetPrefix,
+        pseudoElementKey,
+        propertyKey,
+      )
+      const alternate = shredWithinPseudo(
+        node.alternate,
+        sheetPrefix,
+        pseudoElementKey,
+        propertyKey,
+      )
+
+      return `${condition} ? ${consequent} : ${alternate}`
+    }
+
+    if (isLogicalExpression(node) && node.operator === '&&') {
+      const { left, right } = node
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const condition = code.slice(left.start!, left.end!)
+      const consequent = shredWithinPseudo(
+        right,
+        sheetPrefix,
+        pseudoElementKey,
+        propertyKey,
+      )
+
+      return `${condition} && ${consequent}`
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const location = node.loc!
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    const finalSheetName = `${sheetPrefix}_x_${location.start.line}_${location.start.column + 1}`
+
+    hoistedStyles.add(
+      [
+        `const ${finalSheetName} = __stylex_create({`,
+        `  _: {`,
+        `    ${pseudoElementKey}: {`,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        `      ${propertyKey}: ${code.slice(node.start!, node.end!)},`,
+        `    },`,
+        `  },`,
+        `})`,
+      ].join('\n'),
+    )
+
+    return `${finalSheetName}._`
+  }
+
   const ast = parse(code, {
     sourceType: 'module',
     plugins: ['typescript', 'jsx'],
@@ -240,6 +303,203 @@ const transform = (options?: Options) => (code: string, id: string) => {
           const location = key.loc!
           // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
           const sheetName = `style_${location.start.line}_${location.start.column + 1}`
+
+          // Handle pseudo-elements by processing their inner properties
+          if (
+            isObjectProperty(property) &&
+            isObjectExpression(value) &&
+            propertyKey.includes('::')
+          ) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const pseudoValueLocation = value.loc!
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            const pseudoValueSheetName = `style_${pseudoValueLocation.start.line}_${pseudoValueLocation.start.column + 1}`
+            let hasPseudoConditional = false
+
+            for (const pseudoProp of value.properties) {
+              if (isSpreadElement(pseudoProp)) {
+                throw new Error(
+                  `[${pluginName}] Spread elements in style objects are not supported`,
+                )
+              }
+
+              if (isObjectMethod(pseudoProp)) {
+                throw new Error(
+                  `[${pluginName}] Dynamic style function body must be an expression.`,
+                )
+              }
+
+              const pseudoValue = pseudoProp.value
+
+              if (
+                isConditionalExpression(pseudoValue) ||
+                (isLogicalExpression(pseudoValue) &&
+                  pseudoValue.operator === '&&')
+              ) {
+                hasPseudoConditional = true
+              }
+            }
+
+            if (!hasPseudoConditional) {
+              const pseudoContextual = extractContextualClosures(
+                value,
+                contextualClosureBaseLevel,
+                propertyKey,
+              )
+
+              if (pseudoContextual == null) {
+                staticProps.push(
+                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                  `${indent(indentSize)}${propertyKey}: ${code.slice(value.start!, value.end!)}`,
+                )
+              } else if (pseudoContextual.paramList.length > 0) {
+                hoistedStyles.add(
+                  [
+                    `const ${sheetName} = __stylex_create({`,
+                    `  _: (${pseudoContextual.paramList.join(', ')}) => ({`,
+                    `    ${propertyKey}: ${pseudoContextual.source},`,
+                    `  }),`,
+                    `})`,
+                  ].join('\n'),
+                )
+
+                extraArgs.push(
+                  `${sheetName}._(${pseudoContextual.valueArgList.join(', ')})`,
+                )
+              } else {
+                staticProps.push(
+                  `${indent(indentSize)}${propertyKey}: ${pseudoContextual.source}`,
+                )
+              }
+
+              continue
+            }
+
+            const pseudoStaticPropertyList: string[] = []
+
+            for (const pseudoProp of value.properties) {
+              if (isSpreadElement(pseudoProp)) {
+                throw new Error(
+                  `[${pluginName}] Spread elements in style objects are not supported`,
+                )
+              }
+
+              if (isObjectMethod(pseudoProp)) {
+                throw new Error(
+                  `[${pluginName}] Dynamic style function body must be an expression.`,
+                )
+              }
+
+              const pseudoValue = pseudoProp.value
+              const { computed: pseudoComputed, key: pseudoKey } = pseudoProp
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const pseudoRawKey = code.slice(pseudoKey.start!, pseudoKey.end!)
+              const pseudoPropertyKey = pseudoComputed
+                ? `[${pseudoRawKey}]`
+                : pseudoRawKey
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              const pseudoLocation = pseudoKey.loc!
+              // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+              const pseudoSheetName = `style_${pseudoLocation.start.line}_${pseudoLocation.start.column + 1}`
+
+              if (
+                isConditionalExpression(pseudoValue) ||
+                (isLogicalExpression(pseudoValue) &&
+                  pseudoValue.operator === '&&')
+              ) {
+                extraArgs.push(
+                  shredWithinPseudo(
+                    pseudoValue,
+                    pseudoSheetName,
+                    propertyKey,
+                    pseudoPropertyKey,
+                  ),
+                )
+              } else if (isArrowFunctionExpression(pseudoValue)) {
+                const { bodySource, paramName: coordinateParam } =
+                  extractFunctionValue(pseudoValue)
+
+                const isSimpleIdentifier =
+                  isIdentifier(pseudoKey) && !pseudoComputed
+                const paramName = isSimpleIdentifier
+                  ? pseudoRawKey
+                  : coordinateParam
+
+                const objBody = isSimpleIdentifier
+                  ? paramName
+                  : `${pseudoPropertyKey}: ${paramName}`
+
+                hoistedStyles.add(
+                  [
+                    `const ${pseudoSheetName} = __stylex_create({`,
+                    `  _: (${paramName}) => ({`,
+                    `    ${propertyKey}: {`,
+                    `      ${objBody},`,
+                    `    },`,
+                    `  }),`,
+                    `})`,
+                  ].join('\n'),
+                )
+                extraArgs.push(`${pseudoSheetName}._(${bodySource})`)
+              } else {
+                if (isFunctionExpression(pseudoValue)) {
+                  throw new Error(
+                    `[${pluginName}] Dynamic style function body must be an expression.`,
+                  )
+                }
+
+                const pseudoContextual = extractContextualClosures(
+                  pseudoValue,
+                  contextualClosureBaseLevel + 1,
+                  pseudoPropertyKey,
+                )
+
+                if (pseudoContextual?.paramList.length === 0) {
+                  pseudoStaticPropertyList.push(
+                    `      ${pseudoPropertyKey}: ${pseudoContextual.source},`,
+                  )
+                  extraArgs.push(`${pseudoValueSheetName}._`)
+                } else if (pseudoContextual == null) {
+                  pseudoStaticPropertyList.push(
+                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                    `      ${pseudoPropertyKey}: ${code.slice(pseudoValue.start!, pseudoValue.end!)},`,
+                  )
+                  extraArgs.push(`${pseudoValueSheetName}._`)
+                } else {
+                  hoistedStyles.add(
+                    [
+                      `const ${pseudoSheetName} = __stylex_create({`,
+                      `  _: (${pseudoContextual.paramList.join(', ')}) => ({`,
+                      `    ${propertyKey}: {`,
+                      `      ${pseudoPropertyKey}: ${pseudoContextual.source},`,
+                      `    },`,
+                      `  }),`,
+                      `})`,
+                    ].join('\n'),
+                  )
+                  extraArgs.push(
+                    `${pseudoSheetName}._(${pseudoContextual.valueArgList.join(', ')})`,
+                  )
+                }
+              }
+            }
+
+            if (pseudoStaticPropertyList.length > 0) {
+              hoistedStyles.add(
+                [
+                  `const ${pseudoValueSheetName} = __stylex_create({`,
+                  `  _: {`,
+                  `    ${propertyKey}: {`,
+                  ...pseudoStaticPropertyList,
+                  `    },`,
+                  `  },`,
+                  `})`,
+                ].join('\n'),
+              )
+            }
+
+            continue
+          }
 
           if (
             (isObjectProperty(property) && isConditionalExpression(value)) ||

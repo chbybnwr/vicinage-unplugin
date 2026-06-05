@@ -13,6 +13,7 @@ test.each([
   { label: 'sheet-empty' },
   { label: 'sheet-multiple' },
   { label: 'stylex-vars' },
+  { label: 'pseudo-element' },
 
   { label: 'side-effect-import' },
   { label: 'other-module' },
