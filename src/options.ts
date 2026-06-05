@@ -5,4 +5,7 @@ export type { Options }
  */
 interface Options {
   applyAs?: 'props' | 'attrs'
+  aliases?: {
+    styledeck?: string
+  }
 }

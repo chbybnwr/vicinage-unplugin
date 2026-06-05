@@ -5,6 +5,8 @@ farmfe
 mjsx
 mtsx
 rspack
+solarwindcss
+styledeck
 stylex
 stylexjs
 txee

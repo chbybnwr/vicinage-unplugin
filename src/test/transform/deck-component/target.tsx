@@ -1,0 +1,16 @@
+export { Parent }
+
+function Parent() {
+  return (
+    <Component
+      styledeck={__styledeck_sheet({
+        color: 'red',
+      })}
+    />
+  )
+}
+
+import { Component } from '#/test/fixtures/component'
+//
+
+import { sheet as __styledeck_sheet } from 'vicinage'
