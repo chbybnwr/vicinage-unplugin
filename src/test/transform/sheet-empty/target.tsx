@@ -1,7 +1,7 @@
 export { Feed }
 
 function Feed() {
-  return <Post style={null} />
+  return <Post style={undefined} />
 }
 
 import { Post } from '#/test/fixtures/post'

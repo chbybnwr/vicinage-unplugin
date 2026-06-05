@@ -640,7 +640,7 @@ const transform = (options?: Options) => (code: string, id: string) => {
 
           const sheetOutput =
             finalArgs.length === 0
-              ? 'null'
+              ? 'undefined'
               : finalArgs.length === 1
                 ? joined
                 : `[${joined}]`
