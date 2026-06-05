@@ -55,7 +55,7 @@
       "onFail": "error"
     }
   },
-  "packageManager": "pnpm@11.1.2",
+  "packageManager": "pnpm@11.5.1",
   "dependencies": {
     "@babel/helper-plugin-utils": "^7.28.6",
     "@babel/parser": "^7.29.3",
