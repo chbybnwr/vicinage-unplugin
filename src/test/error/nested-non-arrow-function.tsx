@@ -7,7 +7,7 @@ function ProgressBar() {
         opacity: {
           // eslint-disable-next-line object-shorthand
           default: function () {
-            /* empty */
+            return 0
           },
         },
       })}

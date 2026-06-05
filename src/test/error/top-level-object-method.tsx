@@ -5,7 +5,7 @@ function ProgressBar() {
     <div
       {...apply({
         color() {
-          /* empty */
+          return 'red'
         },
       })}
     />

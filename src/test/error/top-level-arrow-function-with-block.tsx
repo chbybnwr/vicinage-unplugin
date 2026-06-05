@@ -4,8 +4,9 @@ function ProgressBar() {
   return (
     <div
       {...apply({
+        // eslint-disable-next-line arrow-body-style
         width: () => {
-          /* empty */
+          return 0
         },
       })}
     />

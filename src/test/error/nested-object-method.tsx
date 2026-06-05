@@ -6,7 +6,7 @@ function ProgressBar() {
       {...apply({
         color: {
           default() {
-            /* empty */
+            return 'red'
           },
         },
       })}
