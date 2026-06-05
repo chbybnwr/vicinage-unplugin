@@ -31,7 +31,7 @@ test.each([
   expect.assert(source != null)
   expect.assert(target != null)
 
-  const result = transform(source.code, source.id)
+  const result = transformMacros(source.code, source.id)
 
   expect(result?.code).toBe(target.code)
 })
@@ -39,5 +39,5 @@ test.each([
 import { expect } from 'vitest'
 import { readFile } from 'node:fs/promises'
 import { test } from 'vitest'
-import { transform } from '#/test/setup'
+import { transformMacros } from '#/test/setup'
 //

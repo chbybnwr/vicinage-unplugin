@@ -1,16 +1,6 @@
-export { transform }
+export { transformMacros }
 
-const {
-  transform: { handler: transform },
-} = createPlugin(
-  // eslint-disable-next-line no-undefined
-  undefined,
-  {},
-) as unknown as {
-  transform: {
-    handler: (code: string, id: string) => { code: string } | null
-  }
-}
+const transformMacros = useTransformMacros()
 
-import { createPlugin } from '#/plugin'
+import { useTransformMacros } from '#/transform-macros'
 //

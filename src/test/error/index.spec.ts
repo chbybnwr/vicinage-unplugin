@@ -6,7 +6,7 @@ test.each([
   const code = await readFile(id, { encoding: 'utf8' })
 
   expect(() => {
-    transform(code, id)
+    transformMacros(code, id)
   }).toThrow(/Spread elements in style objects are not supported/u)
 })
 
@@ -22,7 +22,7 @@ test.each([
   const code = await readFile(id, { encoding: 'utf8' })
 
   expect(() => {
-    transform(code, id)
+    transformMacros(code, id)
   }).toThrow(/Dynamic style function body must be an expression/u)
 })
 
@@ -34,12 +34,12 @@ test.each([
   const code = await readFile(id, { encoding: 'utf8' })
 
   expect(() => {
-    transform(code, id)
+    transformMacros(code, id)
   }).toThrow(/Conditional arguments can not be object literals/u)
 })
 
 import { expect } from 'vitest'
 import { readFile } from 'node:fs/promises'
 import { test } from 'vitest'
-import { transform } from '#/test/setup'
+import { transformMacros } from '#/test/setup'
 //
