@@ -42,7 +42,7 @@
     "prepack": "npm run build && npm pkg delete scripts packageManager devDependencies",
     "check": "npm run compile && npm run test -- --coverage --reporter=verbose && npm run lint && npm run format -- --check && npm run spellcheck",
     "build": "tsdown",
-    "compile": "tsc --project tsconfig.build.json",
+    "compile": "tsc --build",
     "test": "vitest run",
     "lint": "eslint ./",
     "format": "prettier ./",
