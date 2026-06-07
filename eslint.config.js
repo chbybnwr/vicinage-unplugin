@@ -80,6 +80,7 @@ const eslintConfig = defineConfig([
       sourceType: 'module',
     },
     settings: {
+      'import-x/no-unresolved': 'off',
       'import-x/resolver-next': [
         createTypeScriptImportResolver(),
         createNodeResolver(),
