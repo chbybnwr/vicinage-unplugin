@@ -14,9 +14,9 @@ const traverse =
   (traversal as { default?: typeof traversal }).default ?? traversal
 
 const useTransformProps = (options?: Options) => (code: string, id: string) => {
-  const styledeck = options?.aliases?.styledeck ?? 'styledeck'
+  const styleDeck = (options?.aliases?.styleDeck ?? 'styleDeck').toLowerCase()
 
-  if (id.includes('node_modules') || !code.includes(styledeck)) {
+  if (id.includes('node_modules') || !code.toLowerCase().includes(styleDeck)) {
     return null
   }
 
@@ -44,7 +44,7 @@ const useTransformProps = (options?: Options) => (code: string, id: string) => {
       if (
         !(
           isJSXIdentifier(node.name) &&
-          node.name.name.toLowerCase().endsWith(styledeck)
+          node.name.name.toLowerCase().endsWith(styleDeck)
         )
       ) {
         return
@@ -59,7 +59,7 @@ const useTransformProps = (options?: Options) => (code: string, id: string) => {
         )
       ) {
         throw new Error(
-          `[${pluginName}] styledeck value must be a JSX expression.`,
+          `[${pluginName}] styleDeck value must be a JSX expression.`,
         )
       }
 
@@ -121,7 +121,7 @@ const useTransformProps = (options?: Options) => (code: string, id: string) => {
 function extractApplyArgSource(expression: Node, code: string): string {
   if (isArrayExpression(expression)) {
     if (expression.start == null || expression.end == null) {
-      throw new Error(`[${pluginName}] styledeck value must be readable.`)
+      throw new Error(`[${pluginName}] styleDeck value must be readable.`)
     }
 
     const fullArraySource = code.slice(expression.start, expression.end)
@@ -135,7 +135,7 @@ function extractApplyArgSource(expression: Node, code: string): string {
 
 function createApplyArgPart(node: Node, code: string): string {
   if (node.start == null || node.end == null) {
-    throw new Error(`[${pluginName}] styledeck value must be readable.`)
+    throw new Error(`[${pluginName}] styleDeck value must be readable.`)
   }
 
   return code.slice(node.start, node.end)
@@ -194,7 +194,7 @@ function hasSheetLocalBinding(
 function extractSheetValueSource(expression: Node, code: string): string {
   if (isArrayExpression(expression)) {
     if (expression.start == null || expression.end == null) {
-      throw new Error(`[${pluginName}] styledeck value must be readable.`)
+      throw new Error(`[${pluginName}] styleDeck value must be readable.`)
     }
 
     const fullArraySource = code.slice(expression.start, expression.end)
@@ -208,7 +208,7 @@ function extractSheetValueSource(expression: Node, code: string): string {
 
 function createSheetArgPart(node: Node, code: string): string {
   if (node.start == null || node.end == null) {
-    throw new Error(`[${pluginName}] styledeck value must be readable.`)
+    throw new Error(`[${pluginName}] styleDeck value must be readable.`)
   }
 
   const source = code.slice(node.start, node.end)

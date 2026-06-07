@@ -3,7 +3,7 @@ export { Parent }
 function Parent() {
   return (
     <Component
-      styledeck={__styledeck_sheet({
+      styleDeck={__styledeck_sheet({
         color: 'red',
       })}
     />

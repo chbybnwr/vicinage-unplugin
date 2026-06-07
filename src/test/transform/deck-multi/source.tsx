@@ -3,7 +3,7 @@ export { Component }
 function Component() {
   return (
     <div
-      styledeck={[
+      styleDeck={[
         textSize.xl,
         {
           color: 'red',

@@ -3,7 +3,7 @@ export { Parent }
 function Parent() {
   return (
     <Component
-      styledeck={[
+      styleDeck={[
         textSize.xl,
         {
           color: 'red',

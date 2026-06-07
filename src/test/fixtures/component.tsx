@@ -1,16 +1,23 @@
 export { Component }
 
-function Component({ styledeck }: { styledeck?: StyleDeck }) {
+function Component({
+  styleDeck,
+  labelStyleDeck,
+}: {
+  styleDeck?: StyleDeck
+  labelStyleDeck?: StyleDeck
+}) {
   return (
     <div
-      styledeck={[
+      styleDeck={[
         {
           color: 'black',
         },
-        styledeck,
+        styleDeck,
       ]}
     >
       Lorem ipsum
+      <div styleDeck={labelStyleDeck}>label</div>
     </div>
   )
 }
