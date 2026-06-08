@@ -12,7 +12,7 @@ const createPlugin: UnpluginFactory<Options | undefined> = (options) => {
     ...((mergeOriginalClass
       ? [
           {
-            name: pluginName,
+            name: `${pluginName}:class`,
             enforce: 'pre',
 
             transform: {
@@ -27,7 +27,7 @@ const createPlugin: UnpluginFactory<Options | undefined> = (options) => {
       : []) satisfies UnpluginOptions[]),
 
     {
-      name: pluginName,
+      name: `${pluginName}:prop`,
       enforce: 'pre',
 
       transform: {
@@ -40,7 +40,7 @@ const createPlugin: UnpluginFactory<Options | undefined> = (options) => {
     },
 
     {
-      name: pluginName,
+      name: `${pluginName}:macros`,
       enforce: 'pre',
 
       transform: {
@@ -55,7 +55,7 @@ const createPlugin: UnpluginFactory<Options | undefined> = (options) => {
     ...((mergeOriginalClass
       ? [
           {
-            name: pluginName,
+            name: `${pluginName}:merge`,
 
             transform: {
               filter: {
