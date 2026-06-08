@@ -14,9 +14,18 @@ const traverse =
   (traversal as { default?: typeof traversal }).default ?? traversal
 
 const useTransformProps = (options?: Options) => (code: string, id: string) => {
-  const styleDeck = (options?.aliases?.styleDeck ?? 'styleDeck').toLowerCase()
+  const styleDeck = options?.aliases?.styleDeck ?? 'styleDeck'
+  const styleDeckVariants = [
+    styleDeck,
+    `${styleDeck.charAt(0).toUpperCase()}${styleDeck.slice(1)}`,
+  ]
 
-  if (id.includes('node_modules') || !code.toLowerCase().includes(styleDeck)) {
+  if (
+    !(
+      !id.includes('node_modules') &&
+      styleDeckVariants.some((variant) => code.includes(variant))
+    )
+  ) {
     return null
   }
 
@@ -41,10 +50,15 @@ const useTransformProps = (options?: Options) => (code: string, id: string) => {
     JSXAttribute: (path) => {
       const { node } = path
 
+      if (!isJSXIdentifier(node.name)) {
+        return
+      }
+
+      const jsxIdentifier = node.name
+
       if (
-        !(
-          isJSXIdentifier(node.name) &&
-          node.name.name.toLowerCase().endsWith(styleDeck)
+        !styleDeckVariants.some((variant) =>
+          jsxIdentifier.name.endsWith(variant),
         )
       ) {
         return
