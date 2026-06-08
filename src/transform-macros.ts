@@ -33,7 +33,6 @@ const transform = (options?: Options) => (code: string, id: string) => {
   const ms = new MagicString(code)
   const hoistedStyles = new Set<string>()
   const stylexImports = new Set<string>()
-  let hasChanges = false
 
   function shred(node: Node, sheetPrefix: string, propertyKey: string): string {
     if (isConditionalExpression(node)) {
@@ -266,7 +265,6 @@ const transform = (options?: Options) => (code: string, id: string) => {
         return
       }
 
-      hasChanges = true
       const finalArgs = []
 
       for (const arg of argList) {
@@ -675,13 +673,11 @@ const transform = (options?: Options) => (code: string, id: string) => {
         const { start, end } = path.node
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         ms.overwrite(start!, end!, `// ${code.slice(start!, end!)}`)
-        hasChanges = true
       }
     },
   })
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (hasChanges) {
+  if (ms.hasChanged()) {
     const footer = [
       ...hoistedStyles,
       ...(stylexImports.size > 0 ? [[...stylexImports].join('\n')] : []),
