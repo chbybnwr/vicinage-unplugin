@@ -5,61 +5,74 @@ export { pluginName }
 
 const pluginName = 'vicinage'
 
-const createPlugin: UnpluginFactory<Options | undefined> = (options) => [
-  {
-    name: pluginName,
-    enforce: 'pre',
+const createPlugin: UnpluginFactory<Options | undefined> = (options) => {
+  const mergeOriginalClass = options?.mergeOriginalClass ?? false
 
-    transform: {
-      filter: {
-        id: /\.(?<file>t|j)sx?$/u,
+  return [
+    ...((mergeOriginalClass
+      ? [
+          {
+            name: pluginName,
+            enforce: 'pre',
+
+            transform: {
+              filter: {
+                id: /\.(?<file>t|j)sx?$/u,
+              },
+
+              handler: useTransformPreserveClass(options),
+            },
+          },
+        ]
+      : []) satisfies UnpluginOptions[]),
+
+    {
+      name: pluginName,
+      enforce: 'pre',
+
+      transform: {
+        filter: {
+          id: /\.(?<file>t|j)sx?$/u,
+        },
+
+        handler: useTransformProps(options),
       },
-
-      handler: useTransformPreserveClass(options),
     },
-  },
 
-  {
-    name: pluginName,
-    enforce: 'pre',
+    {
+      name: pluginName,
+      enforce: 'pre',
 
-    transform: {
-      filter: {
-        id: /\.(?<file>t|j)sx?$/u,
+      transform: {
+        filter: {
+          id: /\.(?<file>t|j)sx?$/u,
+        },
+
+        handler: useTransformMacros(options),
       },
-
-      handler: useTransformProps(options),
     },
-  },
 
-  {
-    name: pluginName,
-    enforce: 'pre',
+    ...((mergeOriginalClass
+      ? [
+          {
+            name: pluginName,
 
-    transform: {
-      filter: {
-        id: /\.(?<file>t|j)sx?$/u,
-      },
+            transform: {
+              filter: {
+                id: /\.(?<file>t|j)sx?$/u,
+              },
 
-      handler: useTransformMacros(options),
-    },
-  },
-
-  {
-    name: pluginName,
-
-    transform: {
-      filter: {
-        id: /\.(?<file>t|j)sx?$/u,
-      },
-
-      handler: useTransformMergeClass(options),
-    },
-  },
-]
+              handler: useTransformMergeClass(options),
+            },
+          },
+        ]
+      : []) satisfies UnpluginOptions[]),
+  ]
+}
 
 import type { Options } from '#/options'
 import type { UnpluginFactory } from 'unplugin'
+import type { UnpluginOptions } from 'unplugin'
 import { useTransformMacros } from '#/transform-macros.js'
 import { useTransformMergeClass } from '#/transform-merge-class.js'
 import { useTransformPreserveClass } from '#/transform-preserve-class.js'
