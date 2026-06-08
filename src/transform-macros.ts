@@ -156,6 +156,7 @@ const transform = (options?: Options) => (code: string, id: string) => {
         chunkList.push(
           `${indent(level)}${propertyKey}: ${extracted.paramName},`,
         )
+
         continue
       }
 
@@ -169,6 +170,7 @@ const transform = (options?: Options) => (code: string, id: string) => {
         paramList.push(...nested.paramList)
         valueArgList.push(...nested.valueArgList)
         chunkList.push(`${indent(level)}${propertyKey}: ${nested.source},`)
+
         continue
       }
 
