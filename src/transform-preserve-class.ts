@@ -14,6 +14,8 @@ const useTransformPreserveClass =
       styleDeck,
       `${styleDeck.charAt(0).toUpperCase()}${styleDeck.slice(1)}`,
     ])
+    const htmlClass =
+      (options?.applyAs ?? 'props') === 'props' ? 'className' : 'class'
 
     const ms = new MagicString(code)
     const ast = parse(code, {
@@ -40,8 +42,7 @@ const useTransformPreserveClass =
           (attribute): attribute is JSXAttribute =>
             attribute.type === 'JSXAttribute' &&
             isJSXIdentifier(attribute.name) &&
-            (attribute.name.name === 'className' ||
-              attribute.name.name === 'class'),
+            attribute.name.name === htmlClass,
         )
 
         if (originalClassAttribute == null) {

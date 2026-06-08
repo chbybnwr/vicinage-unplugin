@@ -9,7 +9,7 @@ function Component() {
           color: 'red',
         }}
       />
-      <div className="foo bar" />
+      <div class="foo bar" />
     </>
   )
 }
