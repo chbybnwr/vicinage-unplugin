@@ -15,9 +15,6 @@ const indentSize = 2
 const indentStyle = ' '
 const contextualClosureBaseLevel = 3
 
-const traverse =
-  (traversal as { default?: typeof traversal }).default ?? traversal
-
 const transform = (options?: Options) => (code: string, id: string) => {
   if (
     !(
@@ -760,5 +757,5 @@ import type { ObjectMethod } from '@babel/types'
 import type { ObjectProperty } from '@babel/types'
 import type { Options } from '#/options'
 import { parse } from '@babel/parser'
-import traversal from '@babel/traverse'
+import { traverse } from '#/shared/traverse'
 //

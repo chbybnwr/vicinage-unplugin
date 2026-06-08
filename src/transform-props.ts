@@ -10,9 +10,6 @@ const sheet = 'sheet'
 const synthesizedApplyLocalName = '__styledeck_apply'
 const synthesizedSheetLocalName = '__styledeck_sheet'
 
-const traverse =
-  (traversal as { default?: typeof traversal }).default ?? traversal
-
 const useTransformProps = (options?: Options) => (code: string, id: string) => {
   const styleDeck = options?.aliases?.styleDeck ?? 'styleDeck'
   const styleDeckVariants = [
@@ -245,4 +242,5 @@ import MagicString from 'magic-string'
 import type { Node } from '@babel/types'
 import type { Options } from '#/options.js'
 import { parse } from '@babel/parser'
-import traversal from '@babel/traverse'
+import { traverse } from '#/shared/traverse'
+//
