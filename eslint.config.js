@@ -211,6 +211,7 @@ const eslintConfig = defineConfig([
         { blankLine: 'always', prev: 'block-like', next: '*' },
         { blankLine: 'always', prev: ['case', 'default'], next: '*' },
         { blankLine: 'always', prev: '*', next: 'return' },
+        { blankLine: 'always', prev: '*', next: 'continue' },
       ],
     },
   },
