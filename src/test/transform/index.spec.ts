@@ -65,9 +65,107 @@ test.each([
 
 const transformProps = useTransformProps()
 
+test.each([
+  { label: 'preserve-class-attr' },
+  //
+])('$label', async ({ label }) => {
+  const [source, target] = await Promise.all(
+    [...fixtureFileNameSet].map(async (fixtureFileName) => {
+      const fileURL = new URL(`${label}/${fixtureFileName}`, import.meta.url)
+
+      return {
+        id: fileURL.pathname,
+        code: await readFile(fileURL, { encoding: 'utf8' }),
+      }
+    }),
+  )
+
+  expect.assert(source != null)
+  expect.assert(target != null)
+
+  const transform = useTransformPreserveClass({ applyAs: 'attrs' })
+  const result = transform(source.code, source.id)
+
+  expect(result?.code).toBe(target.code)
+})
+
+test.each([
+  { label: 'merge-class-attr' },
+  //
+])('$label', async ({ label }) => {
+  const [source, target] = await Promise.all(
+    [...fixtureFileNameSet].map(async (fixtureFileName) => {
+      const fileURL = new URL(`${label}/${fixtureFileName}`, import.meta.url)
+
+      return {
+        id: fileURL.pathname,
+        code: await readFile(fileURL, { encoding: 'utf8' }),
+      }
+    }),
+  )
+
+  expect.assert(source != null)
+  expect.assert(target != null)
+
+  const transform = useTransformMergeClass({ applyAs: 'attrs' })
+  const result = transform(source.code, source.id)
+
+  expect(result?.code).toBe(target.code)
+})
+
+test.each([
+  { label: 'preserve-class-prop' },
+  //
+])('$label', async ({ label }) => {
+  const [source, target] = await Promise.all(
+    [...fixtureFileNameSet].map(async (fixtureFileName) => {
+      const fileURL = new URL(`${label}/${fixtureFileName}`, import.meta.url)
+
+      return {
+        id: fileURL.pathname,
+        code: await readFile(fileURL, { encoding: 'utf8' }),
+      }
+    }),
+  )
+
+  expect.assert(source != null)
+  expect.assert(target != null)
+
+  const transform = useTransformPreserveClass({ applyAs: 'props' })
+  const result = transform(source.code, source.id)
+
+  expect(result?.code).toBe(target.code)
+})
+
+test.each([
+  { label: 'merge-class-prop' },
+  //
+])('$label', async ({ label }) => {
+  const [source, target] = await Promise.all(
+    [...fixtureFileNameSet].map(async (fixtureFileName) => {
+      const fileURL = new URL(`${label}/${fixtureFileName}`, import.meta.url)
+
+      return {
+        id: fileURL.pathname,
+        code: await readFile(fileURL, { encoding: 'utf8' }),
+      }
+    }),
+  )
+
+  expect.assert(source != null)
+  expect.assert(target != null)
+
+  const transform = useTransformMergeClass({ applyAs: 'props' })
+  const result = transform(source.code, source.id)
+
+  expect(result?.code).toBe(target.code)
+})
+
 import { expect } from 'vitest'
 import { readFile } from 'node:fs/promises'
 import { test } from 'vitest'
 import { transformMacros } from '#/test/setup'
+import { useTransformMergeClass } from '#/transform-merge-class'
+import { useTransformPreserveClass } from '#/transform-preserve-class'
 import { useTransformProps } from '#/transform-props'
 //
