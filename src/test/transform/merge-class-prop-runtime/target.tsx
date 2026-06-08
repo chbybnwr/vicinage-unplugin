@@ -8,4 +8,4 @@ import { props as stylexProps } from '@stylexjs/stylex'
 import { textSize } from 'solarwindcss'
 //
 
-import { mergeClassProp as __styledeck_mergeClass } from 'vicinage'
+import { '~mergeClassProperty' as __styledeck_mergeClass } from 'vicinage'

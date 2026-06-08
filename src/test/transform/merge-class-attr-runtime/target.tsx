@@ -11,4 +11,4 @@ import { attrs as stylexAttrs } from '@stylexjs/stylex'
 import { textSize } from 'solarwindcss'
 //
 
-import { mergeClassAttr as __styledeck_mergeClass } from 'vicinage'
+import { '~mergeClassAttribute' as __styledeck_mergeClass } from 'vicinage'

@@ -20,7 +20,8 @@ const useTransformMergeClass =
     })
     const applyAs = options?.applyAs ?? 'props'
     const htmlClass = applyAs === 'props' ? 'className' : 'class'
-    const mergeClass = applyAs === 'props' ? 'mergeClassProp' : 'mergeClassAttr'
+    const mergeClass =
+      applyAs === 'props' ? `'~mergeClassProperty'` : `'~mergeClassAttribute'`
     const stylexHelperName = applyAs === 'props' ? 'props' : 'attrs'
     const stylexHelpers = collectStylexHelperNames(ast, stylexHelperName)
 

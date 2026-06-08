@@ -101,7 +101,7 @@
     "tsdown": "^0.22.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.60.1",
-    "vicinage": "^0.6.20",
+    "vicinage": "^0.7.20",
     "vite": "^8.0.16",
     "vitest": "^4.1.8",
     "webpack": "^5.107.2"
