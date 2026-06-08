@@ -244,6 +244,14 @@ const eslintConfig = defineConfig([
   },
 
   prettierConfig,
+
+  {
+    name: 'prettier-override',
+    files: ['**/*.{js,jsx,ts,tsx,mjs,mjsx,mtsx,cjs}'],
+    rules: {
+      curly: 'warn',
+    },
+  },
 ])
 
 import { createNodeResolver } from 'eslint-plugin-import-x'
