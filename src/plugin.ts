@@ -56,6 +56,7 @@ const createPlugin: UnpluginFactory<Options | undefined> = (options) => {
       ? [
           {
             name: `${pluginName}:merge`,
+            enforce: 'pre',
 
             transform: {
               filter: {
