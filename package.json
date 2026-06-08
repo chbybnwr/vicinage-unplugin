@@ -1,6 +1,6 @@
 {
   "name": "@vicinage/unplugin",
-  "version": "0.16.37",
+  "version": "0.17.37",
   "description": "Universal bundler plugin for Vicinage",
   "license": "MIT",
   "repository": {
