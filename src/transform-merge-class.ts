@@ -36,7 +36,7 @@ const useTransformMergeClass =
 
         const originalClassAttribute = node.attributes.find(
           (attribute): attribute is JSXAttribute =>
-            attribute.type === 'JSXAttribute' &&
+            isJSXAttribute(attribute) &&
             isJSXIdentifier(attribute.name) &&
             attribute.name.name === 'data-styledeck-class',
         )
@@ -47,22 +47,21 @@ const useTransformMergeClass =
 
         const compiledClassAttribute = node.attributes.find(
           (attribute): attribute is JSXAttribute =>
-            attribute.type === 'JSXAttribute' &&
+            isJSXAttribute(attribute) &&
             isJSXIdentifier(attribute.name) &&
             attribute.name.name === htmlClass,
         )
 
         const spreadAttribute = node.attributes.find(
           (attribute): attribute is JSXSpreadAttribute =>
-            attribute.type === 'JSXSpreadAttribute' &&
-            attribute.argument.type === 'CallExpression' &&
+            isJSXSpreadAttribute(attribute) &&
+            isCallExpression(attribute.argument) &&
             isStylexHelperCall(attribute.argument, stylexHelpers),
         )
 
         if (
-          compiledClassAttribute != null &&
-          originalClassAttribute.value?.type === 'StringLiteral' &&
-          compiledClassAttribute.value?.type === 'StringLiteral'
+          isStringLiteral(originalClassAttribute.value) &&
+          isStringLiteral(compiledClassAttribute?.value)
         ) {
           ms.overwrite(
             compiledClassAttribute.value.start!,
@@ -139,14 +138,14 @@ function getAttributeValueSource(
     return '""'
   }
 
-  if (attribute.value.type === 'JSXExpressionContainer') {
+  if (isJSXExpressionContainer(attribute.value)) {
     return code.slice(
       attribute.value.expression.start!,
       attribute.value.expression.end!,
     )
   }
 
-  if (attribute.value.type === 'StringLiteral') {
+  if (isStringLiteral(attribute.value)) {
     return `'${attribute.value.value.replaceAll("'", String.raw`\'`)}'`
   }
 
@@ -157,11 +156,11 @@ function isStylexHelperCall(
   node: CallExpression,
   helperNames: Set<string>,
 ): boolean {
-  if (node.callee.type === 'Identifier') {
+  if (isIdentifier(node.callee)) {
     return helperNames.has(node.callee.name)
   }
 
-  if (node.callee.type === 'MemberExpression') {
+  if (isMemberExpression(node.callee)) {
     const { object } = node.callee
     const { property } = node.callee
 
@@ -184,7 +183,7 @@ function collectStylexHelperNames(
   for (const statement of ast.program.body) {
     if (
       !(
-        statement.type === 'ImportDeclaration' &&
+        isImportDeclaration(statement) &&
         statement.source.value === '@stylexjs/stylex'
       )
     ) {
@@ -192,10 +191,7 @@ function collectStylexHelperNames(
     }
 
     for (const specifier of statement.specifiers) {
-      if (
-        specifier.type === 'ImportSpecifier' &&
-        specifier.imported.type === 'Identifier'
-      ) {
+      if (isImportSpecifier(specifier) && isIdentifier(specifier.imported)) {
         const importedName = specifier.imported.name
         const localName = specifier.local.name
 
@@ -204,7 +200,7 @@ function collectStylexHelperNames(
         }
       }
 
-      if (specifier.type === 'ImportNamespaceSpecifier') {
+      if (isImportNamespaceSpecifier(specifier)) {
         names.add(`${specifier.local.name}.${helperName}`)
       }
     }
@@ -214,8 +210,17 @@ function collectStylexHelperNames(
 }
 
 import type { CallExpression } from '@babel/types'
+import { isCallExpression } from '@babel/types'
 import { isIdentifier } from '@babel/types'
+import { isImportDeclaration } from '@babel/types'
+import { isImportNamespaceSpecifier } from '@babel/types'
+import { isImportSpecifier } from '@babel/types'
+import { isJSXAttribute } from '@babel/types'
+import { isJSXExpressionContainer } from '@babel/types'
 import { isJSXIdentifier } from '@babel/types'
+import { isJSXSpreadAttribute } from '@babel/types'
+import { isMemberExpression } from '@babel/types'
+import { isStringLiteral } from '@babel/types'
 import type { JSXAttribute } from '@babel/types'
 import type { JSXSpreadAttribute } from '@babel/types'
 import MagicString from 'magic-string'

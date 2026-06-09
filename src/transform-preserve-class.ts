@@ -39,7 +39,7 @@ const useTransformPreserveClass =
         if (
           !node.attributes.some(
             (attribute) =>
-              attribute.type === 'JSXAttribute' &&
+              isJSXAttribute(attribute) &&
               isJSXIdentifier(attribute.name) &&
               styleDeckVariants.has(attribute.name.name),
           )
@@ -49,7 +49,7 @@ const useTransformPreserveClass =
 
         const originalClassAttribute = node.attributes.find(
           (attribute): attribute is JSXAttribute =>
-            attribute.type === 'JSXAttribute' &&
+            isJSXAttribute(attribute) &&
             isJSXIdentifier(attribute.name) &&
             attribute.name.name === htmlClass,
         )
@@ -82,6 +82,7 @@ const useTransformPreserveClass =
     }
   }
 
+import { isJSXAttribute } from '@babel/types'
 import { isJSXIdentifier } from '@babel/types'
 import type { JSXAttribute } from '@babel/types'
 import MagicString from 'magic-string'

@@ -158,14 +158,14 @@ function hasApplyLocalBinding(
 ): boolean {
   for (const statement of ast.program.body) {
     if (
-      statement.type === 'ImportDeclaration' &&
+      isImportDeclaration(statement) &&
       statement.source.value === pluginName
     ) {
       for (const specifier of statement.specifiers) {
         if (
-          specifier.type === 'ImportSpecifier' &&
+          isImportSpecifier(specifier) &&
           specifier.local.name === localName &&
-          specifier.imported.type === 'Identifier' &&
+          isIdentifier(specifier.imported) &&
           specifier.imported.name === apply
         ) {
           return true
@@ -183,14 +183,14 @@ function hasSheetLocalBinding(
 ): boolean {
   for (const statement of ast.program.body) {
     if (
-      statement.type === 'ImportDeclaration' &&
+      isImportDeclaration(statement) &&
       statement.source.value === pluginName
     ) {
       for (const specifier of statement.specifiers) {
         if (
-          specifier.type === 'ImportSpecifier' &&
+          isImportSpecifier(specifier) &&
           specifier.local.name === localName &&
-          specifier.imported.type === 'Identifier' &&
+          isIdentifier(specifier.imported) &&
           specifier.imported.name === sheet
         ) {
           return true
@@ -232,6 +232,9 @@ function createSheetArgPart(node: Node, code: string): string {
 }
 
 import { isArrayExpression } from '@babel/types'
+import { isIdentifier } from '@babel/types'
+import { isImportDeclaration } from '@babel/types'
+import { isImportSpecifier } from '@babel/types'
 import { isJSXEmptyExpression } from '@babel/types'
 import { isJSXExpressionContainer } from '@babel/types'
 import { isJSXIdentifier } from '@babel/types'
