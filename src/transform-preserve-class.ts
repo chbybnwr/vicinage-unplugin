@@ -36,6 +36,17 @@ const useTransformPreserveClass =
       JSXOpeningElement: (path) => {
         const { node } = path
 
+        const styleDeckAttribute = node.attributes.find(
+          (attribute): attribute is JSXAttribute =>
+            isJSXAttribute(attribute) &&
+            isJSXIdentifier(attribute.name) &&
+            styleDeckVariants.has(attribute.name.name),
+        )
+
+        if (styleDeckAttribute == null) {
+          return
+        }
+
         if (
           !node.attributes.some(
             (attribute) =>
@@ -70,6 +81,8 @@ const useTransformPreserveClass =
                 )}`
           }`,
         )
+
+        ms.appendLeft(styleDeckAttribute.start!, 'data-styledeck ')
       },
     })
 

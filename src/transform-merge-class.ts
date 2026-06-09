@@ -52,13 +52,6 @@ const useTransformMergeClass =
             attribute.name.name === htmlClass,
         )
 
-        const spreadAttribute = node.attributes.find(
-          (attribute): attribute is JSXSpreadAttribute =>
-            isJSXSpreadAttribute(attribute) &&
-            isCallExpression(attribute.argument) &&
-            isStylexHelperCall(attribute.argument, stylexHelpers),
-        )
-
         if (
           isStringLiteral(originalClassAttribute.value) &&
           isStringLiteral(compiledClassAttribute?.value)
@@ -71,7 +64,41 @@ const useTransformMergeClass =
               compiledClassAttribute.value.value,
             ].join(' ')}"`,
           )
-        } else if (compiledClassAttribute != null) {
+        } else if (compiledClassAttribute == null) {
+          const spreadAttribute = node.attributes.find(
+            (attribute, index): attribute is JSXSpreadAttribute => {
+              const previousAttribute = node.attributes[index - 1]
+
+              return (
+                isJSXSpreadAttribute(attribute) &&
+                ((isCallExpression(attribute.argument) &&
+                  isStylexHelperCall(attribute.argument, stylexHelpers)) ||
+                  (previousAttribute != null &&
+                    isJSXAttribute(previousAttribute) &&
+                    isJSXIdentifier(previousAttribute.name) &&
+                    previousAttribute.name.name === 'data-styledeck'))
+              )
+            },
+          )
+
+          if (spreadAttribute != null) {
+            const dataValueSource = getAttributeValueSource(
+              originalClassAttribute,
+              code,
+            )
+            const spreadSource = code.slice(
+              spreadAttribute.argument.start!,
+              spreadAttribute.argument.end!,
+            )
+
+            ms.overwrite(
+              spreadAttribute.start!,
+              spreadAttribute.end!,
+              `{...${synthesizedMergeLocalName}(${dataValueSource}, ${spreadSource})}`,
+            )
+            hasRuntimeRewrites = true
+          }
+        } else {
           const dataValueSource = getAttributeValueSource(
             originalClassAttribute,
             code,
@@ -87,22 +114,6 @@ const useTransformMergeClass =
             `{...${synthesizedMergeLocalName}(${dataValueSource}, ${compiledValueSource})}`,
           )
           hasRuntimeRewrites = true
-        } else if (spreadAttribute != null) {
-          const dataValueSource = getAttributeValueSource(
-            originalClassAttribute,
-            code,
-          )
-          const spreadSource = code.slice(
-            spreadAttribute.argument.start!,
-            spreadAttribute.argument.end!,
-          )
-
-          ms.overwrite(
-            spreadAttribute.start!,
-            spreadAttribute.end!,
-            `{...${synthesizedMergeLocalName}(${dataValueSource}, ${spreadSource})}`,
-          )
-          hasRuntimeRewrites = true
         }
 
         const removeStart =
@@ -112,6 +123,26 @@ const useTransformMergeClass =
             ? originalClassAttribute.start! - 1
             : originalClassAttribute.start!
         ms.remove(removeStart, originalClassAttribute.end!)
+
+        {
+          const markerAttribute = node.attributes.find(
+            (attribute): attribute is JSXAttribute =>
+              isJSXAttribute(attribute) &&
+              isJSXIdentifier(attribute.name) &&
+              attribute.name.name === 'data-styledeck',
+          )
+
+          if (markerAttribute != null) {
+            // eslint-disable-next-line no-shadow
+            const removeStart =
+              markerAttribute.start! > 0 &&
+              // @ts-expect-error FIX: this please
+              /\s/u.test(code[markerAttribute.start! - 1])
+                ? markerAttribute.start! - 1
+                : markerAttribute.start!
+            ms.remove(removeStart, markerAttribute.end!)
+          }
+        }
       },
     })
 

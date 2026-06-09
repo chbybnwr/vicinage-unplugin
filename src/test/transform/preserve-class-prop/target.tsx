@@ -5,7 +5,7 @@ function Component() {
     <>
       <div
         data-styledeck-class="foo bar"
-        styleDeck={{
+        data-styledeck styleDeck={{
           color: 'red',
         }}
       />
