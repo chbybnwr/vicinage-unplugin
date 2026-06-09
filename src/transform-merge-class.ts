@@ -9,7 +9,9 @@ const synthesizedMergeLocalName = '__styledeck_mergeClass'
 
 const useTransformMergeClass =
   (options?: Options) => (code: string, id: string) => {
-    if (id.includes('node_modules')) {
+    if (
+      !(!id.includes('node_modules') && code.includes('data-styledeck-class'))
+    ) {
       return null
     }
 

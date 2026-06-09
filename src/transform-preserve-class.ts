@@ -17,6 +17,15 @@ const useTransformPreserveClass =
     const htmlClass =
       (options?.applyAs ?? 'props') === 'props' ? 'className' : 'class'
 
+    if (
+      !(
+        code.includes(htmlClass) &&
+        styleDeckVariants.values().some((variant) => code.includes(variant))
+      )
+    ) {
+      return null
+    }
+
     const ms = new MagicString(code)
     const ast = parse(code, {
       sourceType: 'module',
