@@ -41,6 +41,10 @@ const useTransformMergeClass =
             attribute.name.name === 'data-styledeck-class',
         )
 
+        if (originalClassAttribute == null) {
+          return
+        }
+
         const compiledClassAttribute = node.attributes.find(
           (attribute): attribute is JSXAttribute =>
             attribute.type === 'JSXAttribute' &&
@@ -54,10 +58,6 @@ const useTransformMergeClass =
             attribute.argument.type === 'CallExpression' &&
             isStylexHelperCall(attribute.argument, stylexHelpers),
         )
-
-        if (originalClassAttribute == null) {
-          return
-        }
 
         if (
           compiledClassAttribute != null &&
