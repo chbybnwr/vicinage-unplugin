@@ -23,6 +23,9 @@ importers:
       magic-string:
         specifier: ^0.30.21
         version: 0.30.21
+      picomatch:
+        specifier: ^4.0.4
+        version: 4.0.4
       unplugin:
         specifier: ^3.0.0
         version: 3.0.0
@@ -72,6 +75,9 @@ importers:
       '@types/node':
         specifier: ^25.9.1
         version: 25.9.1
+      '@types/picomatch':
+        specifier: ^4.0.3
+        version: 4.0.3
       '@types/react':
         specifier: ^19.2.16
         version: 19.2.16
@@ -1109,6 +1115,9 @@ packages:
 
   '@types/object-path@0.11.4':
     resolution: {integrity: sha512-4tgJ1Z3elF/tOMpA8JLVuR9spt9Ynsf7+JjqsQ2IqtiPJtcLoHoXcT6qU4E10cPFqyXX5HDm9QwIzZhBSkLxsw==}
+
+  '@types/picomatch@4.0.3':
+    resolution: {integrity: sha512-iG0T6+nYJ9FAPmx9SsUlnwcq1ZVRuCXcVEvWnntoPlrOpwtSTKNDC9uVAxTsC3PUvJ+99n4RpAcNgBbHX3JSnQ==}
 
   '@types/react@19.2.16':
     resolution: {integrity: sha512-esJiCAnl0kfpNdE69f3So4WJUXy95dLZydX0KwK46riIHDzHM7O9Vtf9xCHW0PXIqvgqNrswl522kA/5yx+F4w==}
@@ -4779,6 +4788,8 @@ snapshots:
       undici-types: 7.24.6
 
   '@types/object-path@0.11.4': {}
+
+  '@types/picomatch@4.0.3': {}
 
   '@types/react@19.2.16':
     dependencies:

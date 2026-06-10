@@ -1,5 +1,7 @@
 export { useTransformProps }
 
+/* eslint-disable prefer-destructuring */
+/* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable init-declarations */
 /* eslint no-magic-numbers: ["warn", { "ignore": [-1, 0, 1] }] */
@@ -16,6 +18,7 @@ const useTransformProps = (options?: Options) => (code: string, id: string) => {
     styleDeck,
     `${styleDeck.charAt(0).toUpperCase()}${styleDeck.slice(1)}`,
   ]
+  const unstyledComponentModules = options?.unstyledComponentModules ?? []
 
   if (
     !(
@@ -39,6 +42,10 @@ const useTransformProps = (options?: Options) => (code: string, id: string) => {
     ast,
     synthesizedSheetLocalName,
   )
+  const {
+    localNames: unstyledComponentLocalNames,
+    namespaceNames: unstyledComponentNamespaceNames,
+  } = collectUnstyledComponentImportInfo(ast, unstyledComponentModules)
 
   let hasApplyRewrites!: boolean
   let hasSheetRewrites!: boolean
@@ -79,8 +86,16 @@ const useTransformProps = (options?: Options) => (code: string, id: string) => {
         (isJSXIdentifier(openingElement.name) &&
           /^[A-Z]/u.test(openingElement.name.name)) ||
         isJSXMemberExpression(openingElement.name)
+      const unstyledRootIdentifier =
+        isJSXMemberExpression(openingElement.name) &&
+        getJSXMemberExpressionRootIdentifier(openingElement.name)
+      const isUnstyledComponent =
+        (isJSXIdentifier(openingElement.name) &&
+          unstyledComponentLocalNames.has(openingElement.name.name)) ||
+        (isNode(unstyledRootIdentifier) &&
+          unstyledComponentNamespaceNames.has(unstyledRootIdentifier.name))
 
-      if (isCustomComponent) {
+      if (isCustomComponent && !isUnstyledComponent) {
         const propName = node.name.name
         const valueSource = extractSheetValueSource(value.expression, code)
 
@@ -202,6 +217,51 @@ function hasSheetLocalBinding(
   return false
 }
 
+function collectUnstyledComponentImportInfo(
+  ast: ReturnType<typeof parse>,
+  unstyledComponentModules: string[],
+) {
+  const localNames = new Set<string>()
+  const namespaceNames = new Set<string>()
+
+  if (unstyledComponentModules.length === 0) {
+    return { localNames, namespaceNames }
+  }
+
+  const matchers = unstyledComponentModules.map((glob) =>
+    createGlobMatcher(glob),
+  )
+
+  for (const statement of ast.program.body) {
+    if (
+      isImportDeclaration(statement) &&
+      matchers.some((match) => match(statement.source.value))
+    ) {
+      for (const specifier of statement.specifiers) {
+        if (isImportNamespaceSpecifier(specifier)) {
+          namespaceNames.add(specifier.local.name)
+        } else {
+          localNames.add(specifier.local.name)
+        }
+      }
+    }
+  }
+
+  return { localNames, namespaceNames }
+}
+
+function getJSXMemberExpressionRootIdentifier(
+  expression: JSXMemberExpression,
+): JSXIdentifier | null {
+  let { object } = expression
+
+  while (isJSXMemberExpression(object)) {
+    object = object.object
+  }
+
+  return isJSXIdentifier(object) ? object : null
+}
+
 function extractSheetValueSource(expression: Node, code: string): string {
   if (isArrayExpression(expression)) {
     if (expression.start == null || expression.end == null) {
@@ -231,15 +291,20 @@ function createSheetArgPart(node: Node, code: string): string {
   return source
 }
 
+import createGlobMatcher from 'picomatch'
 import { isArrayExpression } from '@babel/types'
 import { isIdentifier } from '@babel/types'
 import { isImportDeclaration } from '@babel/types'
+import { isImportNamespaceSpecifier } from '@babel/types'
 import { isImportSpecifier } from '@babel/types'
 import { isJSXEmptyExpression } from '@babel/types'
 import { isJSXExpressionContainer } from '@babel/types'
 import { isJSXIdentifier } from '@babel/types'
 import { isJSXMemberExpression } from '@babel/types'
+import { isNode } from '@babel/types'
 import { isObjectExpression } from '@babel/types'
+import type { JSXIdentifier } from '@babel/types'
+import type { JSXMemberExpression } from '@babel/types'
 import type { JSXOpeningElement } from '@babel/types'
 import MagicString from 'magic-string'
 import type { Node } from '@babel/types'
