@@ -9,8 +9,8 @@ const babelPlugin: (
   // eslint-disable-next-line no-magic-numbers
   api.assertVersion(7)
 
-  const transformMacros = useTransformMacros(options)
   const transformProps = useTransformProps(options)
+  const transformMacros = useTransformMacros(options)
 
   return {
     name: pluginName,
@@ -27,8 +27,8 @@ const babelPlugin: (
           // eslint-disable-next-line init-declarations
           let x
 
-          x = transformMacros(state.file.code, filename)?.code
-          x = transformProps(x ?? state.file.code, filename)?.code
+          x = transformProps(state.file.code, filename)?.code
+          x = transformMacros(x ?? state.file.code, filename)?.code
 
           return x
         })()
