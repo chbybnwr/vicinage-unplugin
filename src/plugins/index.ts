@@ -5,75 +5,24 @@ export { pluginName }
 
 const pluginName = 'vicinage'
 
-const createPlugin: UnpluginFactory<Options | undefined> = (options) => {
+const createPlugin: UnpluginFactory<Options | undefined, true> = (
+  options,
+  context,
+) => {
   const mergeOriginalClass = options?.mergeOriginalClass ?? false
 
   return [
-    ...((mergeOriginalClass
-      ? [
-          {
-            name: `${pluginName}:class`,
-            enforce: 'pre',
-
-            transform: {
-              filter: {
-                id: /\.(?<file>t|j)sx?$/u,
-              },
-
-              handler: useTransformPreserveClass(options),
-            },
-          },
-        ]
-      : []) satisfies UnpluginOptions[]),
-
-    {
-      name: `${pluginName}:prop`,
-      enforce: 'pre',
-
-      transform: {
-        filter: {
-          id: /\.(?<file>t|j)sx?$/u,
-        },
-
-        handler: useTransformProps(options),
-      },
-    },
-
-    {
-      name: `${pluginName}:macros`,
-      enforce: 'pre',
-
-      transform: {
-        filter: {
-          id: /\.(?<file>t|j)sx?$/u,
-        },
-
-        handler: useTransformMacros(options),
-      },
-    },
-
-    ...((mergeOriginalClass
-      ? [
-          {
-            name: `${pluginName}:merge`,
-
-            transform: {
-              filter: {
-                id: /\.(?<file>t|j)sx?$/u,
-              },
-
-              handler: useTransformMergeClass(options),
-            },
-          },
-        ]
-      : []) satisfies UnpluginOptions[]),
+    ...(mergeOriginalClass ? [preserveClass(options, context)] : []),
+    transformProps(options, context),
+    transformMacros(options, context),
+    ...(mergeOriginalClass ? [mergeClass(options, context)] : []),
   ]
 }
 
+import mergeClass from '#/plugins/merge-class/index.js'
 import type { Options } from '#/options'
+import preserveClass from '#/plugins/preserve-class/index.js'
+import transformMacros from '#/plugins/macros'
+import transformProps from '#/plugins/props'
 import type { UnpluginFactory } from 'unplugin'
-import type { UnpluginOptions } from 'unplugin'
-import { useTransformMacros } from '#/plugins/macros'
-import { useTransformMergeClass } from '#/plugins/merge-class/index.js'
-import { useTransformPreserveClass } from '#/plugins/preserve-class/index.js'
-import { useTransformProps } from '#/plugins/props'
+//

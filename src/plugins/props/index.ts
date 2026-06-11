@@ -1,3 +1,4 @@
+export { createPlugin as default }
 export { useTransformProps }
 
 /* eslint-disable prefer-destructuring */
@@ -11,6 +12,21 @@ const apply = 'apply'
 const sheet = 'sheet'
 const synthesizedApplyLocalName = '__styledeck_apply'
 const synthesizedSheetLocalName = '__styledeck_sheet'
+
+const createPlugin: UnpluginFactory<Options | undefined, false> = (
+  options,
+) => ({
+  name: `${pluginName}:prop`,
+  enforce: 'pre',
+
+  transform: {
+    filter: {
+      id: /\.(?<file>t|j)sx?$/u,
+    },
+
+    handler: useTransformProps(options),
+  },
+})
 
 const useTransformProps = (options?: Options) => (code: string, id: string) => {
   const styleDeck = options?.aliases?.styleDeck ?? 'styleDeck'
@@ -311,4 +327,5 @@ import type { Node } from '@babel/types'
 import type { Options } from '#/options.js'
 import { parse } from '@babel/parser'
 import { traverse } from '#/shared/traverse'
+import type { UnpluginFactory } from 'unplugin'
 //

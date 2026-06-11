@@ -1,4 +1,5 @@
 /* eslint-disable no-continue */
+export { createPlugin as default }
 export { useTransformMergeClass }
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
@@ -6,6 +7,20 @@ export { useTransformMergeClass }
 
 const pluginName = 'vicinage'
 const synthesizedMergeLocalName = '__styledeck_mergeClass'
+
+const createPlugin: UnpluginFactory<Options | undefined, false> = (
+  options,
+) => ({
+  name: `${pluginName}:merge`,
+
+  transform: {
+    filter: {
+      id: /\.(?<file>t|j)sx?$/u,
+    },
+
+    handler: useTransformMergeClass(options),
+  },
+})
 
 const useTransformMergeClass =
   (options?: Options) => (code: string, id: string) => {
@@ -258,4 +273,5 @@ import MagicString from 'magic-string'
 import type { Options } from '#/options'
 import { parse } from '@babel/parser'
 import { traverse } from '#/shared/traverse'
+import type { UnpluginFactory } from 'unplugin'
 //

@@ -1,7 +1,23 @@
+export { createPlugin as default }
 export { useTransformPreserveClass }
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint no-magic-numbers: ["warn", { "ignore": [-1, 0, 1] }] */
+
+const createPlugin: UnpluginFactory<Options | undefined, false> = (
+  options,
+) => ({
+  name: `${pluginName}:class`,
+  enforce: 'pre',
+
+  transform: {
+    filter: {
+      id: /\.(?<file>t|j)sx?$/u,
+    },
+
+    handler: useTransformPreserveClass(options),
+  },
+})
 
 const useTransformPreserveClass =
   (options?: Options) => (code: string, id: string) => {
@@ -101,5 +117,7 @@ import type { JSXAttribute } from '@babel/types'
 import MagicString from 'magic-string'
 import type { Options } from '#/options'
 import { parse } from '@babel/parser'
+import { pluginName } from '#/shared/config'
 import { traverse } from '#/shared/traverse'
+import type { UnpluginFactory } from 'unplugin'
 //

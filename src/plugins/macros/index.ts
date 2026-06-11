@@ -1,3 +1,4 @@
+export { createPlugin as default }
 export { pluginName }
 export { transform as useTransformMacros }
 
@@ -14,6 +15,21 @@ const macroSet = new Set([apply, sheet])
 const indentSize = 2
 const indentStyle = ' '
 const contextualClosureBaseLevel = 3
+
+const createPlugin: UnpluginFactory<Options | undefined, false> = (
+  options,
+) => ({
+  name: `${pluginName}:macros`,
+  enforce: 'pre',
+
+  transform: {
+    filter: {
+      id: /\.(?<file>t|j)sx?$/u,
+    },
+
+    handler: transform(options),
+  },
+})
 
 const transform = (options?: Options) => (code: string, id: string) => {
   if (
@@ -758,4 +774,5 @@ import type { ObjectProperty } from '@babel/types'
 import type { Options } from '#/options'
 import { parse } from '@babel/parser'
 import { traverse } from '#/shared/traverse'
+import type { UnpluginFactory } from 'unplugin'
 //
