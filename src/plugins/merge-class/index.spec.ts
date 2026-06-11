@@ -1,14 +1,17 @@
 const fixtureFileNameSet = new Set(['source.tsx', 'target.tsx'])
 
 test.each([
-  { label: 'merge-class-attr' },
-  { label: 'merge-class-attr-marked' },
-  { label: 'merge-class-attr-runtime' },
+  { label: 'attr' },
+  { label: 'attr-marked' },
+  { label: 'attr-runtime' },
   //
 ])('$label', async ({ label }) => {
   const [source, target] = await Promise.all(
     [...fixtureFileNameSet].map(async (fixtureFileName) => {
-      const fileURL = new URL(`${label}/${fixtureFileName}`, import.meta.url)
+      const fileURL = new URL(
+        `fixtures/${label}/${fixtureFileName}`,
+        import.meta.url,
+      )
 
       return {
         id: fileURL.pathname,
@@ -27,14 +30,17 @@ test.each([
 })
 
 test.each([
-  { label: 'merge-class-prop' },
-  { label: 'merge-class-prop-marked' },
-  { label: 'merge-class-prop-runtime' },
+  { label: 'prop' },
+  { label: 'prop-marked' },
+  { label: 'prop-runtime' },
   //
 ])('$label', async ({ label }) => {
   const [source, target] = await Promise.all(
     [...fixtureFileNameSet].map(async (fixtureFileName) => {
-      const fileURL = new URL(`${label}/${fixtureFileName}`, import.meta.url)
+      const fileURL = new URL(
+        `fixtures/${label}/${fixtureFileName}`,
+        import.meta.url,
+      )
 
       return {
         id: fileURL.pathname,
@@ -55,5 +61,5 @@ test.each([
 import { expect } from 'vitest'
 import { readFile } from 'node:fs/promises'
 import { test } from 'vitest'
-import { useTransformMergeClass } from '#/transform-merge-class'
+import { useTransformMergeClass } from '#/plugins/merge-class'
 //
