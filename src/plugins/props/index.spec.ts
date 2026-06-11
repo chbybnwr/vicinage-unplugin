@@ -1,4 +1,6 @@
-const fixtureFileNameSet = new Set(['source.tsx', 'target.tsx'])
+const fixtureLoader = createFixtureLoader({
+  baseUrl: import.meta.url,
+})
 
 test.each([
   { label: 'on-element' },
@@ -7,27 +9,11 @@ test.each([
   { label: 'on-component-with-array' },
   //
 ])('$label', async ({ label }) => {
-  const [source, target] = await Promise.all(
-    [...fixtureFileNameSet].map(async (fixtureFileName) => {
-      const fileURL = new URL(
-        `fixtures/${label}/${fixtureFileName}`,
-        import.meta.url,
-      )
-
-      return {
-        id: fileURL.pathname,
-        code: await readFile(fileURL, { encoding: 'utf8' }),
-      }
-    }),
-  )
-
-  expect.assert(source != null)
-  expect.assert(target != null)
-
   const transformProps = useTransformProps()
-  const result = transformProps(source.code, source.id)
+  const { id, source, target } = await fixtureLoader.load(label)
+  const result = transformProps(source, id)
 
-  expect(result?.code).toBe(target.code)
+  expect(result?.code).toBe(target)
 })
 
 test.each([
@@ -35,62 +21,30 @@ test.each([
   { label: 'on-unstyled-component-namespaced' },
   //
 ])('$label', async ({ label }) => {
-  const [source, target] = await Promise.all(
-    [...fixtureFileNameSet].map(async (fixtureFileName) => {
-      const fileURL = new URL(
-        `fixtures/${label}/${fixtureFileName}`,
-        import.meta.url,
-      )
-
-      return {
-        id: fileURL.pathname,
-        code: await readFile(fileURL, { encoding: 'utf8' }),
-      }
-    }),
-  )
-
-  expect.assert(source != null)
-  expect.assert(target != null)
-
   const transformProps = useTransformProps({
     unstyledComponentModules: ['#/test/fixtures/unstyled'],
   })
-  const result = transformProps(source.code, source.id)
+  const { id, source, target } = await fixtureLoader.load(label)
+  const result = transformProps(source, id)
 
-  expect(result?.code).toBe(target.code)
+  expect(result?.code).toBe(target)
 })
 
 test.each([
   { label: 'on-unstyled-component-from-module-glob' },
   //
 ])('$label', async ({ label }) => {
-  const [source, target] = await Promise.all(
-    [...fixtureFileNameSet].map(async (fixtureFileName) => {
-      const fileURL = new URL(
-        `fixtures/${label}/${fixtureFileName}`,
-        import.meta.url,
-      )
-
-      return {
-        id: fileURL.pathname,
-        code: await readFile(fileURL, { encoding: 'utf8' }),
-      }
-    }),
-  )
-
-  expect.assert(source != null)
-  expect.assert(target != null)
-
   const transformProps = useTransformProps({
     unstyledComponentModules: ['#/test/fixtures/unstyled/*'],
   })
-  const result = transformProps(source.code, source.id)
+  const { id, source, target } = await fixtureLoader.load(label)
+  const result = transformProps(source, id)
 
-  expect(result?.code).toBe(target.code)
+  expect(result?.code).toBe(target)
 })
 
+import { createFixtureLoader } from '#/test/utils'
 import { expect } from 'vitest'
-import { readFile } from 'node:fs/promises'
 import { test } from 'vitest'
 import { useTransformProps } from '.'
 //

@@ -1,5 +1,8 @@
 const transformMacros = useTransformMacros()
-const fixtureFileNameSet = new Set(['source.tsx', 'target.tsx'])
+
+const fixtureLoader = createFixtureLoader({
+  baseUrl: import.meta.url,
+})
 
 test.each([
   { label: 'apply' },
@@ -18,26 +21,10 @@ test.each([
   { label: 'side-effect-import' },
   { label: 'other-module' },
 ])('$label', async ({ label }) => {
-  const [source, target] = await Promise.all(
-    [...fixtureFileNameSet].map(async (fixtureFileName) => {
-      const fileURL = new URL(
-        `fixtures/${label}/${fixtureFileName}`,
-        import.meta.url,
-      )
+  const { id, source, target } = await fixtureLoader.load(label)
+  const result = transformMacros(source, id)
 
-      return {
-        id: fileURL.pathname,
-        code: await readFile(fileURL, { encoding: 'utf8' }),
-      }
-    }),
-  )
-
-  expect.assert(source != null)
-  expect.assert(target != null)
-
-  const result = transformMacros(source.code, source.id)
-
-  expect(result?.code).toBe(target.code)
+  expect(result?.code).toBe(target)
 })
 
 test.each([
@@ -92,6 +79,7 @@ test.each([
   }).toThrow(/Conditional arguments can not be object literals/u)
 })
 
+import { createFixtureLoader } from '#/test/utils'
 import { expect } from 'vitest'
 import { readFile } from 'node:fs/promises'
 import { test } from 'vitest'
