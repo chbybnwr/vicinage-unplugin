@@ -73,7 +73,7 @@ const createPlugin: UnpluginFactory<Options | undefined> = (options) => {
 import type { Options } from '#/options'
 import type { UnpluginFactory } from 'unplugin'
 import type { UnpluginOptions } from 'unplugin'
-import { useTransformMacros } from '#/transform-macros.js'
+import { useTransformMacros } from '#/plugins/macros'
 import { useTransformMergeClass } from '#/transform-merge-class.js'
 import { useTransformPreserveClass } from '#/transform-preserve-class.js'
 import { useTransformProps } from '#/plugins/props'

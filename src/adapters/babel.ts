@@ -60,6 +60,6 @@ import type { Options } from '#/options'
 import { parse } from '@babel/parser'
 import { pluginName } from '#/plugin.js'
 import type { PluginObj } from '@babel/core'
-import { useTransformMacros } from '#/transform-macros.js'
+import { useTransformMacros } from '#/plugins/macros'
 import { useTransformProps } from '#/plugins/props/index.js'
 //
