@@ -7,7 +7,7 @@ const eslintConfig = defineConfig([
     '**/etc/**',
     '**/lib/**',
     '**/temp/**',
-    'src/test/**/target.tsx',
+    'src/**/target.tsx',
   ]),
 
   {
@@ -116,7 +116,7 @@ const eslintConfig = defineConfig([
   },
 
   {
-    files: ['**/test/**/*.{jsx,tsx,mjsx,mtsx}'],
+    files: ['**/*.{jsx,tsx,mjsx,mtsx}'],
     languageOptions: {
       globals: globals.browser,
     },

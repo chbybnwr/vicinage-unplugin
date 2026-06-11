@@ -38,87 +38,6 @@ test.each([
 })
 
 test.each([
-  { label: 'deck' },
-  { label: 'deck-multi' },
-  { label: 'deck-component' },
-  { label: 'deck-component-multi' },
-  //
-])('$label', async ({ label }) => {
-  const [source, target] = await Promise.all(
-    [...fixtureFileNameSet].map(async (fixtureFileName) => {
-      const fileURL = new URL(`${label}/${fixtureFileName}`, import.meta.url)
-
-      return {
-        id: fileURL.pathname,
-        code: await readFile(fileURL, { encoding: 'utf8' }),
-      }
-    }),
-  )
-
-  expect.assert(source != null)
-  expect.assert(target != null)
-
-  const result = transformProps(source.code, source.id)
-
-  expect(result?.code).toBe(target.code)
-})
-
-const transformProps = useTransformProps()
-
-test.each([
-  { label: 'deck-unstyled-component' },
-  { label: 'deck-unstyled-component-namespace' },
-  //
-])('$label', async ({ label }) => {
-  const [source, target] = await Promise.all(
-    [...fixtureFileNameSet].map(async (fixtureFileName) => {
-      const fileURL = new URL(`${label}/${fixtureFileName}`, import.meta.url)
-
-      return {
-        id: fileURL.pathname,
-        code: await readFile(fileURL, { encoding: 'utf8' }),
-      }
-    }),
-  )
-
-  expect.assert(source != null)
-  expect.assert(target != null)
-
-  const transformProps = useTransformProps({
-    unstyledComponentModules: ['#/test/fixtures/unstyled'],
-  })
-  const result = transformProps(source.code, source.id)
-
-  expect(result?.code).toBe(target.code)
-})
-
-test.each([
-  { label: 'deck-unstyled-component-glob' },
-  //
-])('$label', async ({ label }) => {
-  const [source, target] = await Promise.all(
-    [...fixtureFileNameSet].map(async (fixtureFileName) => {
-      const fileURL = new URL(`${label}/${fixtureFileName}`, import.meta.url)
-
-      return {
-        id: fileURL.pathname,
-        code: await readFile(fileURL, { encoding: 'utf8' }),
-      }
-    }),
-  )
-
-  expect.assert(source != null)
-  expect.assert(target != null)
-
-  const transformProps = useTransformProps({
-    unstyledComponentModules: ['#/test/fixtures/unstyled/*'],
-  })
-  const result = transformProps(source.code, source.id)
-
-  expect(result?.code).toBe(target.code)
-})
-
-test.each([
   { label: 'preserve-class-attr' },
   //
 ])('$label', async ({ label }) => {
@@ -224,5 +143,4 @@ import { test } from 'vitest'
 import { transformMacros } from '#/test/setup'
 import { useTransformMergeClass } from '#/transform-merge-class'
 import { useTransformPreserveClass } from '#/transform-preserve-class'
-import { useTransformProps } from '#/transform-props'
 //

@@ -61,5 +61,5 @@ import { parse } from '@babel/parser'
 import { pluginName } from '#/plugin.js'
 import type { PluginObj } from '@babel/core'
 import { useTransformMacros } from '#/transform-macros.js'
-import { useTransformProps } from '#/transform-props.js'
+import { useTransformProps } from '#/plugins/props/index.js'
 //
