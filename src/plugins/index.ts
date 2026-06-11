@@ -9,13 +9,18 @@ const createPlugin: UnpluginFactory<Options | undefined, true> = (
   options,
   context,
 ) => {
-  const mergeOriginalClass = options?.mergeOriginalClass ?? false
+  const overwriteClass = options?.overwriteClass ?? false
 
   return [
-    ...(mergeOriginalClass ? [preserveClass(options, context)] : []),
+    ...(overwriteClass
+      ? []
+      : [
+          preserveClass(options, context),
+          mergeClass(options, context),
+          //
+        ]),
     transformProps(options, context),
     transformMacros(options, context),
-    ...(mergeOriginalClass ? [mergeClass(options, context)] : []),
   ]
 }
 

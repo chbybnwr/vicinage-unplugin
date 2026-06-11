@@ -5,7 +5,7 @@ export type { Options }
  */
 interface Options {
   applyAs?: 'props' | 'attrs'
-  mergeOriginalClass?: boolean
+  overwriteClass?: boolean
   unstyledComponentModules?: string[]
   aliases?: {
     styleDeck?: string
