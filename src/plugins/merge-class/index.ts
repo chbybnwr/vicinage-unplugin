@@ -5,7 +5,6 @@ export { useTransformMergeClass }
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint no-magic-numbers: ["warn", { "ignore": [-1, 0, 1] }] */
 
-const pluginName = 'vicinage'
 const synthesizedMergeLocalName = '__styledeck_mergeClass'
 
 const createPlugin: UnpluginFactory<Options | undefined, false> = (
@@ -272,6 +271,7 @@ import type { JSXSpreadAttribute } from '@babel/types'
 import MagicString from 'magic-string'
 import type { Options } from '#/options'
 import { parse } from '@babel/parser'
+import { pluginName } from '#/shared/config'
 import { traverse } from '#/shared/traverse'
 import type { UnpluginFactory } from 'unplugin'
 //

@@ -7,7 +7,6 @@ export { useTransformProps }
 /* eslint-disable init-declarations */
 /* eslint no-magic-numbers: ["warn", { "ignore": [-1, 0, 1] }] */
 
-const pluginName = 'vicinage'
 const apply = 'apply'
 const sheet = 'sheet'
 const synthesizedApplyLocalName = '__styledeck_apply'
@@ -322,6 +321,7 @@ import MagicString from 'magic-string'
 import type { Node } from '@babel/types'
 import type { Options } from '#/options.js'
 import { parse } from '@babel/parser'
+import { pluginName } from '#/shared/config'
 import { traverse } from '#/shared/traverse'
 import type { UnpluginFactory } from 'unplugin'
 //

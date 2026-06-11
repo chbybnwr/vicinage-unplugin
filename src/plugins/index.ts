@@ -1,9 +1,6 @@
 /* eslint no-magic-numbers: ["warn", { "ignore": [-1, 0, 1] }] */
 
 export { createPlugin }
-export { pluginName }
-
-const pluginName = 'vicinage'
 
 const createPlugin: UnpluginFactory<Options | undefined, true> = (
   options,

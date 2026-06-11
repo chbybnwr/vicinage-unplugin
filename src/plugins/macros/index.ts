@@ -1,5 +1,4 @@
 export { createPlugin as default }
-export { pluginName }
 export { transform as useTransformMacros }
 
 /* eslint-disable max-lines */
@@ -8,7 +7,6 @@ export { transform as useTransformMacros }
 /* eslint-disable max-params */
 /* eslint-disable max-depth */
 
-const pluginName = 'vicinage'
 const apply = 'apply'
 const sheet = 'sheet'
 const macroSet = new Set([apply, sheet])
@@ -773,6 +771,7 @@ import type { ObjectMethod } from '@babel/types'
 import type { ObjectProperty } from '@babel/types'
 import type { Options } from '#/options'
 import { parse } from '@babel/parser'
+import { pluginName } from '#/shared/config'
 import { traverse } from '#/shared/traverse'
 import type { UnpluginFactory } from 'unplugin'
 //

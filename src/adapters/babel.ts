@@ -58,7 +58,7 @@ const babelPlugin: (
 import { declare } from '@babel/helper-plugin-utils'
 import type { Options } from '#/options'
 import { parse } from '@babel/parser'
-import { pluginName } from '#/plugins/index.js'
+import { pluginName } from '#/shared/config'
 import type { PluginObj } from '@babel/core'
 import { useTransformMacros } from '#/plugins/macros'
 import { useTransformProps } from '#/plugins/props/index.js'
