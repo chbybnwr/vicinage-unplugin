@@ -7,7 +7,4 @@ interface Options {
   applyAs?: 'props' | 'attrs'
   overwriteClass?: boolean
   unstyledComponentModules?: string[]
-  aliases?: {
-    styleDeck?: string
-  }
 }

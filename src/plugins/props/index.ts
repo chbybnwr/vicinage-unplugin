@@ -12,6 +12,7 @@ const apply = 'apply'
 const sheet = 'sheet'
 const synthesizedApplyLocalName = '__styledeck_apply'
 const synthesizedSheetLocalName = '__styledeck_sheet'
+const styleDeckVariants = ['styleDeck', 'StyleDeck']
 
 const createPlugin: UnpluginFactory<Options | undefined, false> = (
   options,
@@ -29,11 +30,6 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (
 })
 
 const useTransformProps = (options?: Options) => (code: string, id: string) => {
-  const styleDeck = options?.aliases?.styleDeck ?? 'styleDeck'
-  const styleDeckVariants = [
-    styleDeck,
-    `${styleDeck.charAt(0).toUpperCase()}${styleDeck.slice(1)}`,
-  ]
   const unstyledComponentModules = options?.unstyledComponentModules ?? []
 
   if (

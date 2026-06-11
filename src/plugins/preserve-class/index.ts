@@ -19,17 +19,14 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (
   },
 })
 
+const styleDeckVariants = new Set(['styleDeck', 'StyleDeck'])
+
 const useTransformPreserveClass =
   (options?: Options) => (code: string, id: string) => {
     if (id.includes('node_modules')) {
       return null
     }
 
-    const styleDeck = options?.aliases?.styleDeck ?? 'styleDeck'
-    const styleDeckVariants = new Set([
-      styleDeck,
-      `${styleDeck.charAt(0).toUpperCase()}${styleDeck.slice(1)}`,
-    ])
     const htmlClass =
       (options?.applyAs ?? 'props') === 'props' ? 'className' : 'class'
 
