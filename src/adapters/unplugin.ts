@@ -6,5 +6,5 @@ export { unplugin }
 // eslint-disable-next-line no-inline-comments
 const unplugin = /* #__PURE__ */ createUnplugin(createPlugin)
 
-import { createPlugin } from '#/plugin'
+import { createPlugin } from '#/plugins'
 import { createUnplugin } from 'unplugin'

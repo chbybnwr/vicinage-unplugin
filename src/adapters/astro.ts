@@ -24,6 +24,6 @@ interface AstroContext {
 }
 
 import type { Options } from '#/options'
-import { pluginName } from '#/plugin'
+import { pluginName } from '#/plugins'
 import { unplugin } from '#/adapters/unplugin'
 //

@@ -2,6 +2,6 @@ export { rollupPlugin as default }
 
 const rollupPlugin = createRollupPlugin(createPlugin)
 
-import { createPlugin } from '#/plugin'
+import { createPlugin } from '#/plugins'
 import { createRollupPlugin } from 'unplugin'
 //
