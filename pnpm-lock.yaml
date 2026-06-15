@@ -139,8 +139,8 @@ importers:
         specifier: ^8.61.0
         version: 8.61.0(eslint@10.5.0(jiti@2.7.0))(typescript@6.0.3)
       vicinage:
-        specifier: ^0.7.21
-        version: 0.7.21(@stylexjs/stylex@0.18.3)
+        specifier: ^0.7.22
+        version: 0.7.22(@stylexjs/stylex@0.18.3)
       vite:
         specifier: ^8.0.16
         version: 8.0.16(@types/node@25.9.3)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.48.0)(yaml@2.9.0)
@@ -3690,8 +3690,8 @@ packages:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
 
-  vicinage@0.7.21:
-    resolution: {integrity: sha512-Jw04NFaxQEwCiH1si7cHUXNUhv2nZJy708vKMIS0orQZYiI1uOs7dyaMr3JLHwiVL8WH4l4X/MCIQs88TFNLAw==}
+  vicinage@0.7.22:
+    resolution: {integrity: sha512-bytQ0uQMzEsrR3YOJEKd2ZM5+VcKpFnBP+jQ176bZpg+R3JCfVBZOSN2UO4mGMHZmO/yoIb77nPwXvWgIWvRAA==}
     peerDependencies:
       '@stylexjs/stylex': ~0.18.3
 
@@ -7546,7 +7546,7 @@ snapshots:
 
   vary@1.1.2: {}
 
-  vicinage@0.7.21(@stylexjs/stylex@0.18.3):
+  vicinage@0.7.22(@stylexjs/stylex@0.18.3):
     dependencies:
       '@stylexjs/stylex': 0.18.3
       csstype: 3.2.3
