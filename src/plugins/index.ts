@@ -8,23 +8,13 @@ const createPlugin: UnpluginFactory<Options | undefined, true> = (
   const applyAs = options?.applyAs ?? 'props'
 
   return [
-    ...(overwriteClass
-      ? []
-      : [
-          preserveClass(options, context),
-          mergeClass(options, context),
-          //
-        ]),
-    transformProps(options, context),
-    transformMacros(options, context),
-    ...(applyAs === 'attrs'
-      ? [
-          swapAttrs(options, context),
-          //
-        ]
-      : []),
-    hoistStatic(options, context),
-  ]
+    ...(overwriteClass ? [] : [preserveClass]),
+    transformProps,
+    transformMacros,
+    ...(overwriteClass ? [] : [mergeClass]),
+    ...(applyAs === 'attrs' ? [swapAttrs] : []),
+    hoistStatic,
+  ].map((createPlugin) => createPlugin(options, context))
 }
 
 import hoistStatic from '#/plugins/hoist-static'
