@@ -14,29 +14,7 @@ const eslintConfig = defineConfig([
     name: 'js',
     files: ['**/*.{js,jsx,ts,tsx,mjs,mjsx,mtsx,cjs}'],
     plugins: { js: jsPlugin },
-    extends: ['js/all'],
-    rules: {
-      camelcase: 'warn',
-      'capitalized-comments': 'off',
-      eqeqeq: 'off',
-      'func-names': 'off',
-      'func-style': 'off',
-      'id-length': 'off',
-      'max-lines-per-function': 'off',
-      'max-statements': 'off',
-      'no-duplicate-imports': 'off',
-      'no-eq-null': 'off',
-      'no-magic-numbers': ['warn', { ignore: [0, 1] }],
-      'no-param-reassign': ['error', { props: true }],
-      'no-ternary': 'off',
-      'no-use-before-define': 'off',
-      'no-warning-comments': 'off',
-      'one-var': 'off',
-      'prefer-arrow-callback': 'off',
-      'sort-imports': 'off',
-      'sort-keys': 'off',
-      'symbol-description': 'off',
-    },
+    extends: [jsPlugin.configs.recommended],
   },
 
   {
@@ -80,7 +58,6 @@ const eslintConfig = defineConfig([
       sourceType: 'module',
     },
     settings: {
-      'import-x/no-unresolved': 'off',
       'import-x/resolver-next': [
         createTypeScriptImportResolver(),
         createNodeResolver(),
@@ -103,15 +80,26 @@ const eslintConfig = defineConfig([
   {
     name: 'unicorn',
     files: ['**/*.{js,jsx,ts,tsx,mjs,mjsx,mtsx,cjs}'],
-    extends: [unicornPlugin.configs.all],
+    extends: [unicornPlugin.configs.recommended],
     languageOptions: {
       globals: globals.builtin,
     },
     rules: {
       'unicorn/no-null': 'off',
       'unicorn/no-named-default': 'off',
-      'unicorn/prevent-abbreviations': 'off',
-      'unicorn/consistent-destructuring': 'off',
+      'unicorn/prevent-abbreviations': [
+        'warn',
+        {
+          ignore: [
+            /arg(s)?/i,
+            /param(s)?/i,
+            /prop(s)?/i,
+            /attr(s)?/i,
+            /util(s)?/i,
+            //
+          ],
+        },
+      ],
     },
   },
 
@@ -125,7 +113,7 @@ const eslintConfig = defineConfig([
   {
     name: 'vitest',
     files: ['**/*.{test,spec}*.{js,jsx,ts,tsx,mjs,mjsx,mtsx,cjs}'],
-    extends: [vitestPlugin.configs.all],
+    extends: [vitestPlugin.configs.recommended],
     settings: {
       vitest: {
         typecheck: true,
@@ -138,24 +126,6 @@ const eslintConfig = defineConfig([
           pattern: '.*.spec(-d)?.ts(x)?$',
         },
       ],
-      'vitest/no-hooks': 'off',
-      'vitest/prefer-expect-assertions': 'off',
-      'vitest/prefer-importing-vitest-globals': 'off',
-      'vitest/require-mock-type-parameters': 'off',
-      // TODO: use vite-plugin-test-name instead
-      'vitest/prefer-describe-function-title': 'off',
-      'vitest/require-top-level-describe': 'off',
-    },
-  },
-
-  {
-    name: 'vitest-type',
-    files: ['**/*.spec-d.{js,jsx,ts,tsx,mjs,mjsx,mtsx,cjs}'],
-    rules: {
-      'vitest/prefer-lowercase-title': 'off',
-      'vitest/require-top-level-describe': 'off',
-      'vitest/consistent-test-it': 'off',
-      'vitest/valid-title': 'off',
     },
   },
 
@@ -169,8 +139,19 @@ const eslintConfig = defineConfig([
           'ts-expect-error': false,
         },
       ],
-      'vitest/expect-expect': 'off',
-      'vitest/require-to-throw-message': 'off',
+    },
+  },
+
+  {
+    name: 'type-error-test',
+    files: ['**/fixtures/**/*.tsx'],
+    rules: {
+      '@typescript-eslint/ban-ts-comment': [
+        'error',
+        {
+          'ts-nocheck': false,
+        },
+      ],
     },
   },
 
@@ -244,14 +225,6 @@ const eslintConfig = defineConfig([
   },
 
   prettierConfig,
-
-  {
-    name: 'prettier-override',
-    files: ['**/*.{js,jsx,ts,tsx,mjs,mjsx,mtsx,cjs}'],
-    rules: {
-      curly: 'warn',
-    },
-  },
 ])
 
 import { createNodeResolver } from 'eslint-plugin-import-x'
