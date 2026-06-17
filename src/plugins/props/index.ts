@@ -1,11 +1,7 @@
 export { createPlugin as default }
 export { useTransformProps }
 
-/* eslint-disable prefer-destructuring */
-/* eslint-disable max-lines */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable init-declarations */
-/* eslint no-magic-numbers: ["warn", { "ignore": [-1, 0, 1] }] */
 
 const apply = 'apply'
 const sheet = 'sheet'

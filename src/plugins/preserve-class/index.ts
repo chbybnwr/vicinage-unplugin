@@ -2,7 +2,6 @@ export { createPlugin as default }
 export { useTransformPreserveClass }
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint no-magic-numbers: ["warn", { "ignore": [-1, 0, 1] }] */
 
 const createPlugin: UnpluginFactory<Options | undefined, false> = (
   options,

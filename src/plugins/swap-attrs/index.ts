@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 export { createPlugin as default }
 export { useSwapAttrs }
 
-/* eslint no-magic-numbers: ["warn", { "ignore": [-1, 0, 1] }] */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 const createPlugin: UnpluginFactory<Options | undefined, false> = (
   options,

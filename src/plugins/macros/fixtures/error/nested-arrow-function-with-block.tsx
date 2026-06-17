@@ -5,7 +5,6 @@ function ProgressBar() {
     <div
       {...apply({
         width: {
-          // eslint-disable-next-line arrow-body-style
           default: () => {
             return 0
           },

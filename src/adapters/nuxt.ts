@@ -1,7 +1,8 @@
 export { nuxtModule as default }
 export type { ModuleOptions }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+/* eslint-disable @typescript-eslint/no-empty-object-type */
+
 interface ModuleOptions extends Options {
   //
 }

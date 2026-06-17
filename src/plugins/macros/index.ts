@@ -1,11 +1,8 @@
 export { createPlugin as default }
 export { transform as useTransformMacros }
 
-/* eslint-disable max-lines */
-/* eslint-disable no-continue */
-/* eslint no-magic-numbers: ["warn", { "ignore": [-1, 0, 1] }] */
-/* eslint-disable max-params */
-/* eslint-disable max-depth */
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 const apply = 'apply'
 const sheet = 'sheet'
@@ -48,7 +45,6 @@ const transform = (options?: Options) => (code: string, id: string) => {
   function shred(node: Node, sheetPrefix: string, propertyKey: string): string {
     if (isConditionalExpression(node)) {
       const { test } = node
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const condition = code.slice(test.start!, test.end!)
       const consequent = shred(node.consequent, sheetPrefix, propertyKey)
       const alternate = shred(node.alternate, sheetPrefix, propertyKey)
@@ -58,16 +54,14 @@ const transform = (options?: Options) => (code: string, id: string) => {
 
     if (isLogicalExpression(node) && node.operator === '&&') {
       const { left, right } = node
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
       const condition = code.slice(left.start!, left.end!)
       const consequent = shred(right, sheetPrefix, propertyKey)
 
       return `${condition} && ${consequent}`
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const location = node.loc!
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     const sheetName = `${sheetPrefix}_x_${location.start.line}_${location.start.column + 1}`
     const contextual = extractContextualClosures(
       node,
@@ -81,7 +75,7 @@ const transform = (options?: Options) => (code: string, id: string) => {
       [
         `const ${sheetName} = __stylex_create({`,
         `  _: {`,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
         `    ${propertyKey}: ${staticObjectValue ?? code.slice(node.start!, node.end!)},`,
         `  },`,
         `})`,
@@ -96,7 +90,7 @@ const transform = (options?: Options) => (code: string, id: string) => {
   ) {
     const { body, loc: location } = node
     const bodySource = extractFunctionBodySource(body)
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-non-null-assertion
+
     const paramName = `value_${location!.start.line}_${location!.start.column + 1}`
 
     return {
@@ -107,7 +101,6 @@ const transform = (options?: Options) => (code: string, id: string) => {
 
   function extractFunctionBodySource(body: Node): string {
     if (!isBlockStatement(body)) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return code.slice(body.start!, body.end!)
     }
 
@@ -142,7 +135,7 @@ const transform = (options?: Options) => (code: string, id: string) => {
 
       const { key, computed } = property
       const value = isObjectMethod(property) ? property : property.value
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
       const rawKeySource = code.slice(key.start!, key.end!)
       const propertyKey = computed ? `[${rawKeySource}]` : rawKeySource
       const nestedSourceLocation = `${sourceLocation}.${propertyKey}`
@@ -185,7 +178,6 @@ const transform = (options?: Options) => (code: string, id: string) => {
       }
 
       chunkList.push(
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         `${indent(level)}${propertyKey}: ${code.slice(value.start!, value.end!)},`,
       )
     }
@@ -207,7 +199,7 @@ const transform = (options?: Options) => (code: string, id: string) => {
   ): string {
     if (isConditionalExpression(node)) {
       const { test } = node
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
       const condition = code.slice(test.start!, test.end!)
       const consequent = shredWithinPseudo(
         node.consequent,
@@ -227,7 +219,7 @@ const transform = (options?: Options) => (code: string, id: string) => {
 
     if (isLogicalExpression(node) && node.operator === '&&') {
       const { left, right } = node
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
       const condition = code.slice(left.start!, left.end!)
       const consequent = shredWithinPseudo(
         right,
@@ -239,9 +231,8 @@ const transform = (options?: Options) => (code: string, id: string) => {
       return `${condition} && ${consequent}`
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const location = node.loc!
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
     const finalSheetName = `${sheetPrefix}_x_${location.start.line}_${location.start.column + 1}`
 
     hoistedStyles.add(
@@ -249,7 +240,7 @@ const transform = (options?: Options) => (code: string, id: string) => {
         `const ${finalSheetName} = __stylex_create({`,
         `  _: {`,
         `    ${pseudoElementKey}: {`,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
         `      ${propertyKey}: ${code.slice(node.start!, node.end!)},`,
         `    },`,
         `  },`,
@@ -266,7 +257,6 @@ const transform = (options?: Options) => (code: string, id: string) => {
   })
 
   traverse(ast, {
-    // eslint-disable-next-line complexity
     CallExpression: (path) => {
       const { arguments: argList } = path.node
       const callee = path.node.callee as Identifier
@@ -282,7 +272,6 @@ const transform = (options?: Options) => (code: string, id: string) => {
         if (!isObjectExpression(arg)) {
           validateArg(arg)
 
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           finalArgs.push(code.slice(arg.start!, arg.end!))
 
           continue
@@ -306,13 +295,12 @@ const transform = (options?: Options) => (code: string, id: string) => {
           const { key } = property
           const value = isObjectMethod(property) ? property : property.value
           const { computed } = property
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
           const rawKeySource = code.slice(key.start!, key.end!)
           const propertyKey = computed ? `[${rawKeySource}]` : rawKeySource
 
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const location = key.loc!
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
           const sheetName = `style_${location.start.line}_${location.start.column + 1}`
 
           // Handle pseudo-elements by processing their inner properties
@@ -321,9 +309,8 @@ const transform = (options?: Options) => (code: string, id: string) => {
             isObjectExpression(value) &&
             propertyKey.includes('::')
           ) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const pseudoValueLocation = value.loc!
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
             const pseudoValueSheetName = `style_${pseudoValueLocation.start.line}_${pseudoValueLocation.start.column + 1}`
             let hasPseudoConditional = false
 
@@ -360,7 +347,6 @@ const transform = (options?: Options) => (code: string, id: string) => {
 
               if (pseudoContextual == null) {
                 staticProps.push(
-                  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                   `${indent(indentSize)}${propertyKey}: ${code.slice(value.start!, value.end!)}`,
                 )
               } else if (pseudoContextual.paramList.length > 0) {
@@ -403,14 +389,14 @@ const transform = (options?: Options) => (code: string, id: string) => {
 
               const pseudoValue = pseudoProp.value
               const { computed: pseudoComputed, key: pseudoKey } = pseudoProp
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
               const pseudoRawKey = code.slice(pseudoKey.start!, pseudoKey.end!)
               const pseudoPropertyKey = pseudoComputed
                 ? `[${pseudoRawKey}]`
                 : pseudoRawKey
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
               const pseudoLocation = pseudoKey.loc!
-              // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+
               const pseudoSheetName = `style_${pseudoLocation.start.line}_${pseudoLocation.start.column + 1}`
 
               if (
@@ -436,7 +422,7 @@ const transform = (options?: Options) => (code: string, id: string) => {
                   ? pseudoRawKey
                   : coordinateParam
 
-                const objBody = isSimpleIdentifier
+                const objectBody = isSimpleIdentifier
                   ? paramName
                   : `${pseudoPropertyKey}: ${paramName}`
 
@@ -445,7 +431,7 @@ const transform = (options?: Options) => (code: string, id: string) => {
                     `const ${pseudoSheetName} = __stylex_create({`,
                     `  _: (${paramName}) => ({`,
                     `    ${propertyKey}: {`,
-                    `      ${objBody},`,
+                    `      ${objectBody},`,
                     `    },`,
                     `  }),`,
                     `})`,
@@ -472,7 +458,6 @@ const transform = (options?: Options) => (code: string, id: string) => {
                   extraArgs.push(`${pseudoValueSheetName}._`)
                 } else if (pseudoContextual == null) {
                   pseudoStaticPropertyList.push(
-                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                     `      ${pseudoPropertyKey}: ${code.slice(pseudoValue.start!, pseudoValue.end!)},`,
                   )
                   extraArgs.push(`${pseudoValueSheetName}._`)
@@ -544,7 +529,7 @@ const transform = (options?: Options) => (code: string, id: string) => {
               ? rawKeySource
               : coordinateParam
 
-            const objBody = isSimpleIdentifier
+            const objectBody = isSimpleIdentifier
               ? paramName
               : `${propertyKey}: ${paramName}`
 
@@ -552,7 +537,7 @@ const transform = (options?: Options) => (code: string, id: string) => {
               [
                 `const ${sheetName} = __stylex_create({`,
                 `  _: (${paramName}) => ({`,
-                `    ${objBody},`,
+                `    ${objectBody},`,
                 `  }),`,
                 `})`,
               ].join('\n'),
@@ -593,20 +578,18 @@ const transform = (options?: Options) => (code: string, id: string) => {
           }
 
           staticProps.push(
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             `${indent(indentSize)}${propertyKey}: ${code.slice(value.start!, value.end!)}`,
           )
         }
 
         if (staticProps.length > 0) {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const location = arg.loc!
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-          const baseVarName = `style_${location.start.line}_${location.start.column + 1}`
+
+          const baseVariableName = `style_${location.start.line}_${location.start.column + 1}`
 
           hoistedStyles.add(
             [
-              `const ${baseVarName} = __stylex_create({`,
+              `const ${baseVariableName} = __stylex_create({`,
               `  _: {`,
               staticProps.join(',\n'),
               `  },`,
@@ -614,7 +597,7 @@ const transform = (options?: Options) => (code: string, id: string) => {
             ].join('\n'),
           )
 
-          finalArgs.push(`${baseVarName}._`)
+          finalArgs.push(`${baseVariableName}._`)
         }
 
         finalArgs.push(...extraArgs)
@@ -624,14 +607,12 @@ const transform = (options?: Options) => (code: string, id: string) => {
 
       switch (macro) {
         case apply: {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           ms.overwrite(callee.start!, callee.end!, `__stylex_${applyAs}`)
 
           if (argList.length > 0) {
             const start = argList[0]?.start
             const end = argList.at(-1)?.end
 
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             ms.overwrite(start!, end!, joined)
 
             stylexImports.add(
@@ -656,7 +637,6 @@ const transform = (options?: Options) => (code: string, id: string) => {
                 ? joined
                 : `[${joined}]`
 
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           ms.overwrite(node.start!, node.end!, sheetOutput)
 
           if (finalArgs.length > 0) {
@@ -682,7 +662,7 @@ const transform = (options?: Options) => (code: string, id: string) => {
 
       if (source.value === pluginName) {
         const { start, end } = path.node
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
         ms.overwrite(start!, end!, `// ${code.slice(start!, end!)}`)
       }
     },

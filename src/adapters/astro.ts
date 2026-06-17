@@ -1,9 +1,6 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 export { astroPlugin as default }
 
-function astroPlugin(options: Options): any {
+function astroPlugin(options: Options): unknown {
   return {
     name: pluginName,
     hooks: {

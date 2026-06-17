@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 export { babelPlugin as default }
 
 const babelPlugin: (
@@ -6,7 +5,6 @@ const babelPlugin: (
   options: Options | null | undefined,
   dirname: string,
 ) => PluginObj = declare((api, options) => {
-  // eslint-disable-next-line no-magic-numbers
   api.assertVersion(7)
 
   const transform = useTransformMergeClass(options)

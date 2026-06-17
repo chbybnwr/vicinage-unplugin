@@ -1,9 +1,7 @@
-/* eslint-disable no-continue */
 export { createPlugin as default }
 export { useTransformMergeClass }
 
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint no-magic-numbers: ["warn", { "ignore": [-1, 0, 1] }] */
 
 const synthesizedMergeLocalName = '__styledeck_mergeClass'
 
@@ -41,7 +39,6 @@ const useTransformMergeClass =
     const stylexHelperName = applyAs === 'props' ? 'props' : 'attrs'
     const stylexHelpers = collectStylexHelperNames(ast, stylexHelperName)
 
-    // eslint-disable-next-line init-declarations
     let hasRuntimeRewrites!: boolean
 
     traverse(ast, {
@@ -147,7 +144,6 @@ const useTransformMergeClass =
           )
 
           if (markerAttribute != null) {
-            // eslint-disable-next-line no-shadow
             const removeStart =
               markerAttribute.start! > 0 &&
               // @ts-expect-error FIX: this please

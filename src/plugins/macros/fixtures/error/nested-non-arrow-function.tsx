@@ -5,7 +5,6 @@ function ProgressBar() {
     <div
       {...apply({
         opacity: {
-          // eslint-disable-next-line object-shorthand
           default: function () {
             return 0
           },
