@@ -1,10 +1,9 @@
 export { babelPlugin as default }
 
-const babelPlugin: (
-  api: object,
-  options: Options | null | undefined,
-  dirname: string,
-) => PluginObj = declare((api, options) => {
+const babelPlugin = declare(function (
+  api: PluginAPI,
+  options: Options | undefined,
+) {
   api.assertVersion(7)
 
   const transform = useTransformMergeClass(options)
@@ -43,7 +42,7 @@ const babelPlugin: (
 import { declare } from '@babel/helper-plugin-utils'
 import type { Options } from '#/options'
 import { parse } from '@babel/parser'
+import type { PluginAPI } from '@babel/core'
 import { pluginName } from '#/shared/config'
-import type { PluginObj } from '@babel/core'
 import { useTransformMergeClass } from '#/plugins/merge-class'
 //

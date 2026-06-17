@@ -88,7 +88,7 @@ const useTransformProps = (options?: Options) => (code: string, id: string) => {
         )
       }
 
-      const openingElement = path.parentPath.node as JSXOpeningElement
+      const openingElement = path.parentPath.node
       const isCustomComponent =
         (isJSXIdentifier(openingElement.name) &&
           /^[A-Z]/u.test(openingElement.name.name)) ||
@@ -312,7 +312,6 @@ import { isNode } from '@babel/types'
 import { isObjectExpression } from '@babel/types'
 import type { JSXIdentifier } from '@babel/types'
 import type { JSXMemberExpression } from '@babel/types'
-import type { JSXOpeningElement } from '@babel/types'
 import MagicString from 'magic-string'
 import type { Node } from '@babel/types'
 import type { Options } from '#/options.js'

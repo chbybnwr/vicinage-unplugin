@@ -58,16 +58,16 @@
   },
   "packageManager": "pnpm@11.5.1",
   "dependencies": {
-    "@babel/helper-plugin-utils": "^7.29.7",
-    "@babel/parser": "^7.29.7",
-    "@babel/traverse": "^7.29.7",
-    "@babel/types": "^7.29.7",
+    "@babel/core": "^8.0.0",
+    "@babel/helper-plugin-utils": "^8.0.0",
+    "@babel/parser": "^8.0.0",
+    "@babel/traverse": "^8.0.0",
+    "@babel/types": "^8.0.0",
     "magic-string": "^0.30.21",
     "picomatch": "^4.0.4",
     "unplugin": "^3.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.7",
     "@chbybnwr/tsconfig": "github:chbybnwr/tsconfig",
     "@eslint/js": "^10.0.1",
     "@eslint/json": "^2.0.0",

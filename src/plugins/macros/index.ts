@@ -692,7 +692,7 @@ function getImportedName(binding: Binding | undefined): string | null {
   }
 
   const { path } = binding
-  const parentNode = path.parentPath?.node as ImportDeclaration
+  const parentNode = path.parentPath.node as ImportDeclaration
 
   if (!(parentNode.source.value === pluginName)) {
     return null
