@@ -23,9 +23,11 @@ const createPlugin: UnpluginFactory<Options | undefined, true> = (
           //
         ]
       : []),
+    hoistStatic(options, context),
   ]
 }
 
+import hoistStatic from '#/plugins/hoist-static'
 import mergeClass from '#/plugins/merge-class/index.js'
 import type { Options } from '#/options'
 import preserveClass from '#/plugins/preserve-class/index.js'
