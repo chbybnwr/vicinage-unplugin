@@ -84,9 +84,9 @@
     "@types/node": "^25.9.3",
     "@types/picomatch": "^4.0.3",
     "@types/react": "^19.2.17",
-    "@typescript-eslint/parser": "^8.61.0",
+    "@typescript-eslint/parser": "^8.61.1",
     "@typescript/native-preview": "7.0.0-dev.20260614.1",
-    "@vitest/coverage-v8": "^4.1.8",
+    "@vitest/coverage-v8": "^4.1.9",
     "@vitest/eslint-plugin": "^1.6.20",
     "cspell": "^10.0.1",
     "esbuild": "^0.28.1",
@@ -102,10 +102,10 @@
     "solarwindcss": "^0.36.10",
     "tsdown": "^0.22.2",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.61.0",
+    "typescript-eslint": "^8.61.1",
     "vicinage": "^0.7.22",
     "vite": "^8.0.16",
-    "vitest": "^4.1.8",
+    "vitest": "^4.1.9",
     "webpack": "^5.107.2"
   }
 }
