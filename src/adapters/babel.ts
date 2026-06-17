@@ -22,7 +22,13 @@ const babelPlugin: (
       Program(path, state) {
         const { filename } = state
 
-        if (!(filename != null && /\.(?<js>t|j)sx?$/u.test(filename))) {
+        if (
+          !(
+            filename != null &&
+            !filename.includes('node_modules') &&
+            /\.(?<js>t|j)sx?$/u.test(filename)
+          )
+        ) {
           return
         }
 
