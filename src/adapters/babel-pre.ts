@@ -31,7 +31,7 @@ const babelPlugin: (
         state.file.code = result
 
         const ast = parse(result, {
-          sourceType: 'unambiguous',
+          sourceType: 'module',
           plugins: ['typescript', 'jsx'],
         })
 
