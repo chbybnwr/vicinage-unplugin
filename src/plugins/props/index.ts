@@ -29,7 +29,7 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (
 })
 
 const useTransformProps = (options?: Options) => (code: string, id: string) => {
-  const unstyledComponentModules = options?.unstyledComponentModules ?? []
+  const unstyledComponentModules = options?.unstyledComponentModules
 
   if (
     !(
@@ -230,12 +230,12 @@ function hasSheetLocalBinding(
 
 function collectUnstyledComponentImportInfo(
   ast: ReturnType<typeof parse>,
-  unstyledComponentModules: string[],
+  unstyledComponentModules?: string[],
 ) {
   const localNames = new Set<string>()
   const namespaceNames = new Set<string>()
 
-  if (unstyledComponentModules.length === 0) {
+  if (unstyledComponentModules == null) {
     return { localNames, namespaceNames }
   }
 
