@@ -52,17 +52,6 @@ const useTransformPreserveClass =
           return
         }
 
-        if (
-          !node.attributes.some(
-            (attribute) =>
-              isJSXAttribute(attribute) &&
-              isJSXIdentifier(attribute.name) &&
-              styleDeckVariants.has(attribute.name.name),
-          )
-        ) {
-          return
-        }
-
         const originalClassAttribute = node.attributes.find(
           (attribute): attribute is JSXAttribute =>
             isJSXAttribute(attribute) &&
