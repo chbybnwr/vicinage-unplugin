@@ -11,7 +11,13 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (
 
   transform: {
     filter: {
-      id: /\.(?<file>t|j)sx?$/u,
+      id: {
+        include: /\.(m)?(j|t)sx$/,
+        exclude: /node_modules/,
+      },
+      code: {
+        include: ['styleDeck', 'StyleDeck', 'className', 'class'],
+      },
     },
 
     handler: useTransformPreserveClass(options),
@@ -22,21 +28,8 @@ const styleDeckVariants = new Set(['styleDeck', 'StyleDeck'])
 
 const useTransformPreserveClass =
   (options?: Options) => (code: string, id: string) => {
-    if (id.includes('node_modules')) {
-      return null
-    }
-
     const htmlClass =
       (options?.applyAs ?? 'props') === 'props' ? 'className' : 'class'
-
-    if (
-      !(
-        code.includes(htmlClass) &&
-        styleDeckVariants.values().some((variant) => code.includes(variant))
-      )
-    ) {
-      return null
-    }
 
     const ms = new MagicString(code)
     const ast = parse(code, {
