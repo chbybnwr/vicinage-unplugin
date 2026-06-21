@@ -16,6 +16,7 @@
 
     "skipLibCheck": true,
     "noEmit": true,
+    "noUnusedParameters": false,
 
     "paths": {
       "#/*": ["./src/*"]
