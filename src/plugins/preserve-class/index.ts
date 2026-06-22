@@ -27,7 +27,7 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (
 const styleDeckVariants = new Set(['styleDeck', 'StyleDeck'])
 
 const useTransformPreserveClass =
-  (options?: Options) => (code: string, id: string) => {
+  (options?: Options) => (code: string, _id: string) => {
     const htmlClass =
       (options?.applyAs ?? 'props') === 'props' ? 'className' : 'class'
 
