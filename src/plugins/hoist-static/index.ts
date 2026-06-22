@@ -29,7 +29,7 @@ const useHoistStatic = (_options?: Options) => (code: string, id: string) => {
     return null
   }
 
-  const ms = new MagicString(code)
+  const editor = new MagicString(code)
   const ast = parse(code, {
     sourceType: 'module',
     plugins: ['typescript', 'jsx'],
@@ -37,79 +37,79 @@ const useHoistStatic = (_options?: Options) => (code: string, id: string) => {
 
   traverse(ast, {
     JSXAttribute: (path) => {
-      const { node } = path
+      const jsxAttribute = path.node
+
+      if (!isJSXIdentifier(jsxAttribute.name)) {
+        return
+      }
+
+      const jsxIdentifier = jsxAttribute.name
+
+      if (!jsxIdentifier.name.toLowerCase().endsWith('styledeck')) {
+        return
+      }
+
+      if (!isJSXExpressionContainer(jsxAttribute.value)) {
+        return
+      }
+
+      const jsxExpressionContainer = jsxAttribute.value
+
+      if (!isArrayExpression(jsxExpressionContainer.expression)) {
+        return
+      }
+
+      const arrayExpression = jsxExpressionContainer.expression
 
       if (
-        !(
-          isCustomComponent(path.parentPath.node) &&
-          isJSXIdentifier(node.name) &&
-          node.name.name.toLowerCase().endsWith('styledeck') &&
-          isJSXExpressionContainer(node.value) &&
-          isArrayExpression(node.value.expression) &&
-          node.value.expression.elements.every((element) => {
-            return (
-              isExpression(element) &&
-              !isLogicalExpression(element) &&
-              !isCallExpression(element)
-            )
-          })
+        !arrayExpression.elements.every(
+          (element) => isIdentifier(element) || isMemberExpression(element),
         )
       ) {
         return
       }
 
-      const { expression } = node.value
-
-      const hoistedStyleDeck = [
+      const styleDeckIdentifier = [
         `styleDeck`,
-        expression.loc!.start.line,
-        expression.loc!.start.column + 1,
+        arrayExpression.loc!.start.line,
+        arrayExpression.loc!.start.column + 1,
       ].join('_')
 
-      ms.overwrite(expression.start!, expression.end!, hoistedStyleDeck)
+      editor.overwrite(
+        arrayExpression.start!,
+        arrayExpression.end!,
+        styleDeckIdentifier,
+      )
 
-      ms.append(
+      editor.append(
         [
           '\n',
-          `const ${hoistedStyleDeck} = ${code.slice(expression.start!, expression.end!)}`,
+          `const ${styleDeckIdentifier} = ${code.slice(arrayExpression.start!, arrayExpression.end!)}`,
           '\n',
         ].join(''),
       )
     },
   })
 
-  if (!ms.hasChanged()) {
+  if (!editor.hasChanged()) {
     return null
   }
 
-  const transformedCode = ms.toString()
-
   return {
-    code: transformedCode,
-  }
-}
-
-function isCustomComponent(node: Node) {
-  return (
-    isJSXOpeningElement(node) &&
-    ((isJSXIdentifier(node.name) && /^[A-Z]/u.test(node.name.name)) ||
-      isJSXMemberExpression(node.name))
-  )
+    code: editor.toString(),
+  } satisfies TransformResult
 }
 
 import { isArrayExpression } from '@babel/types'
-import { isCallExpression } from '@babel/types'
-import { isExpression } from '@babel/types'
+import { isIdentifier } from '@babel/types'
 import { isJSXExpressionContainer } from '@babel/types'
 import { isJSXIdentifier } from '@babel/types'
-import { isJSXMemberExpression } from '@babel/types'
-import { isJSXOpeningElement } from '@babel/types'
-import { isLogicalExpression } from '@babel/types'
+import { isMemberExpression } from '@babel/types'
 import MagicString from 'magic-string'
-import type { Node } from '@babel/types'
 import type { Options } from '#/options.js'
 import { parse } from '@babel/parser'
 import { pluginName } from '#/shared/config'
+import type { TransformResult } from 'unplugin'
 import { traverse } from '#/shared/traverse'
 import type { UnpluginFactory } from 'unplugin'
 //
