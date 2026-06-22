@@ -4,4 +4,5 @@ export { prettierConfig as default }
 const prettierConfig = {
   semi: false,
   singleQuote: true,
+  jsxSingleQuote: true,
 }
