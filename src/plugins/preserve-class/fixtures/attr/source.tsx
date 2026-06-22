@@ -4,12 +4,12 @@ function Component() {
   return (
     <>
       <div
-        class="foo bar"
+        class='foo bar'
         styleDeck={{
           color: 'red',
         }}
       />
-      <div class="foo bar" />
+      <div class='foo bar' />
     </>
   )
 }

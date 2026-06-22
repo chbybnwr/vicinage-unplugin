@@ -3,12 +3,9 @@ export { Component }
 function Component() {
   return (
     <div
-      {...__styledeck_apply(
-        textSize.xl,
-        {
-          color: 'red',
-        },
-      )}
+      {...__styledeck_apply(textSize.xl, {
+        color: 'red',
+      })}
     />
   )
 }

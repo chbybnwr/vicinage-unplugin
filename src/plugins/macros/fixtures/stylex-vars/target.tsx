@@ -8,9 +8,7 @@ function Container({
   children: ReactNode
 }) {
   return (
-    <div
-      {...__stylex_props(style_12_17._, style_14_10._(secondary))}
-    >
+    <div {...__stylex_props(style_12_17._, style_14_10._(secondary))}>
       {children}
     </div>
   )
@@ -34,7 +32,7 @@ const style_14_10 = __stylex_create({
 
 const style_12_17 = __stylex_create({
   _: {
-    [color.primary]: 'blue'
+    [color.primary]: 'blue',
   },
 })
 

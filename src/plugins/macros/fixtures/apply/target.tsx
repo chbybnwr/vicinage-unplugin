@@ -1,11 +1,7 @@
 export { App }
 
 function App() {
-  return (
-    <div
-      {...__stylex_props(style_6_17._)}
-    />
-  )
+  return <div {...__stylex_props(style_6_17._)} />
 }
 
 // import { apply } from 'vicinage'
@@ -13,7 +9,7 @@ function App() {
 
 const style_6_17 = __stylex_create({
   _: {
-    color: 'red'
+    color: 'red',
   },
 })
 

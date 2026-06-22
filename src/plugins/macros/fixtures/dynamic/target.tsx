@@ -1,11 +1,7 @@
 export { ProgressBar }
 
 function ProgressBar({ percent }: { percent: number }) {
-  return (
-    <div
-      {...__stylex_props(style_7_9._(`${percent.toString()}%`))}
-    />
-  )
+  return <div {...__stylex_props(style_7_9._(`${percent.toString()}%`))} />
 }
 
 // import { apply } from 'vicinage'

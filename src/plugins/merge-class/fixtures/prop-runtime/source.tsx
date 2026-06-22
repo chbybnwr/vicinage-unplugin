@@ -1,7 +1,7 @@
 export { Component }
 
 function Component() {
-  return <div data-styledeck-class="foo bar" {...stylexProps(textSize.xl)} />
+  return <div data-styledeck-class='foo bar' {...stylexProps(textSize.xl)} />
 }
 
 import { props as stylexProps } from '@stylexjs/stylex'

@@ -3,7 +3,10 @@ export { Hero }
 function Hero({ fontSize }: { fontSize: string }) {
   return (
     <h1
-      {...__stylex_props(style_7_9._(fontSize, fontSize), style_14_9._('black', 'blue', 'red'))}
+      {...__stylex_props(
+        style_7_9._(fontSize, fontSize),
+        style_14_9._('black', 'blue', 'red'),
+      )}
     >
       Welcome back
     </h1>

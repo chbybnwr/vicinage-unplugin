@@ -1,13 +1,7 @@
 export { Sidebar }
 
 function Sidebar() {
-  return (
-    <nav
-      {...__stylex_props(style_6_17._)}
-    >
-      Navigation
-    </nav>
-  )
+  return <nav {...__stylex_props(style_6_17._)}>Navigation</nav>
 }
 
 // import { apply } from 'vicinage'
@@ -15,7 +9,7 @@ function Sidebar() {
 
 const style_6_17 = __stylex_create({
   _: {
-    '--sidebar-width': '320px'
+    '--sidebar-width': '320px',
   },
 })
 

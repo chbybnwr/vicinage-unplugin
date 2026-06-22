@@ -2,11 +2,7 @@ export { Timestamp }
 
 function Timestamp() {
   return (
-    <time
-      {...__stylex_props(
-        style_7_9._, typography.caption,
-      )}
-    >
+    <time {...__stylex_props(style_7_9._, typography.caption)}>
       2 minutes ago
     </time>
   )
@@ -26,7 +22,7 @@ import * as stylex from '@stylexjs/stylex'
 
 const style_7_9 = __stylex_create({
   _: {
-    color: 'black'
+    color: 'black',
   },
 })
 

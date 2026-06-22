@@ -1,11 +1,7 @@
 export { Feed }
 
 function Feed() {
-  return (
-    <Post
-      style={style_6_20._}
-    />
-  )
+  return <Post style={style_6_20._} />
 }
 
 import { Post } from '#/test/fixtures/post'
@@ -14,7 +10,7 @@ import { Post } from '#/test/fixtures/post'
 
 const style_6_20 = __stylex_create({
   _: {
-    color: 'blue'
+    color: 'blue',
   },
 })
 

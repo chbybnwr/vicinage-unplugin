@@ -3,7 +3,9 @@
 export { Component }
 
 function Component() {
-  return <div {...__styledeck_mergeClass('foo bar', stylexAttrs(textSize.xl))} />
+  return (
+    <div {...__styledeck_mergeClass('foo bar', stylexAttrs(textSize.xl))} />
+  )
 }
 
 import { attrs as stylexAttrs } from '@stylexjs/stylex'

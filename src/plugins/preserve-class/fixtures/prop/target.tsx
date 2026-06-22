@@ -4,12 +4,13 @@ function Component() {
   return (
     <>
       <div
-        data-styledeck-class="foo bar"
-        data-styledeck styleDeck={{
+        data-styledeck-class='foo bar'
+        data-styledeck
+        styleDeck={{
           color: 'red',
         }}
       />
-      <div className="foo bar" />
+      <div className='foo bar' />
     </>
   )
 }

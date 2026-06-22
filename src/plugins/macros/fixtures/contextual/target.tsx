@@ -1,13 +1,7 @@
 export { Hero }
 
 function Hero() {
-  return (
-    <h1
-      {...__stylex_props(style_6_17._)}
-    >
-      Welcome back
-    </h1>
-  )
+  return <h1 {...__stylex_props(style_6_17._)}>Welcome back</h1>
 }
 
 // import { apply } from 'vicinage'
@@ -18,7 +12,7 @@ const style_6_17 = __stylex_create({
     fontSize: {
       default: '1.5rem',
       '@media (min-width: 768px)': '2.25rem',
-    }
+    },
   },
 })
 

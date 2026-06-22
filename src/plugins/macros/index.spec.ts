@@ -24,7 +24,8 @@ test.each([
   const { id, source, target } = await fixtureLoader.load(label)
   const result = transformMacros(source, id)
 
-  expect(result?.code).toBe(target)
+  expect.assert(result != null)
+  expect(await format(result.code)).toBe(target)
 })
 
 test.each([
@@ -81,6 +82,7 @@ test.each([
 
 import { createFixtureLoader } from '#/test/utils/fixture-loader'
 import { expect } from 'vitest'
+import { format } from '#/test/utils/formatter'
 import { readFile } from 'node:fs/promises'
 import { test } from 'vitest'
 import { useTransformMacros } from '.'

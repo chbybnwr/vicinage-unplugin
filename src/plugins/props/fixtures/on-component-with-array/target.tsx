@@ -3,12 +3,9 @@ export { Parent }
 function Parent() {
   return (
     <Component
-      styleDeck={__styledeck_sheet(
-        textSize.xl,
-        {
-          color: 'red',
-        },
-      )}
+      styleDeck={__styledeck_sheet(textSize.xl, {
+        color: 'red',
+      })}
     />
   )
 }

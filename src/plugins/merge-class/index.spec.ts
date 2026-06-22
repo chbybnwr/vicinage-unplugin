@@ -12,7 +12,8 @@ test.each([
   const { id, source, target } = await fixtureLoader.load(label)
   const result = transform(source, id)
 
-  expect(result?.code).toBe(target)
+  expect.assert(result != null)
+  expect(await format(result.code)).toBe(target)
 })
 
 test.each([
@@ -25,11 +26,14 @@ test.each([
   const { id, source, target } = await fixtureLoader.load(label)
   const result = transform(source, id)
 
-  expect(result?.code).toBe(target)
+  expect.assert(result != null)
+  expect(await format(result.code)).toBe(target)
 })
 
 import { createFixtureLoader } from '#/test/utils/fixture-loader'
 import { expect } from 'vitest'
+import { format } from '#/test/utils/formatter'
 import { test } from 'vitest'
 import { useTransformMergeClass } from '#/plugins/merge-class'
+
 //

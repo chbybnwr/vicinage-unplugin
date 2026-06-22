@@ -3,7 +3,16 @@ export { Hero }
 function Hero({ isEnabled }: { isEnabled: boolean }) {
   return (
     <h1
-      {...__stylex_props(style_6_17._, isEnabled ? style_8_11_x_8_35._ : style_8_11_x_8_46._, style_7_21._, style_10_11._('black'), isEnabled && style_11_11_x_11_31._, style_12_12._('blue', 'red'), style_7_21._, style_22_9._('blue'))}
+      {...__stylex_props(
+        style_6_17._,
+        isEnabled ? style_8_11_x_8_35._ : style_8_11_x_8_46._,
+        style_7_21._,
+        style_10_11._('black'),
+        isEnabled && style_11_11_x_11_31._,
+        style_12_12._('blue', 'red'),
+        style_7_21._,
+        style_22_9._('blue'),
+      )}
     >
       Welcome back
     </h1>
@@ -81,7 +90,7 @@ const style_22_9 = __stylex_create({
 
 const style_6_17 = __stylex_create({
   _: {
-    color: 'red'
+    color: 'red',
   },
 })
 
