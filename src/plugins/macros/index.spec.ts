@@ -79,7 +79,7 @@ test.each([
   }).toThrow(/Conditional arguments can not be object literals/u)
 })
 
-import { createFixtureLoader } from '#/test/utils'
+import { createFixtureLoader } from '#/test/utils/fixture-loader'
 import { expect } from 'vitest'
 import { readFile } from 'node:fs/promises'
 import { test } from 'vitest'

@@ -43,7 +43,7 @@ test.each([
   expect(result?.code).toBe(target)
 })
 
-import { createFixtureLoader } from '#/test/utils'
+import { createFixtureLoader } from '#/test/utils/fixture-loader'
 import { expect } from 'vitest'
 import { test } from 'vitest'
 import { useTransformProps } from '.'
