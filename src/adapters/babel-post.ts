@@ -6,7 +6,7 @@ const babelPlugin = declare(function (
 ) {
   api.assertVersion(7)
 
-  const transform = useTransformMergeClass(options)
+  const transform = usePostProcess(options)
 
   return {
     name: pluginName,
@@ -44,5 +44,5 @@ import type { Options } from '#/options'
 import { parse } from '@babel/parser'
 import type { PluginAPI } from '@babel/core'
 import { pluginName } from '#/shared/config'
-import { useTransformMergeClass } from '#/plugins/merge-class'
+import { usePostProcess } from '#/plugins/post-process'
 //
