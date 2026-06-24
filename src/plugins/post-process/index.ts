@@ -36,13 +36,15 @@ const usePostProcess = (options?: Options) => (code: string, _id: string) => {
       plugins: ['typescript', 'jsx'],
     })
 
-    if (applyAs === 'attrs') {
-      traverse(ast, visitor)
-    } else {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { ImportDeclaration, ...altVisitor } = visitor
-      traverse(ast, altVisitor)
-    }
+    traverse(ast, {
+      JSXOpeningElement: visitor.JSXOpeningElement,
+
+      ...(applyAs === 'attrs'
+        ? {
+            ImportDeclaration: visitor.ImportDeclaration,
+          }
+        : {}),
+    })
 
     if (!editor.hasChanged()) {
       return null
@@ -62,7 +64,7 @@ const usePostProcess = (options?: Options) => (code: string, _id: string) => {
     }
   }
 
-  const visitor: Visitor = {
+  const visitor = {
     JSXOpeningElement: (path) => {
       const { node } = path
 
@@ -208,7 +210,7 @@ const usePostProcess = (options?: Options) => (code: string, _id: string) => {
         )
       }
     },
-  }
+  } satisfies Visitor
 
   return transform()
 }
