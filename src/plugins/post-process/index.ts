@@ -26,8 +26,13 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (
 const mergeClassIdentifier = '__styledeck_mergeClass'
 
 function usePostProcess(options?: Options) {
+  const applyAs = options?.applyAs ?? 'props'
+  const overwriteClass = options?.overwriteClass ?? false
+  const mergeClass =
+    applyAs === 'props' ? `'~mergeClassProperty'` : `'~mergeClassAttribute'`
+  const htmlClass = applyAs === 'props' ? 'className' : 'class'
+
   return (code: string, _id: string) => {
-    const applyAs = options?.applyAs ?? 'props'
     const editor = new MagicString(code)
     let hasRuntimeRewrites!: boolean
 
@@ -71,7 +76,7 @@ function usePostProcess(options?: Options) {
           }
 
           if (
-            options?.overwriteClass !== true &&
+            !overwriteClass &&
             (attributeIdentifier.name.endsWith('styleDeck') ||
               attributeIdentifier.name.endsWith('StyleDeck')) &&
             isJSXExpressionContainer(attribute.value)
@@ -131,7 +136,7 @@ function usePostProcess(options?: Options) {
           editor.overwrite(
             markerAttribute.start!,
             compiledAttribute.end!,
-            `${applyAs === 'props' ? 'className' : 'class'}='${[
+            `${htmlClass}='${[
               reservedClassAttribute.value.value,
               (compiledAttribute.value! as StringLiteral).value,
             ].join(' ')}'`,
@@ -203,9 +208,6 @@ function usePostProcess(options?: Options) {
     }
 
     if (hasRuntimeRewrites) {
-      const mergeClass =
-        applyAs === 'props' ? `'~mergeClassProperty'` : `'~mergeClassAttribute'`
-
       editor.append(
         `\nimport { ${mergeClass} as ${mergeClassIdentifier} } from '${pluginName}'\n`,
       )
