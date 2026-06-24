@@ -23,12 +23,12 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (
   },
 })
 
-const mergeClassIdentifier = '__styledeck_mergeClass'
+const mergeClassFunctionName = '__styledeck_mergeClass'
 
 function usePostProcess(options?: Options) {
   const applyAs = options?.applyAs ?? 'props'
   const overwriteClass = options?.overwriteClass ?? false
-  const mergeClass =
+  const importedMergeClassFunctionName =
     applyAs === 'props' ? `'~mergeClassProperty'` : `'~mergeClassAttribute'`
   const htmlClass = applyAs === 'props' ? 'className' : 'class'
 
@@ -145,7 +145,7 @@ function usePostProcess(options?: Options) {
           editor.overwrite(
             markerAttribute.start!,
             compiledAttribute.end!,
-            `{...${mergeClassIdentifier}(${[
+            `{...${mergeClassFunctionName}(${[
               code.slice(
                 reservedClassAttribute.value.start!,
                 reservedClassAttribute.value.end!,
@@ -209,7 +209,7 @@ function usePostProcess(options?: Options) {
 
     if (hasRuntimeRewrites) {
       editor.append(
-        `\nimport { ${mergeClass} as ${mergeClassIdentifier} } from '${pluginName}'\n`,
+        `\nimport { ${importedMergeClassFunctionName} as ${mergeClassFunctionName} } from '${pluginName}'\n`,
       )
     }
 
