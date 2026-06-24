@@ -31,42 +31,6 @@ function usePostProcess(options?: Options) {
     const editor = new MagicString(code)
     let hasRuntimeRewrites!: boolean
 
-    function transform() {
-      const ast = parse(code, {
-        sourceType: 'module',
-        plugins: ['typescript', 'jsx'],
-      })
-
-      traverse(ast, {
-        JSXOpeningElement: visitor.JSXOpeningElement,
-
-        ...(applyAs === 'attrs'
-          ? {
-              ImportDeclaration: visitor.ImportDeclaration,
-            }
-          : {}),
-      })
-
-      if (!editor.hasChanged()) {
-        return null
-      }
-
-      if (hasRuntimeRewrites) {
-        const mergeClass =
-          applyAs === 'props'
-            ? `'~mergeClassProperty'`
-            : `'~mergeClassAttribute'`
-
-        editor.append(
-          `\nimport { ${mergeClass} as ${mergeClassIdentifier} } from '${pluginName}'\n`,
-        )
-      }
-
-      return {
-        code: editor.toString().replaceAll(/\s+\/>/gu, ' />'),
-      }
-    }
-
     const visitor = {
       JSXOpeningElement: (path) => {
         const { node } = path
@@ -219,7 +183,37 @@ function usePostProcess(options?: Options) {
       },
     } satisfies Visitor
 
-    return transform()
+    const ast = parse(code, {
+      sourceType: 'module',
+      plugins: ['typescript', 'jsx'],
+    })
+
+    traverse(ast, {
+      JSXOpeningElement: visitor.JSXOpeningElement,
+
+      ...(applyAs === 'attrs'
+        ? {
+            ImportDeclaration: visitor.ImportDeclaration,
+          }
+        : {}),
+    })
+
+    if (!editor.hasChanged()) {
+      return null
+    }
+
+    if (hasRuntimeRewrites) {
+      const mergeClass =
+        applyAs === 'props' ? `'~mergeClassProperty'` : `'~mergeClassAttribute'`
+
+      editor.append(
+        `\nimport { ${mergeClass} as ${mergeClassIdentifier} } from '${pluginName}'\n`,
+      )
+    }
+
+    return {
+      code: editor.toString().replaceAll(/\s+\/>/gu, ' />'),
+    }
   }
 }
 
