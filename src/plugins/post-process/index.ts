@@ -179,18 +179,18 @@ function usePostProcess(options?: Options) {
       )
     }
 
-    if (!editor.hasChanged()) {
-      return null
-    }
-
     if (hasRuntimeRewrites) {
       editor.append(
         `\nimport { ${importedMergeClassFunctionName} as ${mergeClassFunctionName} } from '${pluginName}'\n`,
       )
     }
 
+    if (!editor.hasChanged()) {
+      return null
+    }
+
     return {
-      code: editor.toString().replaceAll(/\s+\/>/gu, ' />'),
+      code: editor.toString(),
     }
   }
 }
