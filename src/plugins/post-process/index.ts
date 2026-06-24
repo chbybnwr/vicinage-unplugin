@@ -165,27 +165,6 @@ function usePostProcess(options?: Options) {
           reservedClassAttribute.end!,
         )
       },
-
-      ImportDeclaration: (path) => {
-        const { node } = path
-
-        if (
-          node.source.value === '@stylexjs/stylex' &&
-          node.specifiers.some(
-            (specifier) =>
-              specifier.local.name === '__stylex_attrs' &&
-              isImportSpecifier(specifier) &&
-              isIdentifier(specifier.imported) &&
-              specifier.imported.name === 'attrs',
-          )
-        ) {
-          editor.overwrite(
-            node.start!,
-            node.end!,
-            `import { '~attrs' as __stylex_attrs } from 'vicinage'`,
-          )
-        }
-      },
     } satisfies Visitor
 
     const ast = parse(code, {
@@ -195,13 +174,14 @@ function usePostProcess(options?: Options) {
 
     traverse(ast, {
       JSXOpeningElement: visitor.JSXOpeningElement,
-
-      ...(applyAs === 'attrs'
-        ? {
-            ImportDeclaration: visitor.ImportDeclaration,
-          }
-        : {}),
     })
+
+    if (applyAs === 'attrs') {
+      editor.replaceAll(
+        `import { attrs as __stylex_attrs } from '@stylexjs/stylex'`,
+        `import { '~attrs' as __stylex_attrs } from 'vicinage'`,
+      )
+    }
 
     if (!editor.hasChanged()) {
       return null
@@ -221,7 +201,6 @@ function usePostProcess(options?: Options) {
 
 import { isArrayExpression } from '@babel/types'
 import { isIdentifier } from '@babel/types'
-import { isImportSpecifier } from '@babel/types'
 import { isJSXAttribute } from '@babel/types'
 import { isJSXExpressionContainer } from '@babel/types'
 import { isJSXIdentifier } from '@babel/types'
