@@ -36,7 +36,12 @@ function usePostProcess(options?: Options) {
     const editor = new MagicString(code)
     let hasRuntimeRewrites!: boolean
 
-    const visitor = {
+    const ast = parse(code, {
+      sourceType: 'module',
+      plugins: ['typescript', 'jsx'],
+    })
+
+    traverse(ast, {
       JSXOpeningElement: (path) => {
         const { node } = path
 
@@ -165,15 +170,6 @@ function usePostProcess(options?: Options) {
           reservedClassAttribute.end!,
         )
       },
-    } satisfies Visitor
-
-    const ast = parse(code, {
-      sourceType: 'module',
-      plugins: ['typescript', 'jsx'],
-    })
-
-    traverse(ast, {
-      JSXOpeningElement: visitor.JSXOpeningElement,
     })
 
     if (applyAs === 'attrs') {
@@ -216,5 +212,4 @@ import { pluginName } from '#/shared/config'
 import type { StringLiteral } from '@babel/types'
 import { traverse } from '#/shared/traverse'
 import type { UnpluginFactory } from 'unplugin'
-import type { Visitor } from '@babel/traverse'
 //
