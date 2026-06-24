@@ -25,194 +25,202 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (
 
 const mergeClassIdentifier = '__styledeck_mergeClass'
 
-const usePostProcess = (options?: Options) => (code: string, _id: string) => {
-  const applyAs = options?.applyAs ?? 'props'
-  const editor = new MagicString(code)
-  let hasRuntimeRewrites!: boolean
+function usePostProcess(options?: Options) {
+  return (code: string, _id: string) => {
+    const applyAs = options?.applyAs ?? 'props'
+    const editor = new MagicString(code)
+    let hasRuntimeRewrites!: boolean
 
-  function transform() {
-    const ast = parse(code, {
-      sourceType: 'module',
-      plugins: ['typescript', 'jsx'],
-    })
+    function transform() {
+      const ast = parse(code, {
+        sourceType: 'module',
+        plugins: ['typescript', 'jsx'],
+      })
 
-    traverse(ast, {
-      JSXOpeningElement: visitor.JSXOpeningElement,
+      traverse(ast, {
+        JSXOpeningElement: visitor.JSXOpeningElement,
 
-      ...(applyAs === 'attrs'
-        ? {
-            ImportDeclaration: visitor.ImportDeclaration,
-          }
-        : {}),
-    })
+        ...(applyAs === 'attrs'
+          ? {
+              ImportDeclaration: visitor.ImportDeclaration,
+            }
+          : {}),
+      })
 
-    if (!editor.hasChanged()) {
-      return null
+      if (!editor.hasChanged()) {
+        return null
+      }
+
+      if (hasRuntimeRewrites) {
+        const mergeClass =
+          applyAs === 'props'
+            ? `'~mergeClassProperty'`
+            : `'~mergeClassAttribute'`
+
+        editor.append(
+          `\nimport { ${mergeClass} as ${mergeClassIdentifier} } from '${pluginName}'\n`,
+        )
+      }
+
+      return {
+        code: editor.toString().replaceAll(/\s+\/>/gu, ' />'),
+      }
     }
 
-    if (hasRuntimeRewrites) {
-      const mergeClass =
-        applyAs === 'props' ? `'~mergeClassProperty'` : `'~mergeClassAttribute'`
+    const visitor = {
+      JSXOpeningElement: (path) => {
+        const { node } = path
 
-      editor.append(
-        `\nimport { ${mergeClass} as ${mergeClassIdentifier} } from '${pluginName}'\n`,
-      )
-    }
+        let reservedClassAttribute: JSXAttribute | undefined
+        let markerAttributeIndex: number | undefined
+        const spreadAttributeMap = new Map<number, JSXSpreadAttribute>()
 
-    return {
-      code: editor.toString().replaceAll(/\s+\/>/gu, ' />'),
-    }
-  }
+        for (const [index, attribute] of node.attributes.entries()) {
+          if (isJSXSpreadAttribute(attribute)) {
+            spreadAttributeMap.set(index, attribute)
 
-  const visitor = {
-    JSXOpeningElement: (path) => {
-      const { node } = path
-
-      let reservedClassAttribute: JSXAttribute | undefined
-      let markerAttributeIndex: number | undefined
-      const spreadAttributeMap = new Map<number, JSXSpreadAttribute>()
-
-      for (const [index, attribute] of node.attributes.entries()) {
-        if (isJSXSpreadAttribute(attribute)) {
-          spreadAttributeMap.set(index, attribute)
-
-          continue
-        }
-
-        if (!isJSXIdentifier(attribute.name)) {
-          continue
-        }
-
-        const attributeIdentifier = attribute.name
-
-        switch (attributeIdentifier.name) {
-          case 'data-styledeck-class': {
-            reservedClassAttribute = attribute
-
-            break
+            continue
           }
 
-          case 'data-styledeck': {
-            markerAttributeIndex = index
-
-            break
+          if (!isJSXIdentifier(attribute.name)) {
+            continue
           }
 
-          default: {
-            break
+          const attributeIdentifier = attribute.name
+
+          switch (attributeIdentifier.name) {
+            case 'data-styledeck-class': {
+              reservedClassAttribute = attribute
+
+              break
+            }
+
+            case 'data-styledeck': {
+              markerAttributeIndex = index
+
+              break
+            }
+
+            default: {
+              break
+            }
+          }
+
+          if (
+            options?.overwriteClass !== true &&
+            (attributeIdentifier.name.endsWith('styleDeck') ||
+              attributeIdentifier.name.endsWith('StyleDeck')) &&
+            isJSXExpressionContainer(attribute.value)
+          ) {
+            if (!isArrayExpression(attribute.value.expression)) {
+              continue
+            }
+
+            const arrayExpression = attribute.value.expression
+
+            if (
+              !arrayExpression.elements.every(
+                (element) =>
+                  isIdentifier(element) || isMemberExpression(element),
+              )
+            ) {
+              continue
+            }
+
+            const styleDeckIdentifier = [
+              `styleDeck`,
+              arrayExpression.loc!.start.line,
+              arrayExpression.loc!.start.column + 1,
+            ].join('_')
+
+            editor.overwrite(
+              arrayExpression.start!,
+              arrayExpression.end!,
+              styleDeckIdentifier,
+            )
+
+            editor.append(
+              [
+                '\n',
+                `const ${styleDeckIdentifier} = ${code.slice(arrayExpression.start!, arrayExpression.end!)}`,
+                '\n',
+              ].join(''),
+            )
+
+            continue
           }
         }
 
         if (
-          options?.overwriteClass !== true &&
-          (attributeIdentifier.name.endsWith('styleDeck') ||
-            attributeIdentifier.name.endsWith('StyleDeck')) &&
-          isJSXExpressionContainer(attribute.value)
+          !(
+            isStringLiteral(reservedClassAttribute?.value) &&
+            markerAttributeIndex != null
+          )
         ) {
-          if (!isArrayExpression(attribute.value.expression)) {
-            continue
-          }
-
-          const arrayExpression = attribute.value.expression
-
-          if (
-            !arrayExpression.elements.every(
-              (element) => isIdentifier(element) || isMemberExpression(element),
-            )
-          ) {
-            continue
-          }
-
-          const styleDeckIdentifier = [
-            `styleDeck`,
-            arrayExpression.loc!.start.line,
-            arrayExpression.loc!.start.column + 1,
-          ].join('_')
-
-          editor.overwrite(
-            arrayExpression.start!,
-            arrayExpression.end!,
-            styleDeckIdentifier,
-          )
-
-          editor.append(
-            [
-              '\n',
-              `const ${styleDeckIdentifier} = ${code.slice(arrayExpression.start!, arrayExpression.end!)}`,
-              '\n',
-            ].join(''),
-          )
-
-          continue
+          return
         }
-      }
 
-      if (
-        !(
-          isStringLiteral(reservedClassAttribute?.value) &&
-          markerAttributeIndex != null
+        const markerAttribute = node.attributes[markerAttributeIndex]!
+        const compiledAttribute = node.attributes[markerAttributeIndex + 1]!
+
+        if (isJSXAttribute(compiledAttribute)) {
+          editor.overwrite(
+            markerAttribute.start!,
+            compiledAttribute.end!,
+            `${applyAs === 'props' ? 'className' : 'class'}='${[
+              reservedClassAttribute.value.value,
+              (compiledAttribute.value! as StringLiteral).value,
+            ].join(' ')}'`,
+          )
+        } else {
+          editor.overwrite(
+            markerAttribute.start!,
+            compiledAttribute.end!,
+            `{...${mergeClassIdentifier}(${[
+              code.slice(
+                reservedClassAttribute.value.start!,
+                reservedClassAttribute.value.end!,
+              ),
+              code.slice(
+                compiledAttribute.argument.start!,
+                compiledAttribute.argument.end!,
+              ),
+            ].join(', ')})}`,
+          )
+
+          hasRuntimeRewrites = true
+        }
+
+        editor.remove(
+          reservedClassAttribute.start!,
+          reservedClassAttribute.end!,
         )
-      ) {
-        return
-      }
+      },
 
-      const markerAttribute = node.attributes[markerAttributeIndex]!
-      const compiledAttribute = node.attributes[markerAttributeIndex + 1]!
+      ImportDeclaration: (path) => {
+        const { node } = path
 
-      if (isJSXAttribute(compiledAttribute)) {
-        editor.overwrite(
-          markerAttribute.start!,
-          compiledAttribute.end!,
-          `${applyAs === 'props' ? 'className' : 'class'}='${[
-            reservedClassAttribute.value.value,
-            (compiledAttribute.value! as StringLiteral).value,
-          ].join(' ')}'`,
-        )
-      } else {
-        editor.overwrite(
-          markerAttribute.start!,
-          compiledAttribute.end!,
-          `{...${mergeClassIdentifier}(${[
-            code.slice(
-              reservedClassAttribute.value.start!,
-              reservedClassAttribute.value.end!,
-            ),
-            code.slice(
-              compiledAttribute.argument.start!,
-              compiledAttribute.argument.end!,
-            ),
-          ].join(', ')})}`,
-        )
+        if (
+          node.source.value === '@stylexjs/stylex' &&
+          node.specifiers.some(
+            (specifier) =>
+              specifier.local.name === '__stylex_attrs' &&
+              isImportSpecifier(specifier) &&
+              isIdentifier(specifier.imported) &&
+              specifier.imported.name === 'attrs',
+          )
+        ) {
+          editor.overwrite(
+            node.start!,
+            node.end!,
+            `import { '~attrs' as __stylex_attrs } from 'vicinage'`,
+          )
+        }
+      },
+    } satisfies Visitor
 
-        hasRuntimeRewrites = true
-      }
-
-      editor.remove(reservedClassAttribute.start!, reservedClassAttribute.end!)
-    },
-
-    ImportDeclaration: (path) => {
-      const { node } = path
-
-      if (
-        node.source.value === '@stylexjs/stylex' &&
-        node.specifiers.some(
-          (specifier) =>
-            specifier.local.name === '__stylex_attrs' &&
-            isImportSpecifier(specifier) &&
-            isIdentifier(specifier.imported) &&
-            specifier.imported.name === 'attrs',
-        )
-      ) {
-        editor.overwrite(
-          node.start!,
-          node.end!,
-          `import { '~attrs' as __stylex_attrs } from 'vicinage'`,
-        )
-      }
-    },
-  } satisfies Visitor
-
-  return transform()
+    return transform()
+  }
 }
 
 import { isArrayExpression } from '@babel/types'
