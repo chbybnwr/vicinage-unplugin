@@ -27,7 +27,6 @@ const mergeClassFunctionName = '__styledeck_mergeClass'
 
 function usePostProcess(options?: Options) {
   const applyAs = options?.applyAs ?? 'props'
-  const overwriteClass = options?.overwriteClass ?? false
   const importedMergeClassFunctionName =
     applyAs === 'props' ? `'~mergeClassProperty'` : `'~mergeClassAttribute'`
   const htmlClass = applyAs === 'props' ? 'className' : 'class'
@@ -62,23 +61,21 @@ function usePostProcess(options?: Options) {
 
           const attributeIdentifier = attribute.name
 
-          if (!overwriteClass) {
-            switch (attributeIdentifier.name) {
-              case 'data-styledeck-class': {
-                reservedClassAttribute = attribute
+          switch (attributeIdentifier.name) {
+            case 'data-styledeck-class': {
+              reservedClassAttribute = attribute
 
-                break
-              }
+              break
+            }
 
-              case 'data-styledeck': {
-                markerAttributeIndex = index
+            case 'data-styledeck': {
+              markerAttributeIndex = index
 
-                break
-              }
+              break
+            }
 
-              default: {
-                break
-              }
+            default: {
+              break
             }
           }
 
@@ -128,7 +125,6 @@ function usePostProcess(options?: Options) {
 
         if (
           !(
-            !overwriteClass &&
             isStringLiteral(reservedClassAttribute?.value) &&
             markerAttributeIndex != null
           )

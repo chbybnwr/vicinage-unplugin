@@ -31,7 +31,6 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (
 
 const usePreProcess = (options?: Options) => {
   const applyAs = options?.applyAs ?? 'props'
-  const overwriteClass = options?.overwriteClass ?? false
   const unstyledComponentModules = options?.unstyledComponentModules
 
   const htmlClass = applyAs === 'props' ? 'className' : 'class'
@@ -663,26 +662,24 @@ const usePreProcess = (options?: Options) => {
           } else {
             let styleDeckAttrReplacement = `{...__stylex_${applyAs}(${joined})}`
 
-            if (!overwriteClass) {
-              const classAttr = element.attributes.find(
-                (attribute): attribute is JSXAttribute =>
-                  isJSXAttribute(attribute) &&
-                  isJSXIdentifier(attribute.name) &&
-                  attribute.name.name === htmlClass,
+            const classAttr = element.attributes.find(
+              (attribute): attribute is JSXAttribute =>
+                isJSXAttribute(attribute) &&
+                isJSXIdentifier(attribute.name) &&
+                attribute.name.name === htmlClass,
+            )
+
+            if (classAttr != null) {
+              styleDeckAttrReplacement = `data-styledeck ${styleDeckAttrReplacement}`
+
+              const firstAttribute = element.attributes[0]!
+              ms.appendLeft(firstAttribute.start!, 'data-styledeck-element ')
+
+              ms.overwrite(
+                classAttr.name.start!,
+                classAttr.name.end!,
+                'data-styledeck-class',
               )
-
-              if (classAttr != null) {
-                styleDeckAttrReplacement = `data-styledeck {...__stylex_${applyAs}(${joined})}`
-
-                const firstAttribute = element.attributes[0]!
-                ms.appendLeft(firstAttribute.start!, 'data-styledeck-element ')
-
-                ms.overwrite(
-                  classAttr.name.start!,
-                  classAttr.name.end!,
-                  'data-styledeck-class',
-                )
-              }
             }
 
             ms.overwrite(

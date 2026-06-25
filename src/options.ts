@@ -5,11 +5,5 @@ export type { Options }
  */
 interface Options {
   applyAs?: 'props' | 'attrs'
-
-  /**
-   * @default false
-   */
-  overwriteClass?: boolean
-
   unstyledComponentModules?: string[]
 }
