@@ -4,7 +4,7 @@
     "@chbybnwr/tsconfig/tsconfig.dom.json",
     "@chbybnwr/tsconfig/tsconfig.bundled.json"
   ],
-  "include": ["src/**/*.tsx", "src/**/*.dom.ts"],
+  "include": ["src/**/*.tsx"],
   "exclude": [],
 
   "compilerOptions": {
