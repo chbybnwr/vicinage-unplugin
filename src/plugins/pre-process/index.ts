@@ -778,13 +778,17 @@ function collectUnstyledComponentImportInfo(
 function getJSXMemberExpressionRootIdentifier(
   expression: JSXMemberExpression,
 ): JSXIdentifier | null {
-  let { object } = expression
+  const { object } = expression
 
-  while (isJSXMemberExpression(object)) {
-    object = object.object
+  if (isJSXIdentifier(object)) {
+    return object
   }
 
-  return isJSXIdentifier(object) ? object : null
+  if (isJSXMemberExpression(object)) {
+    return getJSXMemberExpressionRootIdentifier(object)
+  }
+
+  return null
 }
 
 import type { ArrowFunctionExpression } from '@babel/types'
