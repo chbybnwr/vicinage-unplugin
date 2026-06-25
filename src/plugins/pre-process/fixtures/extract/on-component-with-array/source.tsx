@@ -1,8 +1,8 @@
-export { Feed }
+export { Example }
 
-function Feed() {
+function Example() {
   return (
-    <Post
+    <Component
       styleDeck={{
         color: 'blue',
         backgroundColor: () => 'green',
@@ -11,5 +11,5 @@ function Feed() {
   )
 }
 
-import { Post } from '#/test/fixtures/post'
+import { Component } from '#/test/fixtures/component'
 //

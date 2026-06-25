@@ -1,10 +1,10 @@
-export { Feed }
+export { Example }
 
-function Feed() {
-  return <Post styleDeck={[style_6_18._, style_8_9._('green')]} />
+function Example() {
+  return <Component styleDeck={[style_6_18._, style_8_9._('green')]} />
 }
 
-import { Post } from '#/test/fixtures/post'
+import { Component } from '#/test/fixtures/component'
 //
 
 const style_8_9 = __stylex_create({
