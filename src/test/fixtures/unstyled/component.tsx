@@ -1,8 +1,7 @@
 export { Component }
 
-function Component(props: ComponentProps<'div'>) {
+function Component(props: IntrinsicElementAttributes['div']) {
   return <div {...props}>Lorem ipsum</div>
 }
 
-import type { ComponentProps } from 'react'
-//
+import type { IntrinsicElementAttributes } from 'vue'

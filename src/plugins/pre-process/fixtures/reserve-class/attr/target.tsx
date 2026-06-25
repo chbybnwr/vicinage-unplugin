@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 export { Component }
 
 function Component() {
@@ -9,14 +7,14 @@ function Component() {
         data-styledeck-element
         data-styledeck-class='foo bar'
         data-styledeck
-        {...__stylex_attrs(style_10_20._)}
+        {...__stylex_attrs(style_8_20._)}
       />
       <div class='foo bar' />
     </>
   )
 }
 
-const style_10_20 = __stylex_create({
+const style_8_20 = __stylex_create({
   _: {
     color: 'red',
   },

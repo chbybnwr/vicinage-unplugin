@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 export { Component }
 
 function Component() {

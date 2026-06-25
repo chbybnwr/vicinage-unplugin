@@ -5,7 +5,7 @@ function Container({
   children,
 }: {
   secondary: string
-  children: ReactNode
+  children: VNode
 }) {
   return (
     <div {...__stylex_props(style_12_18._, style_14_10._(secondary))}>
@@ -19,8 +19,8 @@ const color = stylex.defineVars({
   secondary: null,
 })
 
-import type { ReactNode } from 'react'
 import * as stylex from '@stylexjs/stylex'
+import type { VNode } from 'vue'
 //
 
 const style_14_10 = __stylex_create({

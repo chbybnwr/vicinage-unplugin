@@ -1,13 +1,16 @@
-export default {}
+export {}
 
-declare module 'react' {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  interface DOMAttributes<T> {
+declare module 'vue' {
+  interface HTMLAttributes {
     styleDeck?: StyleDeck
-    class?: string | undefined
-    [x: `data-${string}`]: string | undefined
+    className?: ClassValue | undefined
+  }
+
+  interface SVGAttributes {
+    styleDeck?: StyleDeck
   }
 }
 
+import type { ClassValue } from 'vue'
 import type { StyleDeck } from 'vicinage'
 //

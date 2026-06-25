@@ -143,19 +143,6 @@ const eslintConfig = defineConfig([
   },
 
   {
-    name: 'type-error-test',
-    files: ['**/fixtures/**/*.tsx'],
-    rules: {
-      '@typescript-eslint/ban-ts-comment': [
-        'error',
-        {
-          'ts-nocheck': false,
-        },
-      ],
-    },
-  },
-
-  {
     name: 'node',
     files: [
       './*.{js,jsx,ts,tsx,mjs,mjsx,mtsx,cjs}',
