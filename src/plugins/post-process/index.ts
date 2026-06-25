@@ -62,26 +62,27 @@ function usePostProcess(options?: Options) {
 
           const attributeIdentifier = attribute.name
 
-          switch (attributeIdentifier.name) {
-            case 'data-styledeck-class': {
-              reservedClassAttribute = attribute
+          if (!overwriteClass) {
+            switch (attributeIdentifier.name) {
+              case 'data-styledeck-class': {
+                reservedClassAttribute = attribute
 
-              break
-            }
+                break
+              }
 
-            case 'data-styledeck': {
-              markerAttributeIndex = index
+              case 'data-styledeck': {
+                markerAttributeIndex = index
 
-              break
-            }
+                break
+              }
 
-            default: {
-              break
+              default: {
+                break
+              }
             }
           }
 
           if (
-            !overwriteClass &&
             (attributeIdentifier.name.endsWith('styleDeck') ||
               attributeIdentifier.name.endsWith('StyleDeck')) &&
             isJSXExpressionContainer(attribute.value)
@@ -127,6 +128,7 @@ function usePostProcess(options?: Options) {
 
         if (
           !(
+            !overwriteClass &&
             isStringLiteral(reservedClassAttribute?.value) &&
             markerAttributeIndex != null
           )
