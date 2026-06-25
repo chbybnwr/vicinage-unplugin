@@ -36,7 +36,7 @@ const usePreProcess = (options?: Options) => {
   const htmlClass = applyAs === 'props' ? 'className' : 'class'
 
   return (code: string, _id: string) => {
-    const ms = new MagicString(code)
+    const editor = new MagicString(code)
     const hoistedStyles = new Set<string>()
     const stylexImports = new Set<string>()
 
@@ -646,7 +646,7 @@ const usePreProcess = (options?: Options) => {
           const joined = finalArgs.join(', ')
 
           if (isCustomComponent && !isUnstyledComponent) {
-            ms.overwrite(
+            editor.overwrite(
               attribute.value.expression.start!,
               attribute.value.expression.end!,
               finalArgs.length === 1 ? joined : `[${joined}]`,
@@ -665,16 +665,19 @@ const usePreProcess = (options?: Options) => {
               styleDeckAttrReplacement = `data-styledeck ${styleDeckAttrReplacement}`
 
               const firstAttribute = element.attributes[0]!
-              ms.appendLeft(firstAttribute.start!, 'data-styledeck-element ')
+              editor.appendLeft(
+                firstAttribute.start!,
+                'data-styledeck-element ',
+              )
 
-              ms.overwrite(
+              editor.overwrite(
                 classAttr.name.start!,
                 classAttr.name.end!,
                 'data-styledeck-class',
               )
             }
 
-            ms.overwrite(
+            editor.overwrite(
               attribute.start!,
               attribute.end!,
               styleDeckAttrReplacement,
@@ -704,12 +707,12 @@ const usePreProcess = (options?: Options) => {
     ]
 
     if (footer.length > 0) {
-      ms.append(`\n${footer.join('\n\n')}\n`)
+      editor.append(`\n${footer.join('\n\n')}\n`)
     }
 
-    if (ms.hasChanged()) {
+    if (editor.hasChanged()) {
       return {
-        code: ms.toString(),
+        code: editor.toString(),
       }
     }
 
