@@ -290,17 +290,13 @@ const usePreProcess = (options?: Options) => {
             unstyledComponentNamespaceNames.has(unstyledRootIdentifier.name))
 
         for (const styleDeckAttr of styleDeckAttrList) {
-          const argList = (() => {
-            if (isJSXExpressionContainer(styleDeckAttr.value)) {
-              if (isArrayExpression(styleDeckAttr.value.expression)) {
-                return styleDeckAttr.value.expression.elements
-              }
-
-              return [styleDeckAttr.value.expression]
-            }
-
+          if (!isJSXExpressionContainer(styleDeckAttr.value)) {
             throw new Error('Invalid styleDeck value')
-          })()
+          }
+
+          const argList = isArrayExpression(styleDeckAttr.value.expression)
+            ? styleDeckAttr.value.expression.elements
+            : [styleDeckAttr.value.expression]
 
           const finalArgs = []
 
