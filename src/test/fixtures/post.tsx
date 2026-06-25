@@ -1,20 +1,19 @@
 export { Post }
 
-function Post({ style }: { style?: StyleDeck }) {
+function Post({ styleDeck }: { styleDeck?: StyleDeck }) {
   return (
     <div
-      {...apply(
+      styleDeck={[
         {
           color: 'black',
         },
-        style,
-      )}
+        styleDeck,
+      ]}
     >
       Lorem ipsum
     </div>
   )
 }
 
-import { apply } from 'vicinage'
 import type { StyleDeck } from 'vicinage'
 //

@@ -6,7 +6,7 @@ const babelPlugin = declare(function (
 ) {
   api.assertVersion(7)
 
-  const transform = useTransformPreserveClass(options)
+  const transform = usePreProcess(options)
 
   return {
     name: pluginName,
@@ -44,5 +44,5 @@ import type { Options } from '#/options'
 import { parse } from '@babel/parser'
 import type { PluginAPI } from '@babel/core'
 import { pluginName } from '#/shared/config'
-import { useTransformPreserveClass } from '#/plugins/preserve-class'
+import { usePreProcess } from '#/plugins/pre-process'
 //
