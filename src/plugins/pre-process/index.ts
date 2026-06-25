@@ -91,7 +91,14 @@ const usePreProcess = (options?: Options) => {
       node: ArrowFunctionExpression | FunctionExpression,
     ) {
       const { body, loc: location } = node
-      const bodySource = extractFunctionBodySource(body)
+
+      if (isBlockStatement(body)) {
+        throw new Error(
+          `[${pluginName}] Dynamic style function body must be an expression.`,
+        )
+      }
+
+      const bodySource = code.slice(body.start!, body.end!)
 
       const paramName = `value_${location!.start.line}_${location!.start.column + 1}`
 
@@ -99,16 +106,6 @@ const usePreProcess = (options?: Options) => {
         bodySource,
         paramName,
       }
-    }
-
-    function extractFunctionBodySource(body: Node): string {
-      if (!isBlockStatement(body)) {
-        return code.slice(body.start!, body.end!)
-      }
-
-      throw new Error(
-        `[${pluginName}] Dynamic style function body must be an expression.`,
-      )
     }
 
     function extractContextualClosures(
