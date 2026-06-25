@@ -264,18 +264,6 @@ const usePreProcess = (options?: Options) => {
       JSXOpeningElement: (path) => {
         const element = path.node
 
-        const styleDeckAttrList = element.attributes.filter(
-          (attribute): attribute is JSXAttribute =>
-            isJSXAttribute(attribute) &&
-            isJSXIdentifier(attribute.name) &&
-            (attribute.name.name === 'styleDeck' ||
-              attribute.name.name.endsWith('StyleDeck')),
-        )
-
-        if (styleDeckAttrList.length === 0) {
-          return
-        }
-
         const isCustomComponent =
           (isJSXIdentifier(element.name) &&
             /^[A-Z]/u.test(element.name.name)) ||
@@ -289,14 +277,25 @@ const usePreProcess = (options?: Options) => {
           (isNode(unstyledRootIdentifier) &&
             unstyledComponentNamespaceNames.has(unstyledRootIdentifier.name))
 
-        for (const styleDeckAttr of styleDeckAttrList) {
-          if (!isJSXExpressionContainer(styleDeckAttr.value)) {
+        for (const attribute of element.attributes) {
+          if (
+            !(
+              isJSXAttribute(attribute) &&
+              isJSXIdentifier(attribute.name) &&
+              (attribute.name.name === 'styleDeck' ||
+                attribute.name.name.endsWith('StyleDeck'))
+            )
+          ) {
+            continue
+          }
+
+          if (!isJSXExpressionContainer(attribute.value)) {
             throw new Error('Invalid styleDeck value')
           }
 
-          const argList = isArrayExpression(styleDeckAttr.value.expression)
-            ? styleDeckAttr.value.expression.elements
-            : [styleDeckAttr.value.expression]
+          const argList = isArrayExpression(attribute.value.expression)
+            ? attribute.value.expression.elements
+            : [attribute.value.expression]
 
           const finalArgs = []
 
@@ -648,8 +647,8 @@ const usePreProcess = (options?: Options) => {
 
           if (isCustomComponent && !isUnstyledComponent) {
             ms.overwrite(
-              styleDeckAttr.value.expression.start!,
-              styleDeckAttr.value.expression.end!,
+              attribute.value.expression.start!,
+              attribute.value.expression.end!,
               finalArgs.length === 1 ? joined : `[${joined}]`,
             )
           } else {
@@ -676,14 +675,16 @@ const usePreProcess = (options?: Options) => {
             }
 
             ms.overwrite(
-              styleDeckAttr.start!,
-              styleDeckAttr.end!,
+              attribute.start!,
+              attribute.end!,
               styleDeckAttrReplacement,
             )
 
             stylexImports.add(
               `import { ${applyAs} as __stylex_${applyAs} } from '@stylexjs/stylex'`,
             )
+
+            break
           }
         }
       },
