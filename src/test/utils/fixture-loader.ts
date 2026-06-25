@@ -4,8 +4,8 @@ export { createFixtureLoader }
 
 const fixtureNameList = ['source.tsx', 'target.tsx']
 
-const createFixtureLoader = ({ baseUrl }: { baseUrl: string }) => ({
-  load: async (label: string) => {
+function createFixtureLoader({ baseUrl }: { baseUrl: string }) {
+  async function load(label: string) {
     const [source, target] = await Promise.all(
       fixtureNameList.map(
         async (fixtureFileName) =>
@@ -23,8 +23,12 @@ const createFixtureLoader = ({ baseUrl }: { baseUrl: string }) => ({
       source: source!,
       target: target!,
     }
-  },
-})
+  }
+
+  return {
+    load,
+  }
+}
 
 import { readFile } from 'node:fs/promises'
 //
