@@ -21,7 +21,7 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (
         exclude: /node_modules/,
       },
       code: {
-        include: ['styleDeck'],
+        include: ['styleDeck', 'StyleDeck'],
       },
     },
 
