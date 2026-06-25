@@ -29,7 +29,7 @@ test.each([
 test.each([
   { label: 'merge-class/skip/no-relevant-props' },
   //
-])('skip $label', async ({ label }) => {
+])('$label', async ({ label }) => {
   const id = new URL(`fixtures/${label}.tsx`, import.meta.url).pathname
   const code = await readFile(id, { encoding: 'utf8' })
   const transform = usePostProcess()
@@ -53,7 +53,7 @@ test.each([
   { label: 'hoist-static/skip/logical' },
   { label: 'hoist-static/skip/dynamic' },
   //
-])('skip $label', async ({ label }) => {
+])('$label', async ({ label }) => {
   const id = new URL(`fixtures/${label}.tsx`, import.meta.url).pathname
   const code = await readFile(id, { encoding: 'utf8' })
   const transform = usePostProcess()
