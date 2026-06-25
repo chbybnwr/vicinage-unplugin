@@ -14,6 +14,7 @@ test.each([
   { label: 'extract/dynamic-deep' },
   { label: 'extract/on-component' },
   { label: 'extract/on-component-with-array' },
+  { label: 'extract/on-component-with-parts' },
   { label: 'extract/stylex-vars' },
   { label: 'extract/pseudo-element' },
 ])('$label', async ({ label }) => {

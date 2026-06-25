@@ -83,7 +83,7 @@ function usePostProcess(options?: Options) {
           }
 
           if (
-            (attributeIdentifier.name.endsWith('styleDeck') ||
+            (attributeIdentifier.name === 'styleDeck' ||
               attributeIdentifier.name.endsWith('StyleDeck')) &&
             isJSXExpressionContainer(attribute.value)
           ) {

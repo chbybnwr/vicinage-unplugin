@@ -39,14 +39,16 @@ test.each([
 })
 
 test.each([
-  { label: 'hoist-static/static' },
+  { label: 'hoist-static/single' },
+  { label: 'hoist-static/multiple' },
   //
 ])('$label', async ({ label }) => {
   const transform = usePostProcess()
   const { id, source, target } = await fixtureLoader.load(label)
   const result = transform(source, id)
 
-  expect(result?.code).toBe(target)
+  expect.assert(result != null)
+  expect(await format(result.code)).toBe(target)
 })
 
 test.each([

@@ -268,374 +268,17 @@ const usePreProcess = (options?: Options) => {
       JSXOpeningElement: (path) => {
         const element = path.node
 
-        const styleDeckAttr = element.attributes.find(
+        const styleDeckAttrList = element.attributes.filter(
           (attribute): attribute is JSXAttribute =>
             isJSXAttribute(attribute) &&
             isJSXIdentifier(attribute.name) &&
-            attribute.name.name === 'styleDeck',
+            (attribute.name.name === 'styleDeck' ||
+              attribute.name.name.endsWith('StyleDeck')),
         )
 
-        if (styleDeckAttr == null) {
+        if (styleDeckAttrList.length === 0) {
           return
         }
-
-        const argList = (() => {
-          if (isJSXExpressionContainer(styleDeckAttr.value)) {
-            if (isArrayExpression(styleDeckAttr.value.expression)) {
-              return styleDeckAttr.value.expression.elements
-            }
-
-            return [styleDeckAttr.value.expression]
-          }
-
-          throw new Error('Invalid styleDeck value')
-        })()
-
-        const finalArgs = []
-
-        for (const arg of argList) {
-          if (arg == null) {
-            continue
-          }
-
-          if (!isObjectExpression(arg)) {
-            validateArg(arg)
-
-            finalArgs.push(code.slice(arg.start!, arg.end!))
-
-            continue
-          }
-
-          const staticProps = []
-          const extraArgs = []
-          const propertyList: (ObjectProperty | ObjectMethod)[] = []
-
-          for (const property of arg.properties) {
-            if (isSpreadElement(property)) {
-              throw new Error(
-                `[${pluginName}] Spread elements in style objects are not supported`,
-              )
-            }
-
-            propertyList.push(property)
-          }
-
-          for (const property of propertyList) {
-            const { key } = property
-            const value = isObjectMethod(property) ? property : property.value
-            const { computed } = property
-
-            const rawKeySource = code.slice(key.start!, key.end!)
-            const propertyKey = computed ? `[${rawKeySource}]` : rawKeySource
-
-            const location = key.loc!
-
-            const sheetName = `style_${location.start.line}_${location.start.column + 1}`
-
-            // Handle pseudo-elements by processing their inner properties
-            if (
-              isObjectProperty(property) &&
-              isObjectExpression(value) &&
-              propertyKey.includes('::')
-            ) {
-              const pseudoValueLocation = value.loc!
-
-              const pseudoValueSheetName = `style_${pseudoValueLocation.start.line}_${pseudoValueLocation.start.column + 1}`
-              let hasPseudoConditional = false
-
-              for (const pseudoProp of value.properties) {
-                if (isSpreadElement(pseudoProp)) {
-                  throw new Error(
-                    `[${pluginName}] Spread elements in style objects are not supported`,
-                  )
-                }
-
-                if (isObjectMethod(pseudoProp)) {
-                  throw new Error(
-                    `[${pluginName}] Dynamic style function body must be an expression.`,
-                  )
-                }
-
-                const pseudoValue = pseudoProp.value
-
-                if (
-                  isConditionalExpression(pseudoValue) ||
-                  (isLogicalExpression(pseudoValue) &&
-                    pseudoValue.operator === '&&')
-                ) {
-                  hasPseudoConditional = true
-                }
-              }
-
-              if (!hasPseudoConditional) {
-                const pseudoContextual = extractContextualClosures(
-                  value,
-                  contextualClosureBaseLevel,
-                  propertyKey,
-                )
-
-                if (pseudoContextual == null) {
-                  staticProps.push(
-                    `${indent(indentSize)}${propertyKey}: ${code.slice(value.start!, value.end!)}`,
-                  )
-                } else if (pseudoContextual.paramList.length > 0) {
-                  hoistedStyles.add(
-                    [
-                      `const ${sheetName} = __stylex_create({`,
-                      `  _: (${pseudoContextual.paramList.join(', ')}) => ({`,
-                      `    ${propertyKey}: ${pseudoContextual.source},`,
-                      `  }),`,
-                      `})`,
-                    ].join('\n'),
-                  )
-
-                  extraArgs.push(
-                    `${sheetName}._(${pseudoContextual.valueArgList.join(', ')})`,
-                  )
-                } else {
-                  staticProps.push(
-                    `${indent(indentSize)}${propertyKey}: ${pseudoContextual.source}`,
-                  )
-                }
-
-                continue
-              }
-
-              const pseudoStaticPropertyList: string[] = []
-
-              for (const pseudoProp of value.properties) {
-                if (isSpreadElement(pseudoProp)) {
-                  throw new Error(
-                    `[${pluginName}] Spread elements in style objects are not supported`,
-                  )
-                }
-
-                if (isObjectMethod(pseudoProp)) {
-                  throw new Error(
-                    `[${pluginName}] Dynamic style function body must be an expression.`,
-                  )
-                }
-
-                const pseudoValue = pseudoProp.value
-                const { computed: pseudoComputed, key: pseudoKey } = pseudoProp
-
-                const pseudoRawKey = code.slice(
-                  pseudoKey.start!,
-                  pseudoKey.end!,
-                )
-                const pseudoPropertyKey = pseudoComputed
-                  ? `[${pseudoRawKey}]`
-                  : pseudoRawKey
-
-                const pseudoLocation = pseudoKey.loc!
-
-                const pseudoSheetName = `style_${pseudoLocation.start.line}_${pseudoLocation.start.column + 1}`
-
-                if (
-                  isConditionalExpression(pseudoValue) ||
-                  (isLogicalExpression(pseudoValue) &&
-                    pseudoValue.operator === '&&')
-                ) {
-                  extraArgs.push(
-                    shredWithinPseudo(
-                      pseudoValue,
-                      pseudoSheetName,
-                      propertyKey,
-                      pseudoPropertyKey,
-                    ),
-                  )
-                } else if (isArrowFunctionExpression(pseudoValue)) {
-                  const { bodySource, paramName: coordinateParam } =
-                    extractFunctionValue(pseudoValue)
-
-                  const isSimpleIdentifier =
-                    isIdentifier(pseudoKey) && !pseudoComputed
-                  const paramName = isSimpleIdentifier
-                    ? pseudoRawKey
-                    : coordinateParam
-
-                  const objectBody = isSimpleIdentifier
-                    ? paramName
-                    : `${pseudoPropertyKey}: ${paramName}`
-
-                  hoistedStyles.add(
-                    [
-                      `const ${pseudoSheetName} = __stylex_create({`,
-                      `  _: (${paramName}) => ({`,
-                      `    ${propertyKey}: {`,
-                      `      ${objectBody},`,
-                      `    },`,
-                      `  }),`,
-                      `})`,
-                    ].join('\n'),
-                  )
-                  extraArgs.push(`${pseudoSheetName}._(${bodySource})`)
-                } else {
-                  if (isFunctionExpression(pseudoValue)) {
-                    throw new Error(
-                      `[${pluginName}] Dynamic style function body must be an expression.`,
-                    )
-                  }
-
-                  const pseudoContextual = extractContextualClosures(
-                    pseudoValue,
-                    contextualClosureBaseLevel + 1,
-                    pseudoPropertyKey,
-                  )
-
-                  if (pseudoContextual?.paramList.length === 0) {
-                    pseudoStaticPropertyList.push(
-                      `      ${pseudoPropertyKey}: ${pseudoContextual.source},`,
-                    )
-                    extraArgs.push(`${pseudoValueSheetName}._`)
-                  } else if (pseudoContextual == null) {
-                    pseudoStaticPropertyList.push(
-                      `      ${pseudoPropertyKey}: ${code.slice(pseudoValue.start!, pseudoValue.end!)},`,
-                    )
-                    extraArgs.push(`${pseudoValueSheetName}._`)
-                  } else {
-                    hoistedStyles.add(
-                      [
-                        `const ${pseudoSheetName} = __stylex_create({`,
-                        `  _: (${pseudoContextual.paramList.join(', ')}) => ({`,
-                        `    ${propertyKey}: {`,
-                        `      ${pseudoPropertyKey}: ${pseudoContextual.source},`,
-                        `    },`,
-                        `  }),`,
-                        `})`,
-                      ].join('\n'),
-                    )
-                    extraArgs.push(
-                      `${pseudoSheetName}._(${pseudoContextual.valueArgList.join(', ')})`,
-                    )
-                  }
-                }
-              }
-
-              if (pseudoStaticPropertyList.length > 0) {
-                hoistedStyles.add(
-                  [
-                    `const ${pseudoValueSheetName} = __stylex_create({`,
-                    `  _: {`,
-                    `    ${propertyKey}: {`,
-                    ...pseudoStaticPropertyList,
-                    `    },`,
-                    `  },`,
-                    `})`,
-                  ].join('\n'),
-                )
-              }
-
-              continue
-            }
-
-            if (
-              (isObjectProperty(property) && isConditionalExpression(value)) ||
-              (isObjectProperty(property) &&
-                isLogicalExpression(value) &&
-                value.operator === '&&')
-            ) {
-              extraArgs.push(shred(value, sheetName, propertyKey))
-
-              continue
-            }
-
-            if (isObjectMethod(property)) {
-              throw new Error(
-                `[${pluginName}] Dynamic style function body must be an expression.`,
-              )
-            }
-
-            if (isFunctionExpression(value)) {
-              throw new Error(
-                `[${pluginName}] Dynamic style function body must be an expression.`,
-              )
-            }
-
-            if (isArrowFunctionExpression(value)) {
-              const { bodySource, paramName: coordinateParam } =
-                extractFunctionValue(value)
-
-              const isSimpleIdentifier = isIdentifier(key) && !computed
-              const paramName = isSimpleIdentifier
-                ? rawKeySource
-                : coordinateParam
-
-              const objectBody = isSimpleIdentifier
-                ? paramName
-                : `${propertyKey}: ${paramName}`
-
-              hoistedStyles.add(
-                [
-                  `const ${sheetName} = __stylex_create({`,
-                  `  _: (${paramName}) => ({`,
-                  `    ${objectBody},`,
-                  `  }),`,
-                  `})`,
-                ].join('\n'),
-              )
-              extraArgs.push(`${sheetName}._(${bodySource})`)
-
-              continue
-            }
-
-            const contextual = extractContextualClosures(
-              value,
-              contextualClosureBaseLevel,
-              propertyKey,
-            )
-
-            if (contextual != null) {
-              if (contextual.paramList.length > 0) {
-                hoistedStyles.add(
-                  [
-                    `const ${sheetName} = __stylex_create({`,
-                    `  _: (${contextual.paramList.join(', ')}) => ({`,
-                    `    ${propertyKey}: ${contextual.source},`,
-                    `  }),`,
-                    `})`,
-                  ].join('\n'),
-                )
-
-                extraArgs.push(
-                  `${sheetName}._(${contextual.valueArgList.join(', ')})`,
-                )
-              } else {
-                staticProps.push(
-                  `${indent(indentSize)}${propertyKey}: ${contextual.source}`,
-                )
-              }
-
-              continue
-            }
-
-            staticProps.push(
-              `${indent(indentSize)}${propertyKey}: ${code.slice(value.start!, value.end!)}`,
-            )
-          }
-
-          if (staticProps.length > 0) {
-            const location = arg.loc!
-
-            const baseVariableName = `style_${location.start.line}_${location.start.column + 1}`
-
-            hoistedStyles.add(
-              [
-                `const ${baseVariableName} = __stylex_create({`,
-                `  _: {`,
-                staticProps.join(',\n'),
-                `  },`,
-                `})`,
-              ].join('\n'),
-            )
-
-            finalArgs.push(`${baseVariableName}._`)
-          }
-
-          finalArgs.push(...extraArgs)
-        }
-
-        const joined = finalArgs.join(', ')
 
         const isCustomComponent =
           (isJSXIdentifier(element.name) &&
@@ -650,46 +293,408 @@ const usePreProcess = (options?: Options) => {
           (isNode(unstyledRootIdentifier) &&
             unstyledComponentNamespaceNames.has(unstyledRootIdentifier.name))
 
-        if (isCustomComponent && !isUnstyledComponent) {
-          ms.overwrite(
-            styleDeckAttr.value.expression.start!,
-            styleDeckAttr.value.expression.end!,
-            finalArgs.length === 1 ? joined : `[${joined}]`,
-          )
-        } else {
-          let styleDeckAttrReplacement = `{...__stylex_${applyAs}(${joined})}`
+        for (const styleDeckAttr of styleDeckAttrList) {
+          const argList = (() => {
+            if (isJSXExpressionContainer(styleDeckAttr.value)) {
+              if (isArrayExpression(styleDeckAttr.value.expression)) {
+                return styleDeckAttr.value.expression.elements
+              }
 
-          if (!overwriteClass) {
-            const classAttr = element.attributes.find(
-              (attribute): attribute is JSXAttribute =>
-                isJSXAttribute(attribute) &&
-                isJSXIdentifier(attribute.name) &&
-                attribute.name.name === htmlClass,
-            )
+              return [styleDeckAttr.value.expression]
+            }
 
-            if (classAttr != null) {
-              styleDeckAttrReplacement = `data-styledeck {...__stylex_${applyAs}(${joined})}`
+            throw new Error('Invalid styleDeck value')
+          })()
 
-              const firstAttribute = element.attributes[0]!
-              ms.appendLeft(firstAttribute.start!, 'data-styledeck-element ')
+          const finalArgs = []
 
-              ms.overwrite(
-                classAttr.name.start!,
-                classAttr.name.end!,
-                'data-styledeck-class',
+          for (const arg of argList) {
+            if (arg == null) {
+              continue
+            }
+
+            if (!isObjectExpression(arg)) {
+              validateArg(arg)
+
+              finalArgs.push(code.slice(arg.start!, arg.end!))
+
+              continue
+            }
+
+            const staticProps = []
+            const extraArgs = []
+            const propertyList: (ObjectProperty | ObjectMethod)[] = []
+
+            for (const property of arg.properties) {
+              if (isSpreadElement(property)) {
+                throw new Error(
+                  `[${pluginName}] Spread elements in style objects are not supported`,
+                )
+              }
+
+              propertyList.push(property)
+            }
+
+            for (const property of propertyList) {
+              const { key } = property
+              const value = isObjectMethod(property) ? property : property.value
+              const { computed } = property
+
+              const rawKeySource = code.slice(key.start!, key.end!)
+              const propertyKey = computed ? `[${rawKeySource}]` : rawKeySource
+
+              const location = key.loc!
+
+              const sheetName = `style_${location.start.line}_${location.start.column + 1}`
+
+              // Handle pseudo-elements by processing their inner properties
+              if (
+                isObjectProperty(property) &&
+                isObjectExpression(value) &&
+                propertyKey.includes('::')
+              ) {
+                const pseudoValueLocation = value.loc!
+
+                const pseudoValueSheetName = `style_${pseudoValueLocation.start.line}_${pseudoValueLocation.start.column + 1}`
+                let hasPseudoConditional = false
+
+                for (const pseudoProp of value.properties) {
+                  if (isSpreadElement(pseudoProp)) {
+                    throw new Error(
+                      `[${pluginName}] Spread elements in style objects are not supported`,
+                    )
+                  }
+
+                  if (isObjectMethod(pseudoProp)) {
+                    throw new Error(
+                      `[${pluginName}] Dynamic style function body must be an expression.`,
+                    )
+                  }
+
+                  const pseudoValue = pseudoProp.value
+
+                  if (
+                    isConditionalExpression(pseudoValue) ||
+                    (isLogicalExpression(pseudoValue) &&
+                      pseudoValue.operator === '&&')
+                  ) {
+                    hasPseudoConditional = true
+                  }
+                }
+
+                if (!hasPseudoConditional) {
+                  const pseudoContextual = extractContextualClosures(
+                    value,
+                    contextualClosureBaseLevel,
+                    propertyKey,
+                  )
+
+                  if (pseudoContextual == null) {
+                    staticProps.push(
+                      `${indent(indentSize)}${propertyKey}: ${code.slice(value.start!, value.end!)}`,
+                    )
+                  } else if (pseudoContextual.paramList.length > 0) {
+                    hoistedStyles.add(
+                      [
+                        `const ${sheetName} = __stylex_create({`,
+                        `  _: (${pseudoContextual.paramList.join(', ')}) => ({`,
+                        `    ${propertyKey}: ${pseudoContextual.source},`,
+                        `  }),`,
+                        `})`,
+                      ].join('\n'),
+                    )
+
+                    extraArgs.push(
+                      `${sheetName}._(${pseudoContextual.valueArgList.join(', ')})`,
+                    )
+                  } else {
+                    staticProps.push(
+                      `${indent(indentSize)}${propertyKey}: ${pseudoContextual.source}`,
+                    )
+                  }
+
+                  continue
+                }
+
+                const pseudoStaticPropertyList: string[] = []
+
+                for (const pseudoProp of value.properties) {
+                  if (isSpreadElement(pseudoProp)) {
+                    throw new Error(
+                      `[${pluginName}] Spread elements in style objects are not supported`,
+                    )
+                  }
+
+                  if (isObjectMethod(pseudoProp)) {
+                    throw new Error(
+                      `[${pluginName}] Dynamic style function body must be an expression.`,
+                    )
+                  }
+
+                  const pseudoValue = pseudoProp.value
+                  const { computed: pseudoComputed, key: pseudoKey } =
+                    pseudoProp
+
+                  const pseudoRawKey = code.slice(
+                    pseudoKey.start!,
+                    pseudoKey.end!,
+                  )
+                  const pseudoPropertyKey = pseudoComputed
+                    ? `[${pseudoRawKey}]`
+                    : pseudoRawKey
+
+                  const pseudoLocation = pseudoKey.loc!
+
+                  const pseudoSheetName = `style_${pseudoLocation.start.line}_${pseudoLocation.start.column + 1}`
+
+                  if (
+                    isConditionalExpression(pseudoValue) ||
+                    (isLogicalExpression(pseudoValue) &&
+                      pseudoValue.operator === '&&')
+                  ) {
+                    extraArgs.push(
+                      shredWithinPseudo(
+                        pseudoValue,
+                        pseudoSheetName,
+                        propertyKey,
+                        pseudoPropertyKey,
+                      ),
+                    )
+                  } else if (isArrowFunctionExpression(pseudoValue)) {
+                    const { bodySource, paramName: coordinateParam } =
+                      extractFunctionValue(pseudoValue)
+
+                    const isSimpleIdentifier =
+                      isIdentifier(pseudoKey) && !pseudoComputed
+                    const paramName = isSimpleIdentifier
+                      ? pseudoRawKey
+                      : coordinateParam
+
+                    const objectBody = isSimpleIdentifier
+                      ? paramName
+                      : `${pseudoPropertyKey}: ${paramName}`
+
+                    hoistedStyles.add(
+                      [
+                        `const ${pseudoSheetName} = __stylex_create({`,
+                        `  _: (${paramName}) => ({`,
+                        `    ${propertyKey}: {`,
+                        `      ${objectBody},`,
+                        `    },`,
+                        `  }),`,
+                        `})`,
+                      ].join('\n'),
+                    )
+                    extraArgs.push(`${pseudoSheetName}._(${bodySource})`)
+                  } else {
+                    if (isFunctionExpression(pseudoValue)) {
+                      throw new Error(
+                        `[${pluginName}] Dynamic style function body must be an expression.`,
+                      )
+                    }
+
+                    const pseudoContextual = extractContextualClosures(
+                      pseudoValue,
+                      contextualClosureBaseLevel + 1,
+                      pseudoPropertyKey,
+                    )
+
+                    if (pseudoContextual?.paramList.length === 0) {
+                      pseudoStaticPropertyList.push(
+                        `      ${pseudoPropertyKey}: ${pseudoContextual.source},`,
+                      )
+                      extraArgs.push(`${pseudoValueSheetName}._`)
+                    } else if (pseudoContextual == null) {
+                      pseudoStaticPropertyList.push(
+                        `      ${pseudoPropertyKey}: ${code.slice(pseudoValue.start!, pseudoValue.end!)},`,
+                      )
+                      extraArgs.push(`${pseudoValueSheetName}._`)
+                    } else {
+                      hoistedStyles.add(
+                        [
+                          `const ${pseudoSheetName} = __stylex_create({`,
+                          `  _: (${pseudoContextual.paramList.join(', ')}) => ({`,
+                          `    ${propertyKey}: {`,
+                          `      ${pseudoPropertyKey}: ${pseudoContextual.source},`,
+                          `    },`,
+                          `  }),`,
+                          `})`,
+                        ].join('\n'),
+                      )
+                      extraArgs.push(
+                        `${pseudoSheetName}._(${pseudoContextual.valueArgList.join(', ')})`,
+                      )
+                    }
+                  }
+                }
+
+                if (pseudoStaticPropertyList.length > 0) {
+                  hoistedStyles.add(
+                    [
+                      `const ${pseudoValueSheetName} = __stylex_create({`,
+                      `  _: {`,
+                      `    ${propertyKey}: {`,
+                      ...pseudoStaticPropertyList,
+                      `    },`,
+                      `  },`,
+                      `})`,
+                    ].join('\n'),
+                  )
+                }
+
+                continue
+              }
+
+              if (
+                (isObjectProperty(property) &&
+                  isConditionalExpression(value)) ||
+                (isObjectProperty(property) &&
+                  isLogicalExpression(value) &&
+                  value.operator === '&&')
+              ) {
+                extraArgs.push(shred(value, sheetName, propertyKey))
+
+                continue
+              }
+
+              if (isObjectMethod(property)) {
+                throw new Error(
+                  `[${pluginName}] Dynamic style function body must be an expression.`,
+                )
+              }
+
+              if (isFunctionExpression(value)) {
+                throw new Error(
+                  `[${pluginName}] Dynamic style function body must be an expression.`,
+                )
+              }
+
+              if (isArrowFunctionExpression(value)) {
+                const { bodySource, paramName: coordinateParam } =
+                  extractFunctionValue(value)
+
+                const isSimpleIdentifier = isIdentifier(key) && !computed
+                const paramName = isSimpleIdentifier
+                  ? rawKeySource
+                  : coordinateParam
+
+                const objectBody = isSimpleIdentifier
+                  ? paramName
+                  : `${propertyKey}: ${paramName}`
+
+                hoistedStyles.add(
+                  [
+                    `const ${sheetName} = __stylex_create({`,
+                    `  _: (${paramName}) => ({`,
+                    `    ${objectBody},`,
+                    `  }),`,
+                    `})`,
+                  ].join('\n'),
+                )
+                extraArgs.push(`${sheetName}._(${bodySource})`)
+
+                continue
+              }
+
+              const contextual = extractContextualClosures(
+                value,
+                contextualClosureBaseLevel,
+                propertyKey,
+              )
+
+              if (contextual != null) {
+                if (contextual.paramList.length > 0) {
+                  hoistedStyles.add(
+                    [
+                      `const ${sheetName} = __stylex_create({`,
+                      `  _: (${contextual.paramList.join(', ')}) => ({`,
+                      `    ${propertyKey}: ${contextual.source},`,
+                      `  }),`,
+                      `})`,
+                    ].join('\n'),
+                  )
+
+                  extraArgs.push(
+                    `${sheetName}._(${contextual.valueArgList.join(', ')})`,
+                  )
+                } else {
+                  staticProps.push(
+                    `${indent(indentSize)}${propertyKey}: ${contextual.source}`,
+                  )
+                }
+
+                continue
+              }
+
+              staticProps.push(
+                `${indent(indentSize)}${propertyKey}: ${code.slice(value.start!, value.end!)}`,
               )
             }
+
+            if (staticProps.length > 0) {
+              const location = arg.loc!
+
+              const baseVariableName = `style_${location.start.line}_${location.start.column + 1}`
+
+              hoistedStyles.add(
+                [
+                  `const ${baseVariableName} = __stylex_create({`,
+                  `  _: {`,
+                  staticProps.join(',\n'),
+                  `  },`,
+                  `})`,
+                ].join('\n'),
+              )
+
+              finalArgs.push(`${baseVariableName}._`)
+            }
+
+            finalArgs.push(...extraArgs)
           }
 
-          ms.overwrite(
-            styleDeckAttr.start!,
-            styleDeckAttr.end!,
-            styleDeckAttrReplacement,
-          )
+          const joined = finalArgs.join(', ')
 
-          stylexImports.add(
-            `import { ${applyAs} as __stylex_${applyAs} } from '@stylexjs/stylex'`,
-          )
+          if (isCustomComponent && !isUnstyledComponent) {
+            ms.overwrite(
+              styleDeckAttr.value.expression.start!,
+              styleDeckAttr.value.expression.end!,
+              finalArgs.length === 1 ? joined : `[${joined}]`,
+            )
+          } else {
+            let styleDeckAttrReplacement = `{...__stylex_${applyAs}(${joined})}`
+
+            if (!overwriteClass) {
+              const classAttr = element.attributes.find(
+                (attribute): attribute is JSXAttribute =>
+                  isJSXAttribute(attribute) &&
+                  isJSXIdentifier(attribute.name) &&
+                  attribute.name.name === htmlClass,
+              )
+
+              if (classAttr != null) {
+                styleDeckAttrReplacement = `data-styledeck {...__stylex_${applyAs}(${joined})}`
+
+                const firstAttribute = element.attributes[0]!
+                ms.appendLeft(firstAttribute.start!, 'data-styledeck-element ')
+
+                ms.overwrite(
+                  classAttr.name.start!,
+                  classAttr.name.end!,
+                  'data-styledeck-class',
+                )
+              }
+            }
+
+            ms.overwrite(
+              styleDeckAttr.start!,
+              styleDeckAttr.end!,
+              styleDeckAttrReplacement,
+            )
+
+            stylexImports.add(
+              `import { ${applyAs} as __stylex_${applyAs} } from '@stylexjs/stylex'`,
+            )
+          }
         }
       },
     })
