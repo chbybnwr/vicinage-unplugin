@@ -1,6 +1,6 @@
 test.each([
   { label: 'merge-class/attr' },
-  { label: 'merge-class/attr-marked' },
+  { label: 'merge-class/attr-logical' },
   { label: 'merge-class/attr-runtime' },
   //
 ])('$label', async ({ label }) => {
@@ -14,7 +14,7 @@ test.each([
 
 test.each([
   { label: 'merge-class/prop' },
-  { label: 'merge-class/prop-marked' },
+  { label: 'merge-class/prop-logical' },
   { label: 'merge-class/prop-runtime' },
   //
 ])('$label', async ({ label }) => {
