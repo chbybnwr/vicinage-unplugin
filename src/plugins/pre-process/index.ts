@@ -254,12 +254,35 @@ function usePreProcess({
       plugins: ['typescript', 'jsx'],
     })
 
-    const {
-      localNames: unstyledComponentLocalNames,
-      namespaceNames: unstyledComponentNamespaceNames,
-    } = collectUnstyledComponentImportInfo(ast, unstyledComponentModules)
+    const unstyledComponentLocalNames = new Set<string>()
+    const unstyledComponentNamespaceNames = new Set<string>()
 
     traverse(ast, {
+      Program: (path) => {
+        if (unstyledComponentModules == null) {
+          return
+        }
+
+        const matchers = unstyledComponentModules.map((glob) =>
+          createGlobMatcher(glob),
+        )
+
+        for (const statement of path.node.body) {
+          if (
+            isImportDeclaration(statement) &&
+            matchers.some((match) => match(statement.source.value))
+          ) {
+            for (const specifier of statement.specifiers) {
+              if (isImportNamespaceSpecifier(specifier)) {
+                unstyledComponentNamespaceNames.add(specifier.local.name)
+              } else {
+                unstyledComponentLocalNames.add(specifier.local.name)
+              }
+            }
+          }
+        }
+      },
+
       JSXOpeningElement: (path) => {
         const element = path.node
 
@@ -748,39 +771,6 @@ function validateArg(node: Node) {
 
     validateArg(right)
   }
-}
-
-function collectUnstyledComponentImportInfo(
-  ast: ReturnType<typeof parse>,
-  unstyledComponentModules?: string[],
-) {
-  const localNames = new Set<string>()
-  const namespaceNames = new Set<string>()
-
-  if (unstyledComponentModules == null) {
-    return { localNames, namespaceNames }
-  }
-
-  const matchers = unstyledComponentModules.map((glob) =>
-    createGlobMatcher(glob),
-  )
-
-  for (const statement of ast.program.body) {
-    if (
-      isImportDeclaration(statement) &&
-      matchers.some((match) => match(statement.source.value))
-    ) {
-      for (const specifier of statement.specifiers) {
-        if (isImportNamespaceSpecifier(specifier)) {
-          namespaceNames.add(specifier.local.name)
-        } else {
-          localNames.add(specifier.local.name)
-        }
-      }
-    }
-  }
-
-  return { localNames, namespaceNames }
 }
 
 function getJSXMemberExpressionRootIdentifier(
