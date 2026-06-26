@@ -666,17 +666,19 @@ const usePreProcess = (options?: Options) => {
               attr.value.expression.end!,
               finalArgs.length === 1 ? joined : `[${joined}]`,
             )
-          } else {
-            if (attrIdentifier.name === 'styleDeck') {
-              styleDeckAttr = attr
-            }
 
-            editor.overwrite(
-              attr.start!,
-              attr.end!,
-              `{...__stylex_${applyAs}(${joined})}`,
-            )
+            continue
           }
+
+          if (attrIdentifier.name === 'styleDeck') {
+            styleDeckAttr = attr
+          }
+
+          editor.overwrite(
+            attr.start!,
+            attr.end!,
+            `{...__stylex_${applyAs}(${joined})}`,
+          )
         }
 
         if (styleDeckAttr != null) {
