@@ -4,10 +4,6 @@ export { usePreProcess }
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
-const indentSize = 2
-const indentStyle = ' '
-const contextualClosureBaseLevel = 3
-
 const createPlugin: UnpluginFactory<Options | undefined, false> = (
   options,
 ) => ({
@@ -65,11 +61,7 @@ const usePreProcess = (options?: Options) => {
 
       const location = node.loc!
       const sheetName = `${sheetPrefix}_x_${location.start.line}_${location.start.column + 1}`
-      const contextual = extractContextualClosures(
-        node,
-        contextualClosureBaseLevel,
-        propertyKey,
-      )
+      const contextual = extractContextualClosures(node, propertyKey)
       const staticObjectValue =
         contextual?.paramList.length === 0 ? contextual.source : null
 
@@ -110,7 +102,6 @@ const usePreProcess = (options?: Options) => {
 
     function extractContextualClosures(
       node: Node,
-      level: number,
       sourceLocation: string,
     ): {
       source: string
@@ -155,33 +146,27 @@ const usePreProcess = (options?: Options) => {
           const extracted = extractFunctionValue(value)
           paramList.push(extracted.paramName)
           valueArgList.push(extracted.bodySource)
-          chunkList.push(
-            `${indent(level)}${propertyKey}: ${extracted.paramName},`,
-          )
+          chunkList.push(`${propertyKey}: ${extracted.paramName},`)
 
           continue
         }
 
-        const nested = extractContextualClosures(
-          value,
-          level + 1,
-          nestedSourceLocation,
-        )
+        const nested = extractContextualClosures(value, nestedSourceLocation)
 
         if (nested != null) {
           paramList.push(...nested.paramList)
           valueArgList.push(...nested.valueArgList)
-          chunkList.push(`${indent(level)}${propertyKey}: ${nested.source},`)
+          chunkList.push(`${propertyKey}: ${nested.source},`)
 
           continue
         }
 
         chunkList.push(
-          `${indent(level)}${propertyKey}: ${code.slice(value.start!, value.end!)},`,
+          `${propertyKey}: ${code.slice(value.start!, value.end!)},`,
         )
       }
 
-      chunkList.push(`${indent(level - 1)}}`)
+      chunkList.push(`}`)
 
       return {
         source: chunkList.join('\n'),
@@ -391,13 +376,12 @@ const usePreProcess = (options?: Options) => {
                 if (!hasPseudoConditional) {
                   const pseudoContextual = extractContextualClosures(
                     value,
-                    contextualClosureBaseLevel,
                     propertyKey,
                   )
 
                   if (pseudoContextual == null) {
                     staticProps.push(
-                      `${indent(indentSize)}${propertyKey}: ${code.slice(value.start!, value.end!)}`,
+                      `${propertyKey}: ${code.slice(value.start!, value.end!)}`,
                     )
                   } else if (pseudoContextual.paramList.length > 0) {
                     hoistedStyles.add(
@@ -415,7 +399,7 @@ const usePreProcess = (options?: Options) => {
                     )
                   } else {
                     staticProps.push(
-                      `${indent(indentSize)}${propertyKey}: ${pseudoContextual.source}`,
+                      `${propertyKey}: ${pseudoContextual.source}`,
                     )
                   }
 
@@ -501,7 +485,6 @@ const usePreProcess = (options?: Options) => {
 
                     const pseudoContextual = extractContextualClosures(
                       pseudoValue,
-                      contextualClosureBaseLevel + 1,
                       pseudoPropertyKey,
                     )
 
@@ -602,11 +585,7 @@ const usePreProcess = (options?: Options) => {
                 continue
               }
 
-              const contextual = extractContextualClosures(
-                value,
-                contextualClosureBaseLevel,
-                propertyKey,
-              )
+              const contextual = extractContextualClosures(value, propertyKey)
 
               if (contextual != null) {
                 if (contextual.paramList.length > 0) {
@@ -624,16 +603,14 @@ const usePreProcess = (options?: Options) => {
                     `${sheetName}._(${contextual.valueArgList.join(', ')})`,
                   )
                 } else {
-                  staticProps.push(
-                    `${indent(indentSize)}${propertyKey}: ${contextual.source}`,
-                  )
+                  staticProps.push(`${propertyKey}: ${contextual.source}`)
                 }
 
                 continue
               }
 
               staticProps.push(
-                `${indent(indentSize)}${propertyKey}: ${code.slice(value.start!, value.end!)}`,
+                `${propertyKey}: ${code.slice(value.start!, value.end!)}`,
               )
             }
 
@@ -724,10 +701,6 @@ const usePreProcess = (options?: Options) => {
 
     return null
   }
-}
-
-function indent(level: number) {
-  return indentStyle.repeat(level * indentSize)
 }
 
 function validateArg(node: Node) {
