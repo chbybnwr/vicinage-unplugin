@@ -287,7 +287,9 @@ const usePreProcess = (options?: Options) => {
             continue
           }
 
-          if (attr.name.name === htmlClass) {
+          const attrIdentifier = attr.name
+
+          if (attrIdentifier.name === htmlClass) {
             classAttr = attr
 
             continue
@@ -295,8 +297,8 @@ const usePreProcess = (options?: Options) => {
 
           if (
             !(
-              attr.name.name === 'styleDeck' ||
-              attr.name.name.endsWith('StyleDeck')
+              attrIdentifier.name === 'styleDeck' ||
+              attrIdentifier.name.endsWith('StyleDeck')
             )
           ) {
             continue
@@ -665,7 +667,7 @@ const usePreProcess = (options?: Options) => {
               finalArgs.length === 1 ? joined : `[${joined}]`,
             )
           } else {
-            if (attr.name.name === 'styleDeck') {
+            if (attrIdentifier.name === 'styleDeck') {
               styleDeckAttr = attr
             }
 
