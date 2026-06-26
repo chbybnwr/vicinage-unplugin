@@ -694,11 +694,6 @@ const usePreProcess = (options?: Options) => {
             )
 
             editor.appendLeft(styleDeckAttr.start!, 'data-styledeck')
-
-            editor.appendLeft(
-              element.attributes[0]!.start!,
-              'data-styledeck-element ',
-            )
           }
         }
       },

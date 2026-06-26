@@ -4,7 +4,6 @@ function Component() {
   return (
     <>
       <div
-        data-styledeck-element
         data-styledeck-class='foo bar'
         data-styledeck
         {...__stylex_attrs(style_8_20._)}
