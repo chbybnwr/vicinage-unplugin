@@ -4,14 +4,10 @@ export { usePreProcess }
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
-const indentSize = 2
-const indentStyle = ' '
-const contextualClosureBaseLevel = 3
-
 const createPlugin: UnpluginFactory<Options | undefined, false> = (
   options,
 ) => ({
-  name: `${pluginName}:macros`,
+  name: `${pluginName}:pre-stylex`,
   enforce: 'pre',
 
   transform: {
@@ -29,10 +25,13 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (
   },
 })
 
-const usePreProcess = (options?: Options) => {
-  const applyAs = options?.applyAs ?? 'props'
-  const unstyledComponentModules = options?.unstyledComponentModules
+const indentSize = 2
+const contextualClosureBaseLevel = 3
 
+function usePreProcess({
+  applyAs = 'props',
+  unstyledComponentModules,
+}: Options = {}) {
   const htmlClass = applyAs === 'props' ? 'className' : 'class'
 
   return (code: string, _id: string) => {
@@ -727,7 +726,7 @@ const usePreProcess = (options?: Options) => {
 }
 
 function indent(level: number) {
-  return indentStyle.repeat(level * indentSize)
+  return ' '.repeat(level * indentSize)
 }
 
 function validateArg(node: Node) {

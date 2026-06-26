@@ -91,6 +91,7 @@ const eslintConfig = defineConfig([
         'warn',
         {
           ignore: [
+            /fn/i,
             /arg(s)?/i,
             /param(s)?/i,
             /prop(s)?/i,

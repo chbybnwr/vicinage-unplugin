@@ -6,7 +6,7 @@ export { usePostProcess }
 const createPlugin: UnpluginFactory<Options | undefined, false> = (
   options,
 ) => ({
-  name: `${pluginName}:merge`,
+  name: `${pluginName}:post-stylex`,
 
   transform: {
     filter: {
@@ -23,13 +23,10 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (
   },
 })
 
-const mergeClassFunctionName = '__styledeck_mergeClass'
-
-function usePostProcess(options?: Options) {
-  const applyAs = options?.applyAs ?? 'props'
-  const importedMergeClassFunctionName =
-    applyAs === 'props' ? `'~mergeClassProperty'` : `'~mergeClassAttribute'`
+function usePostProcess({ applyAs = 'props' }: Options = {}) {
   const htmlClass = applyAs === 'props' ? 'className' : 'class'
+  const mergeClassFnName =
+    applyAs === 'props' ? `'~mergeClassProperty'` : `'~mergeClassAttribute'`
 
   return (code: string, _id: string) => {
     const editor = new MagicString(code)
@@ -148,7 +145,7 @@ function usePostProcess(options?: Options) {
           editor.overwrite(
             markerAttribute.start!,
             compiledAttribute.end!,
-            `{...${mergeClassFunctionName}(${[
+            `{...__styledeck_mergeClass(${[
               code.slice(
                 reservedClassAttribute.value.start!,
                 reservedClassAttribute.value.end!,
@@ -173,13 +170,13 @@ function usePostProcess(options?: Options) {
     if (applyAs === 'attrs') {
       editor.replaceAll(
         `import { attrs as __stylex_attrs } from '@stylexjs/stylex'`,
-        `import { '~attrs' as __stylex_attrs } from 'vicinage'`,
+        `import { '~attrs' as __stylex_attrs } from '${pluginName}'`,
       )
     }
 
     if (hasRuntimeRewrites) {
       editor.append(
-        `\nimport { ${importedMergeClassFunctionName} as ${mergeClassFunctionName} } from '${pluginName}'\n`,
+        `\nimport { ${mergeClassFnName} as __styledeck_mergeClass } from '${pluginName}'\n`,
       )
     }
 
