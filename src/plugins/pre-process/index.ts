@@ -268,22 +268,35 @@ const usePreProcess = (options?: Options) => {
           (isJSXIdentifier(element.name) &&
             /^[A-Z]/u.test(element.name.name)) ||
           isJSXMemberExpression(element.name)
-        const unstyledRootIdentifier =
-          isJSXMemberExpression(element.name) &&
-          getJSXMemberExpressionRootIdentifier(element.name)
+
+        const unstyledRootIdentifier = isJSXMemberExpression(element.name)
+          ? getJSXMemberExpressionRootIdentifier(element.name)
+          : null
+
         const isUnstyledComponent =
           (isJSXIdentifier(element.name) &&
             unstyledComponentLocalNames.has(element.name.name)) ||
           (isNode(unstyledRootIdentifier) &&
             unstyledComponentNamespaceNames.has(unstyledRootIdentifier.name))
 
+        let styleDeckAttr: JSXAttribute | null = null
+        let classAttr: JSXAttribute | null = null
+
         for (const attribute of element.attributes) {
+          if (!(isJSXAttribute(attribute) && isJSXIdentifier(attribute.name))) {
+            continue
+          }
+
+          if (attribute.name.name === htmlClass) {
+            classAttr = attribute
+
+            continue
+          }
+
           if (
             !(
-              isJSXAttribute(attribute) &&
-              isJSXIdentifier(attribute.name) &&
-              (attribute.name.name === 'styleDeck' ||
-                attribute.name.name.endsWith('StyleDeck'))
+              attribute.name.name === 'styleDeck' ||
+              attribute.name.name.endsWith('StyleDeck')
             )
           ) {
             continue
@@ -652,42 +665,36 @@ const usePreProcess = (options?: Options) => {
               finalArgs.length === 1 ? joined : `[${joined}]`,
             )
           } else {
-            let styleDeckAttrReplacement = `{...__stylex_${applyAs}(${joined})}`
-
-            const classAttr = element.attributes.find(
-              (attribute): attribute is JSXAttribute =>
-                isJSXAttribute(attribute) &&
-                isJSXIdentifier(attribute.name) &&
-                attribute.name.name === htmlClass,
-            )
-
-            if (classAttr != null) {
-              styleDeckAttrReplacement = `data-styledeck ${styleDeckAttrReplacement}`
-
-              const firstAttribute = element.attributes[0]!
-              editor.appendLeft(
-                firstAttribute.start!,
-                'data-styledeck-element ',
-              )
-
-              editor.overwrite(
-                classAttr.name.start!,
-                classAttr.name.end!,
-                'data-styledeck-class',
-              )
+            if (attribute.name.name === 'styleDeck') {
+              styleDeckAttr = attribute
             }
 
             editor.overwrite(
               attribute.start!,
               attribute.end!,
-              styleDeckAttrReplacement,
+              `{...__stylex_${applyAs}(${joined})}`,
+            )
+          }
+        }
+
+        if (styleDeckAttr != null) {
+          stylexImports.add(
+            `import { ${applyAs} as __stylex_${applyAs} } from '@stylexjs/stylex'`,
+          )
+
+          if (classAttr != null) {
+            editor.overwrite(
+              classAttr.name.start!,
+              classAttr.name.end!,
+              'data-styledeck-class',
             )
 
-            stylexImports.add(
-              `import { ${applyAs} as __stylex_${applyAs} } from '@stylexjs/stylex'`,
-            )
+            editor.appendLeft(styleDeckAttr.start!, 'data-styledeck')
 
-            break
+            editor.appendLeft(
+              element.attributes[0]!.start!,
+              'data-styledeck-element ',
+            )
           }
         }
       },
