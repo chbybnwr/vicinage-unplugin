@@ -282,33 +282,33 @@ const usePreProcess = (options?: Options) => {
         let styleDeckAttr: JSXAttribute | null = null
         let classAttr: JSXAttribute | null = null
 
-        for (const attribute of element.attributes) {
-          if (!(isJSXAttribute(attribute) && isJSXIdentifier(attribute.name))) {
+        for (const attr of element.attributes) {
+          if (!(isJSXAttribute(attr) && isJSXIdentifier(attr.name))) {
             continue
           }
 
-          if (attribute.name.name === htmlClass) {
-            classAttr = attribute
+          if (attr.name.name === htmlClass) {
+            classAttr = attr
 
             continue
           }
 
           if (
             !(
-              attribute.name.name === 'styleDeck' ||
-              attribute.name.name.endsWith('StyleDeck')
+              attr.name.name === 'styleDeck' ||
+              attr.name.name.endsWith('StyleDeck')
             )
           ) {
             continue
           }
 
-          if (!isJSXExpressionContainer(attribute.value)) {
+          if (!isJSXExpressionContainer(attr.value)) {
             throw new Error('Invalid styleDeck value')
           }
 
-          const argList = isArrayExpression(attribute.value.expression)
-            ? attribute.value.expression.elements
-            : [attribute.value.expression]
+          const argList = isArrayExpression(attr.value.expression)
+            ? attr.value.expression.elements
+            : [attr.value.expression]
 
           const finalArgs = []
 
@@ -660,18 +660,18 @@ const usePreProcess = (options?: Options) => {
 
           if (isCustomComponent && !isUnstyledComponent) {
             editor.overwrite(
-              attribute.value.expression.start!,
-              attribute.value.expression.end!,
+              attr.value.expression.start!,
+              attr.value.expression.end!,
               finalArgs.length === 1 ? joined : `[${joined}]`,
             )
           } else {
-            if (attribute.name.name === 'styleDeck') {
-              styleDeckAttr = attribute
+            if (attr.name.name === 'styleDeck') {
+              styleDeckAttr = attr
             }
 
             editor.overwrite(
-              attribute.start!,
-              attribute.end!,
+              attr.start!,
+              attr.end!,
               `{...__stylex_${applyAs}(${joined})}`,
             )
           }
