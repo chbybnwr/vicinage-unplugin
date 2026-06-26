@@ -41,6 +41,7 @@ test.each([
 test.each([
   { label: 'hoist-static/single' },
   { label: 'hoist-static/multiple' },
+  { label: 'hoist-static/mixed' },
   //
 ])('$label', async ({ label }) => {
   const transform = usePostProcess()
