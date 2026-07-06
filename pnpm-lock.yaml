@@ -27,7 +27,7 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       magic-string:
-        specifier: ^0.30.21
+        specifier: ~0.30.21
         version: 0.30.21
       picomatch:
         specifier: ^4.0.5
@@ -58,7 +58,7 @@ importers:
         specifier: ^4.4.8
         version: 4.4.8
       '@stylexjs/stylex':
-        specifier: ^0.18.3
+        specifier: ~0.18.3
         version: 0.18.3
       '@stylistic/eslint-plugin':
         specifier: ^5.10.0
@@ -97,7 +97,7 @@ importers:
         specifier: ^10.0.1
         version: 10.0.1
       esbuild:
-        specifier: ^0.28.1
+        specifier: ~0.28.1
         version: 0.28.1
       eslint:
         specifier: ^10.6.0
@@ -124,10 +124,10 @@ importers:
         specifier: ^3.9.4
         version: 3.9.4
       solarwindcss:
-        specifier: ^0.36.10
+        specifier: ~0.36.10
         version: 0.36.10
       tsdown:
-        specifier: ^0.22.3
+        specifier: ~0.22.3
         version: 0.22.3(@typescript/native-preview@7.0.0-dev.20260614.1)(typescript@6.0.3)
       typescript:
         specifier: ^6.0.3
@@ -136,7 +136,7 @@ importers:
         specifier: ^8.62.1
         version: 8.62.1(eslint@10.6.0(jiti@2.7.0))(typescript@6.0.3)
       vicinage:
-        specifier: ^0.7.22
+        specifier: ~0.7.22
         version: 0.7.22(@stylexjs/stylex@0.18.3)
       vite:
         specifier: ^8.1.3
