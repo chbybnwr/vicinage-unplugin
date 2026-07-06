@@ -1,48 +1,46 @@
-export { babelPlugin as default }
+export { preProcessPlugin as default }
 
-const babelPlugin = declare(function (
-  api: PluginAPI,
-  options: Options | undefined,
-) {
-  api.assertVersion(7)
-
-  const transform = usePreProcess(options)
+const preProcessPlugin = declare(function (api, options: Options | undefined) {
+  const preProcess = createPreProcessFn(options)
 
   return {
     name: pluginName,
 
-    visitor: {
-      Program(path, state) {
-        const { filename } = state
+    pre(file) {
+      const { filename } = file.opts
 
-        if (!(filename != null && /\.(?<js>t|j)sx?$/u.test(filename))) {
-          return
-        }
+      if (!(filename != null && /\.(t|j)sx?$/u.test(filename))) {
+        return
+      }
 
-        const result = transform(state.file.code, filename)?.code
+      const result = preProcess(file.code, {
+        // @ts-expect-error outdated type packages?
+        ast: file.ast,
+      })
 
-        if (result == null) {
-          return
-        }
+      if (result == null) {
+        return
+      }
 
-        state.file.code = result
+      file.code = result.code
 
-        const ast = parse(result, {
-          sourceType: 'module',
-          plugins: ['typescript', 'jsx'],
-        })
+      const ast = parse(result.code, {
+        sourceType: 'module',
+        plugins: ['typescript', 'jsx'],
+      })
 
-        path.node.body = ast.program.body
-        path.node.directives = ast.program.directives
-      },
+      for (const [key, value] of Object.entries(ast.program)) {
+        file.ast.program[key as never] = value as never
+      }
     },
+
+    visitor: {},
   }
 })
 
+import { createPreProcessFn } from '#/transformers/pre-process'
 import { declare } from '@babel/helper-plugin-utils'
 import type { Options } from '#/options'
 import { parse } from '@babel/parser'
-import type { PluginAPI } from '@babel/core'
 import { pluginName } from '#/shared/config'
-import { usePreProcess } from '#/plugins/pre-process'
 //
