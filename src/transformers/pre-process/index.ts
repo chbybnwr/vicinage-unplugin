@@ -303,12 +303,10 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             continue
           }
 
-          if (
-            !(
-              attrIdentifier.name === 'styleDeck' ||
-              attrIdentifier.name.endsWith('StyleDeck')
-            )
-          ) {
+          if (!(
+            attrIdentifier.name === 'styleDeck' ||
+            attrIdentifier.name.endsWith('StyleDeck')
+          )) {
             continue
           }
 
