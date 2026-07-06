@@ -44,26 +44,10 @@ const createPostProcessFn = (options: Options | undefined = {}) => {
 
           const attributeIdentifier = attribute.name
 
-          switch (attributeIdentifier.name) {
-            case 'data-styledeck-class': {
-              reservedClassAttribute = attribute
-
-              break
-            }
-
-            case 'data-styledeck': {
-              markerAttributeIndex = index
-
-              break
-            }
-
-            case 'data-styledeck-spread': {
-              break
-            }
-
-            default: {
-              break
-            }
+          if (attributeIdentifier.name === 'data-styledeck-class') {
+            reservedClassAttribute = attribute
+          } else if (attributeIdentifier.name === 'data-styledeck') {
+            markerAttributeIndex = index
           }
 
           if (

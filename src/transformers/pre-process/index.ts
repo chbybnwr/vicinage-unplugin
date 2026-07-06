@@ -318,19 +318,15 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             ? attr.value.expression.elements
             : [attr.value.expression]
 
-          const finalArgs = []
-
-          for (const arg of argList) {
+          const finalArgs = argList.flatMap((arg) => {
             if (arg == null) {
-              continue
+              return []
             }
 
             if (!isObjectExpression(arg)) {
               validateArg(arg)
 
-              finalArgs.push(code.slice(arg.start!, arg.end!))
-
-              continue
+              return [code.slice(arg.start!, arg.end!)]
             }
 
             const staticProps = []
@@ -658,11 +654,11 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
                 ].join('\n'),
               )
 
-              finalArgs.push(`${baseVariableName}._`)
+              return [`${baseVariableName}._`, ...extraArgs]
             }
 
-            finalArgs.push(...extraArgs)
-          }
+            return [...extraArgs]
+          })
 
           const joined = finalArgs.join(', ')
 
@@ -774,6 +770,7 @@ function getJSXMemberExpressionRootIdentifier(
   }
 
   if (isJSXMemberExpression(object)) {
+    // eslint-disable-next-line unicorn/no-useless-recursion
     return getJSXMemberExpressionRootIdentifier(object)
   }
 

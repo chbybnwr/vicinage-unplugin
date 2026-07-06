@@ -87,7 +87,7 @@ const eslintConfig = defineConfig([
     rules: {
       'unicorn/no-null': 'off',
       'unicorn/no-named-default': 'off',
-      'unicorn/prevent-abbreviations': [
+      'unicorn/name-replacements': [
         'warn',
         {
           ignore: [
@@ -101,6 +101,7 @@ const eslintConfig = defineConfig([
           ],
         },
       ],
+      'unicorn/prefer-simplified-conditions': 'off',
     },
   },
 
