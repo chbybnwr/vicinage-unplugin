@@ -4,9 +4,9 @@ test.each([
   { label: 'merge-class/attr-runtime' },
   //
 ])('$label', async ({ label }) => {
-  const transform = usePostProcess({ applyAs: 'attrs' })
-  const { id, source, target } = await fixtureLoader.load(label)
-  const result = transform(source, id)
+  const transform = createPostProcessFn({ applyAs: 'attrs' })
+  const { source, target } = await fixtureLoader.load(label)
+  const result = transform(source)
 
   expect.assert(result != null)
   expect(await format(result.code)).toBe(target)
@@ -18,9 +18,9 @@ test.each([
   { label: 'merge-class/prop-runtime' },
   //
 ])('$label', async ({ label }) => {
-  const transform = usePostProcess({ applyAs: 'props' })
-  const { id, source, target } = await fixtureLoader.load(label)
-  const result = transform(source, id)
+  const transform = createPostProcessFn({ applyAs: 'props' })
+  const { source, target } = await fixtureLoader.load(label)
+  const result = transform(source)
 
   expect.assert(result != null)
   expect(await format(result.code)).toBe(target)
@@ -30,10 +30,10 @@ test.each([
   { label: 'merge-class/skip/no-relevant-props' },
   //
 ])('$label', async ({ label }) => {
+  const transform = createPostProcessFn()
   const id = new URL(`fixtures/${label}.tsx`, import.meta.url).pathname
   const code = await readFile(id, { encoding: 'utf8' })
-  const transform = usePostProcess()
-  const result = transform(code, id)
+  const result = transform(code)
 
   expect(result).toBeNull()
 })
@@ -44,9 +44,9 @@ test.each([
   { label: 'hoist-static/mixed' },
   //
 ])('$label', async ({ label }) => {
-  const transform = usePostProcess()
-  const { id, source, target } = await fixtureLoader.load(label)
-  const result = transform(source, id)
+  const transform = createPostProcessFn()
+  const { source, target } = await fixtureLoader.load(label)
+  const result = transform(source)
 
   expect.assert(result != null)
   expect(await format(result.code)).toBe(target)
@@ -57,10 +57,10 @@ test.each([
   { label: 'hoist-static/skip/dynamic' },
   //
 ])('$label', async ({ label }) => {
+  const transform = createPostProcessFn()
   const id = new URL(`fixtures/${label}.tsx`, import.meta.url).pathname
   const code = await readFile(id, { encoding: 'utf8' })
-  const transform = usePostProcess()
-  const result = transform(code, id)
+  const result = transform(code)
 
   expect(result).toBeNull()
 })
@@ -69,9 +69,9 @@ test.each([
   { label: 'swap-attrs' },
   //
 ])('$label', async ({ label }) => {
-  const swapAttrs = usePostProcess({ applyAs: 'attrs' })
-  const { id, source, target } = await fixtureLoader.load(label)
-  const result = swapAttrs(source, id)
+  const transform = createPostProcessFn({ applyAs: 'attrs' })
+  const { source, target } = await fixtureLoader.load(label)
+  const result = transform(source)
 
   expect(result?.code).toBe(target)
 })
@@ -81,9 +81,9 @@ const fixtureLoader = createFixtureLoader({
 })
 
 import { createFixtureLoader } from '#/test/utils/fixture-loader'
+import { createPostProcessFn } from '#/transformers/post-process'
 import { expect } from 'vitest'
 import { format } from '#/test/utils/formatter'
 import { readFile } from 'node:fs/promises'
 import { test } from 'vitest'
-import { usePostProcess } from '.'
 //
