@@ -237,48 +237,59 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       return `${finalSheetName}._`
     }
 
-    const unstyledComponentLocalNames = new Set<string>()
-    const unstyledComponentNamespaceNames = new Set<string>()
+    const unstyledComponentModuleGlobList = unstyledComponentModules.map(
+      (glob) => ({
+        match: createGlobMatcher(glob),
+      }),
+    )
+    const unstyledComponentNameSet = new Set<string>(
+      ast.program.body.flatMap((statement) => {
+        if (
+          isImportDeclaration(statement) &&
+          unstyledComponentModuleGlobList.some((glob) =>
+            glob.match(statement.source.value),
+          )
+        ) {
+          return statement.specifiers.map((specifier) => specifier.local.name)
+        }
+
+        return []
+      }),
+    )
 
     traverse(ast, {
-      Program: (path) => {
-        const matchers = unstyledComponentModules.map((glob) =>
-          createGlobMatcher(glob),
-        )
-
-        for (const statement of path.node.body) {
-          if (
-            isImportDeclaration(statement) &&
-            matchers.some((match) => match(statement.source.value))
-          ) {
-            for (const specifier of statement.specifiers) {
-              if (isImportNamespaceSpecifier(specifier)) {
-                unstyledComponentNamespaceNames.add(specifier.local.name)
-              } else {
-                unstyledComponentLocalNames.add(specifier.local.name)
-              }
-            }
-          }
-        }
-      },
-
       JSXOpeningElement: (path) => {
         const element = path.node
+
+        function getBinding() {
+          if (
+            isJSXIdentifier(element.name) &&
+            unstyledComponentNameSet.has(element.name.name)
+          ) {
+            return path.scope.getBinding(element.name.name)
+          }
+
+          const rootIdentifier = isJSXMemberExpression(element.name)
+            ? getJSXMemberExpressionRootIdentifier(element.name)
+            : null
+
+          if (
+            rootIdentifier != null &&
+            unstyledComponentNameSet.has(rootIdentifier.name)
+          ) {
+            return path.scope.getBinding(rootIdentifier.name)
+          }
+
+          return
+        }
 
         const isComponent =
           (isJSXIdentifier(element.name) &&
             /^[A-Z]/u.test(element.name.name)) ||
           isJSXMemberExpression(element.name)
 
-        const unstyledRootIdentifier = isJSXMemberExpression(element.name)
-          ? getJSXMemberExpressionRootIdentifier(element.name)
-          : null
-
         const isUnstyledComponent =
-          (isJSXIdentifier(element.name) &&
-            unstyledComponentLocalNames.has(element.name.name)) ||
-          (isNode(unstyledRootIdentifier) &&
-            unstyledComponentNamespaceNames.has(unstyledRootIdentifier.name))
+          isComponent && isImportedBinding(getBinding())
 
         let styleDeckAttr: JSXAttribute | null = null
         let classAttr: JSXAttribute | null = null
@@ -760,6 +771,18 @@ function validateArg(node: Node) {
   }
 }
 
+function isImportedBinding(binding: Binding | undefined): boolean {
+  if (binding == null) {
+    return false
+  }
+
+  return (
+    isImportSpecifier(binding.path.node) ||
+    isImportNamespaceSpecifier(binding.path.node) ||
+    isImportDefaultSpecifier(binding.path.node)
+  )
+}
+
 function getJSXMemberExpressionRootIdentifier(
   expression: JSXMemberExpression,
 ): JSXIdentifier | null {
@@ -778,6 +801,7 @@ function getJSXMemberExpressionRootIdentifier(
 }
 
 import type { ArrowFunctionExpression } from '@babel/types'
+import type { Binding } from '@babel/traverse'
 import createGlobMatcher from 'picomatch'
 import type { FunctionExpression } from '@babel/types'
 import { isArrayExpression } from '@babel/types'
@@ -787,13 +811,14 @@ import { isConditionalExpression } from '@babel/types'
 import { isFunctionExpression } from '@babel/types'
 import { isIdentifier } from '@babel/types'
 import { isImportDeclaration } from '@babel/types'
+import { isImportDefaultSpecifier } from '@babel/types'
 import { isImportNamespaceSpecifier } from '@babel/types'
+import { isImportSpecifier } from '@babel/types'
 import { isJSXAttribute } from '@babel/types'
 import { isJSXExpressionContainer } from '@babel/types'
 import { isJSXIdentifier } from '@babel/types'
 import { isJSXMemberExpression } from '@babel/types'
 import { isLogicalExpression } from '@babel/types'
-import { isNode } from '@babel/types'
 import { isObjectExpression } from '@babel/types'
 import { isObjectMethod } from '@babel/types'
 import { isObjectProperty } from '@babel/types'
