@@ -703,7 +703,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             )
           }
 
-          editor.appendLeft(styleDeckAttr.start!, 'data-styledeck')
+          editor.appendLeft(styleDeckAttr.start!, 'data-styledeck ')
         }
       },
     })
