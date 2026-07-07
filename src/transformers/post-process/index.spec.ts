@@ -13,9 +13,39 @@ test.each([
 })
 
 test.each([
+  { label: 'merge-class-spread/attr' },
+  { label: 'merge-class-spread/attr-logical' },
+  { label: 'merge-class-spread/attr-runtime' },
+  //
+])('$label', async ({ label }) => {
+  const transform = createPostProcessFn({ applyAs: 'attrs' })
+  const { source, target } = await fixtureLoader.load(label)
+  const result = transform(source)
+
+  expect.assert(result != null)
+  expect(await format(result.code)).toBe(target)
+})
+
+test.each([
   { label: 'merge-class/prop' },
   { label: 'merge-class/prop-logical' },
   { label: 'merge-class/prop-runtime' },
+  { label: 'merge-class/prop-with-dynamic-class' },
+  { label: 'merge-class/prop-runtime-with-dynamic-class' },
+  //
+])('$label', async ({ label }) => {
+  const transform = createPostProcessFn({ applyAs: 'props' })
+  const { source, target } = await fixtureLoader.load(label)
+  const result = transform(source)
+
+  expect.assert(result != null)
+  expect(await format(result.code)).toBe(target)
+})
+
+test.each([
+  { label: 'merge-class-spread/prop' },
+  { label: 'merge-class-spread/prop-logical' },
+  // { label: 'merge-class-spread/prop-runtime' },
   //
 ])('$label', async ({ label }) => {
   const transform = createPostProcessFn({ applyAs: 'props' })

@@ -128,6 +128,30 @@ test.each([
   expect(await format(result.code)).toBe(target)
 })
 
+test.each([
+  { label: 'mark-spread/attr' },
+  //
+])('$label', async ({ label }) => {
+  const transform = createPreProcessFn({ applyAs: 'attrs' })
+  const { source, target } = await fixtureLoader.load(label)
+  const result = transform(source)
+
+  expect.assert(result != null)
+  expect(await format(result.code)).toBe(target)
+})
+
+test.each([
+  { label: 'mark-spread/prop' },
+  //
+])('$label', async ({ label }) => {
+  const transform = createPreProcessFn({ applyAs: 'props' })
+  const { source, target } = await fixtureLoader.load(label)
+  const result = transform(source)
+
+  expect.assert(result != null)
+  expect(await format(result.code)).toBe(target)
+})
+
 const fixtureLoader = createFixtureLoader({
   baseUrl: import.meta.url,
 })
