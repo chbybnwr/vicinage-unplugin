@@ -2,6 +2,8 @@ test.each([
   { label: 'extract/on-element' },
   { label: 'extract/on-element-with-array' },
   { label: 'extract/conditional' },
+  { label: 'extract/conditional-named' },
+  { label: 'extract/conditional-mixed' },
   { label: 'extract/contextual' },
   { label: 'extract/custom-properties' },
   { label: 'extract/dynamic' },
