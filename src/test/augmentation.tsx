@@ -2,12 +2,13 @@ export {}
 
 declare module 'vue' {
   interface HTMLAttributes {
-    styleDeck?: StyleDeck
+    styleDeck?: StyleDeck | undefined
     className?: ClassValue | undefined
   }
 
   interface SVGAttributes {
-    styleDeck?: StyleDeck
+    styleDeck?: StyleDeck | undefined
+    className?: ClassValue | undefined
   }
 }
 
