@@ -36,6 +36,7 @@ test.each([
 
 test.each([
   { label: 'extract/on-unstyled-component' },
+  { label: 'extract/on-unstyled-component-aliased' },
   { label: 'extract/on-unstyled-component-namespaced' },
   //
 ])('$label', async ({ label }) => {
