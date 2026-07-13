@@ -2,8 +2,10 @@ export { Component }
 
 function Component(className: string) {
   return (
-    <div {...__styledeck_mergeClass(className, { className: 'alpha bravo' })} />
+    <div
+      {...__styledeck_mergeClassName(className, { className: 'alpha bravo' })}
+    />
   )
 }
 
-import { '~mergeClassProperty' as __styledeck_mergeClass } from 'vicinage'
+import { '~mergeClassName' as __styledeck_mergeClassName } from 'vicinage'

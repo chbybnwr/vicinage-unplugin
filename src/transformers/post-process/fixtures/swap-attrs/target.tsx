@@ -1,7 +1,7 @@
 export { App }
 
 function App() {
-  return <div {...__stylex_attrs()} />
+  return <div {...__styledeck_toAttrs()} />
 }
 
-import { '~attrs' as __stylex_attrs } from 'vicinage'
+import { '~toAttrs' as __styledeck_toAttrs } from 'vicinage'

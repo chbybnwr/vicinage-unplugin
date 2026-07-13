@@ -3,7 +3,7 @@ export { Component }
 function Component(props: object) {
   return (
     <div
-      {...__styledeck_resolveAttrs(
+      {...__styledeck_mergeAttrs(
         {
           ...props,
         },
@@ -17,4 +17,4 @@ import { attrs as stylexAttrs } from '@stylexjs/stylex'
 import { textSize } from 'solarwindcss'
 //
 
-import { '~resolveAttrs' as __styledeck_resolveAttrs } from 'vicinage'
+import { '~mergeAttrs' as __styledeck_mergeAttrs } from 'vicinage'

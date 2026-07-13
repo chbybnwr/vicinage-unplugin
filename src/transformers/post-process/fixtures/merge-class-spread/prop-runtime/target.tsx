@@ -3,7 +3,7 @@ export { Component }
 function Component(props: object) {
   return (
     <div
-      {...__styledeck_resolveProps(
+      {...__styledeck_mergeProps(
         {
           ...props,
         },
@@ -17,4 +17,4 @@ import { props as stylexProps } from '@stylexjs/stylex'
 import { textSize } from 'solarwindcss'
 //
 
-import { '~resolveProps' as __styledeck_resolveProps } from 'vicinage'
+import { '~mergeProps' as __styledeck_mergeProps } from 'vicinage'

@@ -11,4 +11,4 @@ function Component() {
   )
 }
 
-import { '~mergeClassAttribute' as __styledeck_mergeClass } from 'vicinage'
+import { '~mergeClass' as __styledeck_mergeClass } from 'vicinage'

@@ -5,10 +5,8 @@ export { createPostProcessFn }
 const createPostProcessFn = (options: Options | undefined = {}) => {
   const { applyAs = 'props' } = options
   const htmlClass = applyAs === 'props' ? 'className' : 'class'
-  const mergeClassFnName =
-    applyAs === 'props' ? `'~mergeClassProperty'` : `'~mergeClassAttribute'`
-  const resolvePropsFnName =
-    applyAs === 'props' ? 'resolveProps' : 'resolveAttrs'
+  const mergeClassFnName = applyAs === 'props' ? `mergeClassName` : `mergeClass`
+  const mergePropsFnName = applyAs === 'props' ? 'mergeProps' : 'mergeAttrs'
 
   return (
     code: string,
@@ -158,7 +156,7 @@ const createPostProcessFn = (options: Options | undefined = {}) => {
             firstAttr.start!,
             node.attributes.at(-1)!.end!,
             [
-              `{...__styledeck_${resolvePropsFnName}(`,
+              `{...__styledeck_${mergePropsFnName}(`,
               '  {',
               `    ${combinedAttrs.join(',')}`,
               '  },',
@@ -168,7 +166,7 @@ const createPostProcessFn = (options: Options | undefined = {}) => {
           )
 
           helperImports.add(
-            `import { '~${resolvePropsFnName}' as __styledeck_${resolvePropsFnName} } from 'vicinage'`,
+            `import { '~${mergePropsFnName}' as __styledeck_${mergePropsFnName} } from 'vicinage'`,
           )
 
           return
@@ -194,7 +192,7 @@ const createPostProcessFn = (options: Options | undefined = {}) => {
             editor.overwrite(
               reservedClassAttribute.start!,
               reservedClassAttribute.end!,
-              `{...__styledeck_mergeClass(${[
+              `{...__styledeck_${mergeClassFnName}(${[
                 code.slice(
                   reservedClassAttribute.value.expression.start!,
                   reservedClassAttribute.value.expression.end!,
@@ -212,7 +210,7 @@ const createPostProcessFn = (options: Options | undefined = {}) => {
             )
 
             helperImports.add(
-              `import { ${mergeClassFnName} as __styledeck_mergeClass } from '${pluginName}'`,
+              `import { '~${mergeClassFnName}' as __styledeck_${mergeClassFnName} } from '${pluginName}'`,
             )
           }
         } else {
@@ -231,7 +229,7 @@ const createPostProcessFn = (options: Options | undefined = {}) => {
           editor.overwrite(
             reservedClassAttribute.start!,
             reservedClassAttribute.end!,
-            `{...__styledeck_mergeClass(${[
+            `{...__styledeck_${mergeClassFnName}(${[
               originalClass,
               code.slice(
                 compiledAttribute.argument.start!,
@@ -241,7 +239,7 @@ const createPostProcessFn = (options: Options | undefined = {}) => {
           )
 
           helperImports.add(
-            `import { ${mergeClassFnName} as __styledeck_mergeClass } from '${pluginName}'`,
+            `import { '~${mergeClassFnName}' as __styledeck_${mergeClassFnName} } from '${pluginName}'`,
           )
         }
 
@@ -250,9 +248,11 @@ const createPostProcessFn = (options: Options | undefined = {}) => {
     })
 
     if (applyAs === 'attrs') {
+      editor.replaceAll(`__stylex_attrs`, `__styledeck_toAttrs`)
+
       editor.replaceAll(
         `import { attrs as __stylex_attrs } from '@stylexjs/stylex'`,
-        `import { '~attrs' as __stylex_attrs } from '${pluginName}'`,
+        `import { '~toAttrs' as __styledeck_toAttrs } from '${pluginName}'`,
       )
     }
 

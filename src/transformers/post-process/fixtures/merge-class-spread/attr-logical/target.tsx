@@ -3,7 +3,7 @@ export { Component }
 function Component(props: object) {
   return (
     <div
-      {...__styledeck_resolveAttrs(
+      {...__styledeck_mergeAttrs(
         {
           ...props,
         },
@@ -13,4 +13,4 @@ function Component(props: object) {
   )
 }
 
-import { '~resolveAttrs' as __styledeck_resolveAttrs } from 'vicinage'
+import { '~mergeAttrs' as __styledeck_mergeAttrs } from 'vicinage'

@@ -99,7 +99,7 @@
     "tsdown": "~0.22.3",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.62.1",
-    "vicinage": "~0.7.22",
+    "vicinage": "file:modules/vicinage-0.8.22.tgz",
     "vite": "^8.1.3",
     "vitest": "^4.1.9",
     "vue": "^3.5.39",
