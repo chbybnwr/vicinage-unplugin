@@ -9,7 +9,12 @@ const preProcessPlugin = declare(function (api, options: Options | undefined) {
     pre(file) {
       const { filename } = file.opts
 
-      if (!(filename != null && /\.(t|j)sx?$/u.test(filename))) {
+      if (!(
+        filename != null &&
+        !filename.includes('node_modules') &&
+        /\.(t|j)sx?$/u.test(filename) &&
+        /styledeck/i.test(file.code)
+      )) {
         return
       }
 
