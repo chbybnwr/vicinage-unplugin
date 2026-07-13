@@ -15,4 +15,4 @@ function Component(props: object) {
   )
 }
 
-import { '~mergeProps' as __styledeck_mergeProps } from 'vicinage'
+import { '~mergeProps' as __styledeck_mergeProps } from 'styledeck'

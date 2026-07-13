@@ -1,3 +1,3 @@
 export { pluginName }
 
-const pluginName = 'vicinage'
+const pluginName = 'styledeck'

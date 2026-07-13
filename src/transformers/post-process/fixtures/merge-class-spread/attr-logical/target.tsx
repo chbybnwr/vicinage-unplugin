@@ -13,4 +13,4 @@ function Component(props: object) {
   )
 }
 
-import { '~mergeAttrs' as __styledeck_mergeAttrs } from 'vicinage'
+import { '~mergeAttrs' as __styledeck_mergeAttrs } from 'styledeck'

@@ -22,5 +22,5 @@ function Component({
   )
 }
 
-import type { StyleDeck } from 'vicinage'
+import type { StyleDeck } from 'styledeck'
 //

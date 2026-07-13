@@ -10,4 +10,4 @@ import { attrs as stylexAttrs } from '@stylexjs/stylex'
 import { textSize } from 'solarwindcss'
 //
 
-import { '~mergeClass' as __styledeck_mergeClass } from 'vicinage'
+import { '~mergeClass' as __styledeck_mergeClass } from 'styledeck'

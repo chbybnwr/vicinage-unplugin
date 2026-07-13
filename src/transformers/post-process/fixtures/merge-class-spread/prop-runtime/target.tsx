@@ -17,4 +17,4 @@ import { props as stylexProps } from '@stylexjs/stylex'
 import { textSize } from 'solarwindcss'
 //
 
-import { '~mergeProps' as __styledeck_mergeProps } from 'vicinage'
+import { '~mergeProps' as __styledeck_mergeProps } from 'styledeck'

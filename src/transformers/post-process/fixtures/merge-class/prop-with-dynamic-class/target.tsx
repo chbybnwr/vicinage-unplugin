@@ -8,4 +8,4 @@ function Component(className: string) {
   )
 }
 
-import { '~mergeClassName' as __styledeck_mergeClassName } from 'vicinage'
+import { '~mergeClassName' as __styledeck_mergeClassName } from 'styledeck'

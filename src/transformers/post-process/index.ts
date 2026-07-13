@@ -166,7 +166,7 @@ const createPostProcessFn = (options: Options | undefined = {}) => {
           )
 
           helperImports.add(
-            `import { '~${mergePropsFnName}' as __styledeck_${mergePropsFnName} } from 'vicinage'`,
+            `import { '~${mergePropsFnName}' as __styledeck_${mergePropsFnName} } from 'styledeck'`,
           )
 
           return
