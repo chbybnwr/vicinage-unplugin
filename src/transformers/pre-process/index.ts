@@ -329,12 +329,39 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             ? attr.value.expression.elements
             : [attr.value.expression]
 
-          const finalArgs = argList.flatMap((arg) => {
+          function compileStyleDeckArg(arg: Node | null): string[] {
             if (arg == null) {
               return []
             }
 
-            if (!isObjectExpression(arg)) {
+            if (
+              isLogicalExpression(arg) &&
+              arg.operator === '&&' &&
+              isArrayExpression(arg.right)
+            ) {
+              const compiledArgs = arg.right.elements.flatMap((element) =>
+                compileStyleDeckArg(element),
+              )
+
+              return [
+                `${code.slice(arg.left.start!, arg.left.end!)} && [${compiledArgs.join(', ')}]`,
+              ]
+            }
+
+            if (isArrayExpression(arg)) {
+              const compiledArgs = arg.elements.flatMap((element) =>
+                compileStyleDeckArg(element),
+              )
+
+              return [`[${compiledArgs.join(', ')}]`]
+            }
+
+            const isShortCircuited =
+              isLogicalExpression(arg) && arg.operator === '&&'
+
+            const style = isShortCircuited ? arg.right : arg
+
+            if (!isObjectExpression(style)) {
               validateArg(arg)
 
               return [code.slice(arg.start!, arg.end!)]
@@ -344,7 +371,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             const extraArgs = []
             const propertyList: (ObjectProperty | ObjectMethod)[] = []
 
-            for (const property of arg.properties) {
+            for (const property of style.properties) {
               if (isSpreadElement(property)) {
                 throw new Error(
                   `[${pluginName}] Spread elements in style objects are not supported`,
@@ -651,7 +678,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             }
 
             if (staticProps.length > 0) {
-              const location = arg.loc!
+              const location = style.loc!
 
               const baseVariableName = `style_${location.start.line}_${location.start.column + 1}`
 
@@ -665,11 +692,20 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
                 ].join('\n'),
               )
 
-              return [`${baseVariableName}._`, ...extraArgs]
+              extraArgs.unshift(`${baseVariableName}._`)
             }
 
-            return [...extraArgs]
-          })
+            if (isShortCircuited) {
+              return extraArgs.map(
+                (value) =>
+                  `${code.slice(arg.left.start!, arg.left.end!)} && ${value}`,
+              )
+            }
+
+            return extraArgs
+          }
+
+          const finalArgs = argList.flatMap((arg) => compileStyleDeckArg(arg))
 
           const joined = finalArgs.join(', ')
 
@@ -753,11 +789,20 @@ function indent(level: number) {
 function validateArg(node: Node) {
   if (isObjectExpression(node)) {
     throw new Error(
-      `[${pluginName}] Conditional arguments can not be object literals.`,
+      `[${pluginName}] Conditional ternary arguments can not be object literals.`,
     )
   }
 
   if (isConditionalExpression(node)) {
+    if (
+      isArrayExpression(node.consequent) ||
+      isArrayExpression(node.alternate)
+    ) {
+      throw new Error(
+        `[${pluginName}] Conditional ternary arguments can not be object literals.`,
+      )
+    }
+
     validateArg(node.consequent)
     validateArg(node.alternate)
 

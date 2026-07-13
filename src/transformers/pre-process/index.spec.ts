@@ -4,6 +4,7 @@ test.each([
   { label: 'extract/conditional' },
   { label: 'extract/conditional-named' },
   { label: 'extract/conditional-mixed' },
+  { label: 'extract/conditional-short-circuit-literal' },
   { label: 'extract/contextual' },
   { label: 'extract/custom-properties' },
   { label: 'extract/dynamic' },
@@ -13,6 +14,8 @@ test.each([
   { label: 'extract/on-component-with-parts' },
   { label: 'extract/stylex-vars' },
   { label: 'extract/pseudo-element' },
+  { label: 'extract/nested' },
+  { label: 'extract/nested-short-circuit-literal' },
 ])('$label', async ({ label }) => {
   const transform = createPreProcessFn()
   const { source, target } = await fixtureLoader.load(label)
@@ -95,15 +98,16 @@ test.each([
 })
 
 test.each([
-  { label: 'error/conditional-object-literal-argument' },
-  { label: 'error/short-circuit-object-literal-argument' },
+  { label: 'error/conditional-ternary-literal' },
+  { label: 'error/nested-ternary-literal' },
+  //
 ])('$label', async ({ label }) => {
   const transform = createPreProcessFn()
   const id = new URL(`fixtures/${label}.tsx`, import.meta.url).pathname
   const code = await readFile(id, { encoding: 'utf8' })
 
   expect(() => transform(code)).toThrow(
-    /Conditional arguments can not be object literals/u,
+    /Conditional ternary arguments can not be object literals/u,
   )
 })
 
