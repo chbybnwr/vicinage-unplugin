@@ -9,6 +9,11 @@ const contextualClosureBaseLevel = 3
 const createPreProcessFn = (options: Options | undefined = {}) => {
   const { applyAs = 'props', unstyledComponentModules = [] } = options
   const htmlClass = applyAs === 'props' ? 'className' : 'class'
+  const unstyledComponentModuleGlobList = unstyledComponentModules.map(
+    (glob) => ({
+      match: createGlobMatcher(glob),
+    }),
+  )
 
   return (
     code: string,
@@ -237,11 +242,6 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       return `${finalSheetName}._`
     }
 
-    const unstyledComponentModuleGlobList = unstyledComponentModules.map(
-      (glob) => ({
-        match: createGlobMatcher(glob),
-      }),
-    )
     const unstyledComponentNameSet = new Set<string>(
       ast.program.body.flatMap((statement) => {
         if (
