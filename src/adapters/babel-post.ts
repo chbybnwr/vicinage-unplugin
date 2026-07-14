@@ -1,6 +1,9 @@
 export { postProcessPlugin as default }
 
-const postProcessPlugin = declare(function (api, options: Options | undefined) {
+const postProcessPlugin = declare(function (
+  api: PluginAPI,
+  options: Options | undefined,
+) {
   const postProcess = createPostProcessFn(options)
 
   return {
@@ -46,5 +49,6 @@ import { createPostProcessFn } from '#/transformers/post-process'
 import { declare } from '@babel/helper-plugin-utils'
 import type { Options } from '#/options'
 import { parse } from '@babel/parser'
+import type { PluginAPI } from '@babel/core'
 import { pluginName } from '#/shared/config'
 //

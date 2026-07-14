@@ -1,9 +1,12 @@
 export { preset as default }
 
 function preset(api: object, options: Options) {
+  const { applyAs, unstyledComponentModules, ...stylexOptions } = options
+  const styledeckOptions = { applyAs, unstyledComponentModules }
+
   return {
     plugins: [
-      [preStylex, options],
+      [preStylex, styledeckOptions],
       [
         stylex,
         {
@@ -13,10 +16,10 @@ function preset(api: object, options: Options) {
           unstable_moduleResolution: {
             type: 'commonJS',
           },
-          ...options,
+          ...stylexOptions,
         },
       ],
-      [postStylex, options],
+      [postStylex, styledeckOptions],
     ],
   }
 }

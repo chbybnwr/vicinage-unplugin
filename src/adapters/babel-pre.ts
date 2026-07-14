@@ -1,6 +1,9 @@
 export { preProcessPlugin as default }
 
-const preProcessPlugin = declare(function (api, options: Options | undefined) {
+const preProcessPlugin = declare(function (
+  api: PluginAPI,
+  options: Options | undefined,
+) {
   const preProcess = createPreProcessFn(options)
 
   return {
@@ -47,5 +50,6 @@ import { createPreProcessFn } from '#/transformers/pre-process'
 import { declare } from '@babel/helper-plugin-utils'
 import type { Options } from '#/options'
 import { parse } from '@babel/parser'
+import type { PluginAPI } from '@babel/core'
 import { pluginName } from '#/shared/config'
 //
