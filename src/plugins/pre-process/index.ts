@@ -10,7 +10,7 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (options) => {
     transform: {
       filter: {
         id: {
-          include: /\.(t|j)sx?$/u,
+          include: /\.(t|j)sx$/u,
           exclude: /node_modules/,
         },
         code: {

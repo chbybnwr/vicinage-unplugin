@@ -15,7 +15,7 @@ const preProcessPlugin = declare(function (
       if (!(
         filename != null &&
         !filename.includes('node_modules') &&
-        /\.(t|j)sx?$/u.test(filename) &&
+        /\.(t|j)sx$/u.test(filename) &&
         /styledeck/i.test(file.code)
       )) {
         return
