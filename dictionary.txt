@@ -4,6 +4,7 @@ esbuild
 farmfe
 mjsx
 mtsx
+qwik
 rspack
 solarwindcss
 styledeck

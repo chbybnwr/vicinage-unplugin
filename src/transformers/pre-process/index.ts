@@ -7,13 +7,19 @@ const indentSize = 2
 const contextualClosureBaseLevel = 3
 
 const createPreProcessFn = (options: Options | undefined = {}) => {
-  const { applyAs = 'props', unstyledComponentModules = [] } = options
-  const htmlClass = applyAs === 'props' ? 'className' : 'class'
+  const {
+    jsxAttributeSchema = getJSXAttributeSchema(),
+    unstyledComponentModules = [],
+  } = options
+  const htmlClass =
+    jsxAttributeSchema === 'dom-properties' ? 'className' : 'class'
   const unstyledComponentModuleGlobList = unstyledComponentModules.map(
     (glob) => ({
       match: createGlobMatcher(glob),
     }),
   )
+  const stylexMacro =
+    jsxAttributeSchema === 'dom-properties' ? 'props' : 'attrs'
 
   return (
     code: string,
@@ -724,11 +730,11 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
           editor.overwrite(
             attr.start!,
             attr.end!,
-            `{...__stylex_${applyAs}(${joined})}`,
+            `{...__stylex_${stylexMacro}(${joined})}`,
           )
 
           stylexImports.add(
-            `import { ${applyAs} as __stylex_${applyAs} } from '@stylexjs/stylex'`,
+            `import { ${stylexMacro} as __stylex_${stylexMacro} } from '@stylexjs/stylex'`,
           )
         }
 
@@ -849,6 +855,7 @@ import type { ArrowFunctionExpression } from '@babel/types'
 import type { Binding } from '@babel/traverse'
 import createGlobMatcher from 'picomatch'
 import type { FunctionExpression } from '@babel/types'
+import { getJSXAttributeSchema } from '#/jsx-attribute-schema.js'
 import { isArrayExpression } from '@babel/types'
 import { isArrowFunctionExpression } from '@babel/types'
 import { isBlockStatement } from '@babel/types'

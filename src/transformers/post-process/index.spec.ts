@@ -4,7 +4,9 @@ test.each([
   { label: 'merge-class/attr-runtime' },
   //
 ])('$label', async ({ label }) => {
-  const transform = createPostProcessFn({ applyAs: 'attrs' })
+  const transform = createPostProcessFn({
+    jsxAttributeSchema: 'html-attributes',
+  })
   const { source, target } = await fixtureLoader.load(label)
   const result = transform(source)
 
@@ -18,7 +20,9 @@ test.each([
   { label: 'merge-class-spread/attr-runtime' },
   //
 ])('$label', async ({ label }) => {
-  const transform = createPostProcessFn({ applyAs: 'attrs' })
+  const transform = createPostProcessFn({
+    jsxAttributeSchema: 'html-attributes',
+  })
   const { source, target } = await fixtureLoader.load(label)
   const result = transform(source)
 
@@ -34,7 +38,9 @@ test.each([
   { label: 'merge-class/prop-runtime-with-dynamic-class' },
   //
 ])('$label', async ({ label }) => {
-  const transform = createPostProcessFn({ applyAs: 'props' })
+  const transform = createPostProcessFn({
+    jsxAttributeSchema: 'dom-properties',
+  })
   const { source, target } = await fixtureLoader.load(label)
   const result = transform(source)
 
@@ -48,7 +54,9 @@ test.each([
   // { label: 'merge-class-spread/prop-runtime' },
   //
 ])('$label', async ({ label }) => {
-  const transform = createPostProcessFn({ applyAs: 'props' })
+  const transform = createPostProcessFn({
+    jsxAttributeSchema: 'dom-properties',
+  })
   const { source, target } = await fixtureLoader.load(label)
   const result = transform(source)
 
@@ -99,7 +107,9 @@ test.each([
   { label: 'swap-attrs' },
   //
 ])('$label', async ({ label }) => {
-  const transform = createPostProcessFn({ applyAs: 'attrs' })
+  const transform = createPostProcessFn({
+    jsxAttributeSchema: 'html-attributes',
+  })
   const { source, target } = await fixtureLoader.load(label)
   const result = transform(source)
 

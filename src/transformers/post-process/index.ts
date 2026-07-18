@@ -3,10 +3,13 @@
 export { createPostProcessFn }
 
 const createPostProcessFn = (options: Options | undefined = {}) => {
-  const { applyAs = 'props' } = options
-  const htmlClass = applyAs === 'props' ? 'className' : 'class'
-  const mergeClassFnName = applyAs === 'props' ? `mergeClassName` : `mergeClass`
-  const mergePropsFnName = applyAs === 'props' ? 'mergeProps' : 'mergeAttrs'
+  const { jsxAttributeSchema = getJSXAttributeSchema() } = options
+  const htmlClass =
+    jsxAttributeSchema === 'dom-properties' ? 'className' : 'class'
+  const mergeClassFnName =
+    jsxAttributeSchema === 'dom-properties' ? `mergeClassName` : `mergeClass`
+  const mergePropsFnName =
+    jsxAttributeSchema === 'dom-properties' ? 'mergeProps' : 'mergeAttrs'
 
   return (
     code: string,
@@ -247,7 +250,7 @@ const createPostProcessFn = (options: Options | undefined = {}) => {
       },
     })
 
-    if (applyAs === 'attrs') {
+    if (jsxAttributeSchema === 'html-attributes') {
       editor.replaceAll(`__stylex_attrs`, `__styledeck_toAttrs`)
 
       editor.replaceAll(
@@ -270,6 +273,7 @@ const createPostProcessFn = (options: Options | undefined = {}) => {
   }
 }
 
+import { getJSXAttributeSchema } from '#/jsx-attribute-schema.js'
 import { isArrayExpression } from '@babel/types'
 import { isIdentifier } from '@babel/types'
 import { isJSXAttribute } from '@babel/types'

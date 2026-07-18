@@ -4,8 +4,9 @@ function preset(
   api: PresetAPI,
   options: Options & Partial<StyleXOptions>,
 ): InputOptions {
-  const { applyAs, unstyledComponentModules, ...stylexOptions } = options
-  const styledeckOptions = { applyAs, unstyledComponentModules }
+  const { jsxAttributeSchema, unstyledComponentModules, ...stylexOptions } =
+    options
+  const styledeckOptions = { jsxAttributeSchema, unstyledComponentModules }
 
   return {
     presets: [

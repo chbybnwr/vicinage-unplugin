@@ -17,7 +17,9 @@ test.each([
   { label: 'extract/nested' },
   { label: 'extract/nested-short-circuit-literal' },
 ])('$label', async ({ label }) => {
-  const transform = createPreProcessFn()
+  const transform = createPreProcessFn({
+    jsxAttributeSchema: 'dom-properties',
+  })
   const { source, target } = await fixtureLoader.load(label)
   const result = transform(source)
 
@@ -44,6 +46,7 @@ test.each([
   //
 ])('$label', async ({ label }) => {
   const transform = createPreProcessFn({
+    jsxAttributeSchema: 'dom-properties',
     unstyledComponentModules: ['#/test/fixtures/unstyled'],
   })
   const { source, target } = await fixtureLoader.load(label)
@@ -58,6 +61,7 @@ test.each([
   //
 ])('$label', async ({ label }) => {
   const transform = createPreProcessFn({
+    jsxAttributeSchema: 'dom-properties',
     unstyledComponentModules: ['#/test/fixtures/unstyled/*'],
   })
   const { source, target } = await fixtureLoader.load(label)
@@ -115,7 +119,9 @@ test.each([
   { label: 'reserve-class/attr' },
   //
 ])('$label', async ({ label }) => {
-  const transform = createPreProcessFn({ applyAs: 'attrs' })
+  const transform = createPreProcessFn({
+    jsxAttributeSchema: 'html-attributes',
+  })
   const { source, target } = await fixtureLoader.load(label)
   const result = transform(source)
 
@@ -127,7 +133,7 @@ test.each([
   { label: 'reserve-class/prop' },
   //
 ])('$label', async ({ label }) => {
-  const transform = createPreProcessFn({ applyAs: 'props' })
+  const transform = createPreProcessFn({ jsxAttributeSchema: 'dom-properties' })
   const { source, target } = await fixtureLoader.load(label)
   const result = transform(source)
 
@@ -139,7 +145,9 @@ test.each([
   { label: 'mark-spread/attr' },
   //
 ])('$label', async ({ label }) => {
-  const transform = createPreProcessFn({ applyAs: 'attrs' })
+  const transform = createPreProcessFn({
+    jsxAttributeSchema: 'html-attributes',
+  })
   const { source, target } = await fixtureLoader.load(label)
   const result = transform(source)
 
@@ -151,7 +159,7 @@ test.each([
   { label: 'mark-spread/prop' },
   //
 ])('$label', async ({ label }) => {
-  const transform = createPreProcessFn({ applyAs: 'props' })
+  const transform = createPreProcessFn({ jsxAttributeSchema: 'dom-properties' })
   const { source, target } = await fixtureLoader.load(label)
   const result = transform(source)
 
