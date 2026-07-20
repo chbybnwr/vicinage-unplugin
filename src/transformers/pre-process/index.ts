@@ -27,16 +27,187 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       ast?: ParseResult
     },
   ) => {
-    const ast =
-      context?.ast ??
-      parse(code, {
-        sourceType: 'module',
-        plugins: ['typescript', 'jsx'],
+    const hoistedStyles = new Set<string>()
+
+    return main()
+
+    function main() {
+      const ast =
+        context?.ast ??
+        parse(code, {
+          sourceType: 'module',
+          plugins: ['typescript', 'jsx'],
+        })
+
+      const editor = new MagicString(code)
+      const stylexImports = new Set<string>()
+
+      const unstyledComponentNameSet = new Set<string>(
+        ast.program.body.flatMap((statement) => {
+          if (
+            isImportDeclaration(statement) &&
+            unstyledComponentModuleGlobList.some((glob) =>
+              glob.match(statement.source.value),
+            )
+          ) {
+            return statement.specifiers.map((specifier) => specifier.local.name)
+          }
+
+          return []
+        }),
+      )
+
+      traverse(ast, {
+        JSXOpeningElement: (path) => {
+          const element = path.node
+
+          function getBinding() {
+            if (
+              isJSXIdentifier(element.name) &&
+              unstyledComponentNameSet.has(element.name.name)
+            ) {
+              return path.scope.getBinding(element.name.name)
+            }
+
+            const rootIdentifier = isJSXMemberExpression(element.name)
+              ? getJSXMemberExpressionRootIdentifier(element.name)
+              : null
+
+            if (
+              rootIdentifier != null &&
+              unstyledComponentNameSet.has(rootIdentifier.name)
+            ) {
+              return path.scope.getBinding(rootIdentifier.name)
+            }
+
+            return
+          }
+
+          const isComponent =
+            (isJSXIdentifier(element.name) &&
+              /^[A-Z]/u.test(element.name.name)) ||
+            isJSXMemberExpression(element.name)
+
+          const isUnstyledComponent =
+            isComponent && isImportedBinding(getBinding())
+
+          let styleDeckAttr: JSXAttribute | null = null
+          let classAttr: JSXAttribute | null = null
+          let hasSpreadAttr = false
+
+          for (const attr of element.attributes) {
+            if (!isJSXAttribute(attr)) {
+              hasSpreadAttr = true
+
+              continue
+            }
+
+            if (!isJSXIdentifier(attr.name)) {
+              continue
+            }
+
+            const attrIdentifier = attr.name
+
+            if (attrIdentifier.name === htmlClass) {
+              classAttr = attr
+
+              continue
+            }
+
+            if (!(
+              attrIdentifier.name === 'styleDeck' ||
+              attrIdentifier.name.endsWith('StyleDeck')
+            )) {
+              continue
+            }
+
+            if (!isJSXExpressionContainer(attr.value)) {
+              throw new Error('Invalid styleDeck value')
+            }
+
+            const argList = isArrayExpression(attr.value.expression)
+              ? attr.value.expression.elements
+              : [attr.value.expression]
+
+            const finalArgs = argList.flatMap((arg) => compileStyleDeckArg(arg))
+
+            const joined = finalArgs.join(', ')
+
+            if (isComponent && !isUnstyledComponent) {
+              editor.overwrite(
+                attr.value.expression.start!,
+                attr.value.expression.end!,
+                finalArgs.length === 1 ? joined : `[${joined}]`,
+              )
+
+              continue
+            }
+
+            styleDeckAttr = attr
+
+            editor.overwrite(
+              attr.start!,
+              attr.end!,
+              `{...__stylex_${stylexMacro}(${joined})}`,
+            )
+
+            stylexImports.add(
+              `import { ${stylexMacro} as __stylex_${stylexMacro} } from '@stylexjs/stylex'`,
+            )
+          }
+
+          if (
+            styleDeckAttr != null &&
+            (classAttr != null || hasSpreadAttr) &&
+            (!isComponent || isUnstyledComponent)
+          ) {
+            if (hasSpreadAttr) {
+              editor.appendLeft(
+                element.attributes[0]!.start!,
+                'data-styledeck-spread ',
+              )
+            } else if (classAttr != null) {
+              editor.overwrite(
+                classAttr.name.start!,
+                classAttr.name.end!,
+                'data-styledeck-class',
+              )
+            }
+
+            editor.appendLeft(styleDeckAttr.start!, 'data-styledeck ')
+          }
+        },
       })
 
-    const editor = new MagicString(code)
-    const hoistedStyles = new Set<string>()
-    const stylexImports = new Set<string>()
+      if (hoistedStyles.size > 0) {
+        stylexImports.add(
+          `import { create as __stylex_create } from '@stylexjs/stylex'`,
+        )
+      }
+
+      const footer = [
+        ...hoistedStyles,
+        ...(stylexImports.size > 0
+          ? [
+              [...stylexImports]
+                .toSorted((a, b) => a.localeCompare(b))
+                .join('\n'),
+            ]
+          : []),
+      ]
+
+      if (footer.length > 0) {
+        editor.append(`\n${footer.join('\n\n')}\n`)
+      }
+
+      if (editor.hasChanged()) {
+        return {
+          code: editor.toString(),
+        }
+      }
+
+      return null
+    }
 
     function shred(
       node: Node,
@@ -610,168 +781,6 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
 
       return extraArgs
     }
-
-    const unstyledComponentNameSet = new Set<string>(
-      ast.program.body.flatMap((statement) => {
-        if (
-          isImportDeclaration(statement) &&
-          unstyledComponentModuleGlobList.some((glob) =>
-            glob.match(statement.source.value),
-          )
-        ) {
-          return statement.specifiers.map((specifier) => specifier.local.name)
-        }
-
-        return []
-      }),
-    )
-
-    traverse(ast, {
-      JSXOpeningElement: (path) => {
-        const element = path.node
-
-        function getBinding() {
-          if (
-            isJSXIdentifier(element.name) &&
-            unstyledComponentNameSet.has(element.name.name)
-          ) {
-            return path.scope.getBinding(element.name.name)
-          }
-
-          const rootIdentifier = isJSXMemberExpression(element.name)
-            ? getJSXMemberExpressionRootIdentifier(element.name)
-            : null
-
-          if (
-            rootIdentifier != null &&
-            unstyledComponentNameSet.has(rootIdentifier.name)
-          ) {
-            return path.scope.getBinding(rootIdentifier.name)
-          }
-
-          return
-        }
-
-        const isComponent =
-          (isJSXIdentifier(element.name) &&
-            /^[A-Z]/u.test(element.name.name)) ||
-          isJSXMemberExpression(element.name)
-
-        const isUnstyledComponent =
-          isComponent && isImportedBinding(getBinding())
-
-        let styleDeckAttr: JSXAttribute | null = null
-        let classAttr: JSXAttribute | null = null
-        let hasSpreadAttr = false
-
-        for (const attr of element.attributes) {
-          if (!isJSXAttribute(attr)) {
-            hasSpreadAttr = true
-
-            continue
-          }
-
-          if (!isJSXIdentifier(attr.name)) {
-            continue
-          }
-
-          const attrIdentifier = attr.name
-
-          if (attrIdentifier.name === htmlClass) {
-            classAttr = attr
-
-            continue
-          }
-
-          if (!(
-            attrIdentifier.name === 'styleDeck' ||
-            attrIdentifier.name.endsWith('StyleDeck')
-          )) {
-            continue
-          }
-
-          if (!isJSXExpressionContainer(attr.value)) {
-            throw new Error('Invalid styleDeck value')
-          }
-
-          const argList = isArrayExpression(attr.value.expression)
-            ? attr.value.expression.elements
-            : [attr.value.expression]
-
-          const finalArgs = argList.flatMap((arg) => compileStyleDeckArg(arg))
-
-          const joined = finalArgs.join(', ')
-
-          if (isComponent && !isUnstyledComponent) {
-            editor.overwrite(
-              attr.value.expression.start!,
-              attr.value.expression.end!,
-              finalArgs.length === 1 ? joined : `[${joined}]`,
-            )
-
-            continue
-          }
-
-          styleDeckAttr = attr
-
-          editor.overwrite(
-            attr.start!,
-            attr.end!,
-            `{...__stylex_${stylexMacro}(${joined})}`,
-          )
-
-          stylexImports.add(
-            `import { ${stylexMacro} as __stylex_${stylexMacro} } from '@stylexjs/stylex'`,
-          )
-        }
-
-        if (
-          styleDeckAttr != null &&
-          (classAttr != null || hasSpreadAttr) &&
-          (!isComponent || isUnstyledComponent)
-        ) {
-          if (hasSpreadAttr) {
-            editor.appendLeft(
-              element.attributes[0]!.start!,
-              'data-styledeck-spread ',
-            )
-          } else if (classAttr != null) {
-            editor.overwrite(
-              classAttr.name.start!,
-              classAttr.name.end!,
-              'data-styledeck-class',
-            )
-          }
-
-          editor.appendLeft(styleDeckAttr.start!, 'data-styledeck ')
-        }
-      },
-    })
-
-    if (hoistedStyles.size > 0) {
-      stylexImports.add(
-        `import { create as __stylex_create } from '@stylexjs/stylex'`,
-      )
-    }
-
-    const footer = [
-      ...hoistedStyles,
-      ...(stylexImports.size > 0
-        ? [[...stylexImports].toSorted((a, b) => a.localeCompare(b)).join('\n')]
-        : []),
-    ]
-
-    if (footer.length > 0) {
-      editor.append(`\n${footer.join('\n\n')}\n`)
-    }
-
-    if (editor.hasChanged()) {
-      return {
-        code: editor.toString(),
-      }
-    }
-
-    return null
   }
 }
 
