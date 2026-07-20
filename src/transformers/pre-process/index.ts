@@ -375,7 +375,6 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
 
             const staticProps = []
             const extraArgs = []
-            const propertyList: (ObjectProperty | ObjectMethod)[] = []
 
             for (const property of style.properties) {
               if (isSpreadElement(property)) {
@@ -384,10 +383,6 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
                 )
               }
 
-              propertyList.push(property)
-            }
-
-            for (const property of propertyList) {
               const { key } = property
               const value = isObjectMethod(property) ? property : property.value
               const { computed } = property
@@ -880,8 +875,6 @@ import type { JSXIdentifier } from '@babel/types'
 import type { JSXMemberExpression } from '@babel/types'
 import { MagicString } from 'magic-string'
 import type { Node } from '@babel/types'
-import type { ObjectMethod } from '@babel/types'
-import type { ObjectProperty } from '@babel/types'
 import type { Options } from '#/options'
 import { parse } from '@babel/parser'
 import type { ParseResult } from '@babel/parser'
