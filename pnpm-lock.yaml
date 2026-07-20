@@ -24,7 +24,7 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       '@stylexjs/babel-plugin':
-        specifier: ^0.19.0
+        specifier: ~0.19.0
         version: 0.19.0
       '@typescript/typescript6':
         specifier: ^6.0.2
