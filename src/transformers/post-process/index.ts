@@ -251,11 +251,9 @@ const createPostProcessFn = (options: Options | undefined = {}) => {
     })
 
     if (jsxAttributeSchema === 'html-attributes') {
-      editor.replaceAll(`__stylex_attrs`, `__styledeck_toAttrs`)
-
       editor.replaceAll(
         `import { attrs as __stylex_attrs } from '@stylexjs/stylex'`,
-        `import { '~toAttrs' as __styledeck_toAttrs } from '${pluginName}'`,
+        `import { '~toAttrs' as __stylex_attrs } from '${pluginName}'`,
       )
     }
 

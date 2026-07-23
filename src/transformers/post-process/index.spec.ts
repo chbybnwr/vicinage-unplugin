@@ -104,7 +104,8 @@ test.each([
 })
 
 test.each([
-  { label: 'swap-attrs' },
+  { label: 'swap-attrs/standalone' },
+  { label: 'swap-attrs/merged' },
   //
 ])('$label', async ({ label }) => {
   const transform = createPostProcessFn({
@@ -113,7 +114,8 @@ test.each([
   const { source, target } = await fixtureLoader.load(label)
   const result = transform(source)
 
-  expect(result?.code).toBe(target)
+  expect.assert(result != null)
+  expect(await format(result.code)).toBe(target)
 })
 
 const fixtureLoader = createFixtureLoader({

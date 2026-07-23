@@ -14,7 +14,11 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (options) => {
           exclude: /node_modules/,
         },
         code: {
-          include: /styledeck/i,
+          include: [
+            /styledeck/i,
+            /__stylex_attrs/,
+            //
+          ],
         },
       },
 
