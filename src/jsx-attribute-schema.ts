@@ -1,15 +1,29 @@
 export { getJSXAttributeSchema }
 export type { JSXAttributeSchema }
 
+const cache: {
+  jsxAttributeSchema: JSXAttributeSchema | null
+} = {
+  jsxAttributeSchema: null,
+}
+
+const defaultJSXAttributeSchema: JSXAttributeSchema = 'dom-properties'
+
 function getJSXAttributeSchema(): JSXAttributeSchema {
+  if (cache.jsxAttributeSchema != null) {
+    return cache.jsxAttributeSchema
+  }
+
   const rootConfigPath = findConfigFile('./', (fileName) =>
     sys.fileExists(fileName),
   )
 
   if (typeof rootConfigPath !== 'string') {
-    console.info(`[styledeck] jsxAttributeSchema is set to dom-properties`)
+    console.info(
+      `[styledeck] jsxAttributeSchema is set to ${defaultJSXAttributeSchema}`,
+    )
 
-    return 'dom-properties'
+    return defaultJSXAttributeSchema
   }
 
   const rootConfig = getParsedCommandLineOfConfigFile(
@@ -65,12 +79,14 @@ function getJSXAttributeSchema(): JSXAttributeSchema {
     )
   }
 
-  const jsxAttributeSchema =
-    jsxAttributeSchemaSet.values().next().value ?? 'dom-properties'
+  cache.jsxAttributeSchema =
+    jsxAttributeSchemaSet.values().next().value ?? defaultJSXAttributeSchema
 
-  console.info(`[styledeck] jsxAttributeSchema is set to ${jsxAttributeSchema}`)
+  console.info(
+    `[styledeck] jsxAttributeSchema is set to ${cache.jsxAttributeSchema}`,
+  )
 
-  return jsxAttributeSchema
+  return cache.jsxAttributeSchema
 }
 
 type JSXAttributeSchema = 'dom-properties' | 'html-attributes'
