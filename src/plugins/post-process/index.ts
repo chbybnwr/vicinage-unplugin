@@ -5,6 +5,7 @@ const createPlugin: UnpluginFactory<Options | undefined, false> = (options) => {
 
   return {
     name: `${pluginName}:post-stylex`,
+    enforce: 'pre',
 
     transform: {
       filter: {
