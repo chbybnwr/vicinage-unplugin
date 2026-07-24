@@ -382,8 +382,6 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       pseudoElementKey: string,
       propertyKey: string,
     ): { key: string; map: Map<string, string> } {
-      const mapList: Map<string, string>[] = []
-
       if (isConditionalExpression(node)) {
         const { test } = node
 
@@ -401,11 +399,11 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
           propertyKey,
         )
 
-        mapList.push(consequent.map, alternate.map)
-
         return {
           key: `${condition} ? ${consequent.key} : ${alternate.key}`,
-          map: new Map(mapList.flatMap((map) => [...map])),
+          map: new Map(
+            [consequent.map, alternate.map].flatMap((map) => [...map]),
+          ),
         }
       }
 
@@ -420,11 +418,9 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
           propertyKey,
         )
 
-        mapList.push(consequent.map)
-
         return {
           key: `${condition} && ${consequent.key}`,
-          map: new Map(mapList.flatMap((map) => [...map])),
+          map: consequent.map,
         }
       }
 
@@ -432,8 +428,9 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
 
       const finalSheetName = `${sheetPrefix}_x_${location.start.line}_${location.start.column + 1}`
 
-      mapList.push(
-        new Map([
+      return {
+        key: `${finalSheetName}._`,
+        map: new Map([
           [
             finalSheetName,
             [
@@ -445,11 +442,6 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             ].join('\n'),
           ],
         ]),
-      )
-
-      return {
-        key: `${finalSheetName}._`,
-        map: new Map(mapList.flatMap((map) => [...map])),
       }
     }
 
