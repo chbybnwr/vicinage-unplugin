@@ -214,19 +214,17 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       sheetPrefix: string,
       propertyKey: string,
     ): { key: string; map: Map<string, string> } {
-      const mapList: Map<string, string>[] = []
-
       if (isConditionalExpression(node)) {
         const { test } = node
         const condition = code.slice(test.start!, test.end!)
         const consequent = shred(node.consequent, sheetPrefix, propertyKey)
         const alternate = shred(node.alternate, sheetPrefix, propertyKey)
 
-        mapList.push(consequent.map, alternate.map)
-
         return {
           key: `${condition} ? ${consequent.key} : ${alternate.key}`,
-          map: new Map(mapList.flatMap((map) => [...map])),
+          map: new Map(
+            [consequent.map, alternate.map].flatMap((map) => [...map]),
+          ),
         }
       }
 
@@ -236,11 +234,9 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
         const condition = code.slice(left.start!, left.end!)
         const consequent = shred(right, sheetPrefix, propertyKey)
 
-        mapList.push(consequent.map)
-
         return {
           key: `${condition} && ${consequent.key}`,
-          map: new Map(mapList.flatMap((map) => [...map])),
+          map: consequent.map,
         }
       }
 
@@ -254,8 +250,9 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       const staticObjectValue =
         contextual?.paramList.length === 0 ? contextual.source : null
 
-      mapList.push(
-        new Map([
+      return {
+        key: `${sheetName}._`,
+        map: new Map([
           [
             sheetName,
             [
@@ -265,11 +262,6 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             ].join('\n'),
           ],
         ]),
-      )
-
-      return {
-        key: `${sheetName}._`,
-        map: new Map(mapList.flatMap((map) => [...map])),
       }
     }
 
