@@ -213,14 +213,21 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       node: Node,
       sheetPrefix: string,
       propertyKey: string,
-    ): string {
+    ): { key: string; map: Map<string, string> } {
+      const mapList: Map<string, string>[] = []
+
       if (isConditionalExpression(node)) {
         const { test } = node
         const condition = code.slice(test.start!, test.end!)
         const consequent = shred(node.consequent, sheetPrefix, propertyKey)
         const alternate = shred(node.alternate, sheetPrefix, propertyKey)
 
-        return `${condition} ? ${consequent} : ${alternate}`
+        mapList.push(consequent.map, alternate.map)
+
+        return {
+          key: `${condition} ? ${consequent.key} : ${alternate.key}`,
+          map: new Map(mapList.flatMap((map) => [...map])),
+        }
       }
 
       if (isLogicalExpression(node) && node.operator === '&&') {
@@ -229,7 +236,12 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
         const condition = code.slice(left.start!, left.end!)
         const consequent = shred(right, sheetPrefix, propertyKey)
 
-        return `${condition} && ${consequent}`
+        mapList.push(consequent.map)
+
+        return {
+          key: `${condition} && ${consequent.key}`,
+          map: new Map(mapList.flatMap((map) => [...map])),
+        }
       }
 
       const location = node.loc!
@@ -242,18 +254,23 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       const staticObjectValue =
         contextual?.paramList.length === 0 ? contextual.source : null
 
-      hoistedStyles.add(
-        [
-          `const ${sheetName} = __stylex_create({`,
-          `  _: {`,
-
-          `    ${propertyKey}: ${staticObjectValue ?? code.slice(node.start!, node.end!)},`,
-          `  },`,
-          `})`,
-        ].join('\n'),
+      mapList.push(
+        new Map([
+          [
+            sheetName,
+            [
+              '{',
+              `  ${propertyKey}: ${staticObjectValue ?? code.slice(node.start!, node.end!)},`,
+              '}',
+            ].join('\n'),
+          ],
+        ]),
       )
 
-      return `${sheetName}._`
+      return {
+        key: `${sheetName}._`,
+        map: new Map(mapList.flatMap((map) => [...map])),
+      }
     }
 
     function extractFunctionValue(
@@ -364,7 +381,9 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       sheetPrefix: string,
       pseudoElementKey: string,
       propertyKey: string,
-    ): string {
+    ): { key: string; map: Map<string, string> } {
+      const mapList: Map<string, string>[] = []
+
       if (isConditionalExpression(node)) {
         const { test } = node
 
@@ -382,7 +401,12 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
           propertyKey,
         )
 
-        return `${condition} ? ${consequent} : ${alternate}`
+        mapList.push(consequent.map, alternate.map)
+
+        return {
+          key: `${condition} ? ${consequent.key} : ${alternate.key}`,
+          map: new Map(mapList.flatMap((map) => [...map])),
+        }
       }
 
       if (isLogicalExpression(node) && node.operator === '&&') {
@@ -396,27 +420,37 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
           propertyKey,
         )
 
-        return `${condition} && ${consequent}`
+        mapList.push(consequent.map)
+
+        return {
+          key: `${condition} && ${consequent.key}`,
+          map: new Map(mapList.flatMap((map) => [...map])),
+        }
       }
 
       const location = node.loc!
 
       const finalSheetName = `${sheetPrefix}_x_${location.start.line}_${location.start.column + 1}`
 
-      hoistedStyles.add(
-        [
-          `const ${finalSheetName} = __stylex_create({`,
-          `  _: {`,
-          `    ${pseudoElementKey}: {`,
-
-          `      ${propertyKey}: ${code.slice(node.start!, node.end!)},`,
-          `    },`,
-          `  },`,
-          `})`,
-        ].join('\n'),
+      mapList.push(
+        new Map([
+          [
+            finalSheetName,
+            [
+              `{`,
+              `  ${pseudoElementKey}: {`,
+              `    ${propertyKey}: ${code.slice(node.start!, node.end!)},`,
+              `  }`,
+              `}`,
+            ].join('\n'),
+          ],
+        ]),
       )
 
-      return `${finalSheetName}._`
+      return {
+        key: `${finalSheetName}._`,
+        map: new Map(mapList.flatMap((map) => [...map])),
+      }
     }
 
     function compileStyleDeckArg(arg: Node | null): string[] {
@@ -578,14 +612,24 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
               (isLogicalExpression(pseudoValue) &&
                 pseudoValue.operator === '&&')
             ) {
-              extraArgs.push(
-                shredWithinPseudo(
-                  pseudoValue,
-                  pseudoSheetName,
-                  propertyKey,
-                  pseudoPropertyKey,
-                ),
+              const compiledArg = shredWithinPseudo(
+                pseudoValue,
+                pseudoSheetName,
+                propertyKey,
+                pseudoPropertyKey,
               )
+
+              for (const [key, value] of compiledArg.map) {
+                hoistedStyles.add(
+                  [
+                    `const ${key} = __stylex_create({`,
+                    `  _: ${value}`,
+                    `})`,
+                  ].join('\n'),
+                )
+              }
+
+              extraArgs.push(compiledArg.key)
             } else if (isArrowFunctionExpression(pseudoValue)) {
               const { bodySource, paramName: coordinateParam } =
                 extractFunctionValue(pseudoValue)
@@ -677,7 +721,17 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             isLogicalExpression(value) &&
             value.operator === '&&')
         ) {
-          extraArgs.push(shred(value, sheetName, propertyKey))
+          const compiledArg = shred(value, sheetName, propertyKey)
+
+          for (const [key, value] of compiledArg.map) {
+            hoistedStyles.add(
+              [`const ${key} = __stylex_create({`, `  _: ${value}`, `})`].join(
+                '\n',
+              ),
+            )
+          }
+
+          extraArgs.push(compiledArg.key)
 
           continue
         }
