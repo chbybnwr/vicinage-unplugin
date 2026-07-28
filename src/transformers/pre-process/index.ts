@@ -27,8 +27,6 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       ast?: ParseResult
     },
   ) => {
-    const hoistedStyles = new Set<string>()
-
     return main()
 
     function main() {
@@ -41,6 +39,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
 
       const editor = new MagicString(code)
       const stylexImports = new Set<string>()
+      const hoistedStyles = new Set<string>()
 
       const unstyledComponentNameSet = new Set<string>(
         ast.program.body.flatMap((statement) => {
@@ -129,7 +128,23 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
               ? attr.value.expression.elements
               : [attr.value.expression]
 
-            const finalArgs = argList.flatMap((arg) => compileStyleDeckArg(arg))
+            const compiledStyleDeckArg = argList.map((arg) =>
+              compileStyleDeckArg(arg),
+            )
+            const finalArgs = compiledStyleDeckArg.flatMap(({ keys }) => keys)
+            const styleEntryList = compiledStyleDeckArg.flatMap(({ map }) => [
+              ...map,
+            ])
+
+            for (const [key, value] of styleEntryList) {
+              hoistedStyles.add(
+                [
+                  `const ${key} = __stylex_create({`,
+                  `  _: ${value}`,
+                  `})`,
+                ].join('\n'),
+              )
+            }
 
             const joined = finalArgs.join(', ')
 
@@ -437,9 +452,12 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       }
     }
 
-    function compileStyleDeckArg(arg: Node | null): string[] {
+    function compileStyleDeckArg(arg: Node | null): {
+      keys: string[]
+      map: Map<string, string>
+    } {
       if (arg == null) {
-        return []
+        return { keys: [], map: new Map() }
       }
 
       if (
@@ -447,21 +465,29 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
         arg.operator === '&&' &&
         isArrayExpression(arg.right)
       ) {
-        const compiledArgs = arg.right.elements.flatMap((element) =>
+        const compiledArgs = arg.right.elements.map((element) =>
           compileStyleDeckArg(element),
         )
+        const keys = compiledArgs.flatMap(({ keys }) => keys)
 
-        return [
-          `${code.slice(arg.left.start!, arg.left.end!)} && [${compiledArgs.join(', ')}]`,
-        ]
+        return {
+          keys: [
+            `${code.slice(arg.left.start!, arg.left.end!)} && [${keys.join(', ')}]`,
+          ],
+          map: new Map(compiledArgs.flatMap(({ map }) => [...map])),
+        }
       }
 
       if (isArrayExpression(arg)) {
-        const compiledArgs = arg.elements.flatMap((element) =>
+        const compiledArgs = arg.elements.map((element) =>
           compileStyleDeckArg(element),
         )
+        const keys = compiledArgs.flatMap(({ keys }) => keys)
 
-        return [`[${compiledArgs.join(', ')}]`]
+        return {
+          keys: [`[${keys.join(', ')}]`],
+          map: new Map(compiledArgs.flatMap(({ map }) => [...map])),
+        }
       }
 
       const isShortCircuited = isLogicalExpression(arg) && arg.operator === '&&'
@@ -471,11 +497,15 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       if (!isObjectExpression(style)) {
         validateArg(arg)
 
-        return [code.slice(arg.start!, arg.end!)]
+        return {
+          keys: [code.slice(arg.start!, arg.end!)],
+          map: new Map(),
+        }
       }
 
       const staticProps = []
       const extraArgs = []
+      const styleMap = new Map<string, string>()
 
       for (const property of style.properties) {
         if (isSpreadElement(property)) {
@@ -542,12 +572,11 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
                 `${indent(indentSize)}${propertyKey}: ${code.slice(value.start!, value.end!)}`,
               )
             } else if (pseudoContextual.paramList.length > 0) {
-              hoistedStyles.add(
+              styleMap.set(
+                sheetName,
                 [
-                  `const ${sheetName} = __stylex_create({`,
-                  `  _: (${pseudoContextual.paramList.join(', ')}) => ({`,
-                  `    ${propertyKey}: ${pseudoContextual.source},`,
-                  `  }),`,
+                  `(${pseudoContextual.paramList.join(',')}) => ({`,
+                  `  ${propertyKey}: ${pseudoContextual.source}`,
                   `})`,
                 ].join('\n'),
               )
@@ -604,13 +633,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
               )
 
               for (const [key, value] of compiledArg.map) {
-                hoistedStyles.add(
-                  [
-                    `const ${key} = __stylex_create({`,
-                    `  _: ${value}`,
-                    `})`,
-                  ].join('\n'),
-                )
+                styleMap.set(key, value)
               }
 
               extraArgs.push(compiledArg.key)
@@ -628,17 +651,18 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
                 ? paramName
                 : `${pseudoPropertyKey}: ${paramName}`
 
-              hoistedStyles.add(
+              styleMap.set(
+                pseudoSheetName,
+
                 [
-                  `const ${pseudoSheetName} = __stylex_create({`,
-                  `  _: (${paramName}) => ({`,
-                  `    ${propertyKey}: {`,
-                  `      ${objectBody},`,
-                  `    },`,
-                  `  }),`,
+                  `(${paramName}) => ({`,
+                  `  ${propertyKey}: {`,
+                  `    ${objectBody}`,
+                  `  }`,
                   `})`,
                 ].join('\n'),
               )
+
               extraArgs.push(`${pseudoSheetName}._(${bodySource})`)
             } else {
               if (isFunctionExpression(pseudoValue)) {
@@ -664,17 +688,17 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
                 )
                 extraArgs.push(`${pseudoValueSheetName}._`)
               } else {
-                hoistedStyles.add(
+                styleMap.set(
+                  pseudoSheetName,
                   [
-                    `const ${pseudoSheetName} = __stylex_create({`,
-                    `  _: (${pseudoContextual.paramList.join(', ')}) => ({`,
-                    `    ${propertyKey}: {`,
-                    `      ${pseudoPropertyKey}: ${pseudoContextual.source},`,
-                    `    },`,
-                    `  }),`,
+                    `(${pseudoContextual.paramList.join(', ')}) => ({`,
+                    `  ${propertyKey}: {`,
+                    `    ${pseudoPropertyKey}: ${pseudoContextual.source}`,
+                    `  }`,
                     `})`,
                   ].join('\n'),
                 )
+
                 extraArgs.push(
                   `${pseudoSheetName}._(${pseudoContextual.valueArgList.join(', ')})`,
                 )
@@ -683,15 +707,14 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
           }
 
           if (pseudoStaticPropertyList.length > 0) {
-            hoistedStyles.add(
+            styleMap.set(
+              pseudoValueSheetName,
               [
-                `const ${pseudoValueSheetName} = __stylex_create({`,
-                `  _: {`,
-                `    ${propertyKey}: {`,
+                `{`,
+                `  ${propertyKey}: {`,
                 ...pseudoStaticPropertyList,
-                `    },`,
                 `  },`,
-                `})`,
+                `},`,
               ].join('\n'),
             )
           }
@@ -708,11 +731,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
           const compiledArg = shred(value, sheetName, propertyKey)
 
           for (const [key, value] of compiledArg.map) {
-            hoistedStyles.add(
-              [`const ${key} = __stylex_create({`, `  _: ${value}`, `})`].join(
-                '\n',
-              ),
-            )
+            styleMap.set(key, value)
           }
 
           extraArgs.push(compiledArg.key)
@@ -743,15 +762,16 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             ? paramName
             : `${propertyKey}: ${paramName}`
 
-          hoistedStyles.add(
+          styleMap.set(
+            sheetName,
             [
-              `const ${sheetName} = __stylex_create({`,
-              `  _: (${paramName}) => ({`,
-              `    ${objectBody},`,
-              `  }),`,
+              `(${paramName}) => ({`,
+              `  ${objectBody}`,
               `})`,
+              //
             ].join('\n'),
           )
+
           extraArgs.push(`${sheetName}._(${bodySource})`)
 
           continue
@@ -765,12 +785,11 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
 
         if (contextual != null) {
           if (contextual.paramList.length > 0) {
-            hoistedStyles.add(
+            styleMap.set(
+              sheetName,
               [
-                `const ${sheetName} = __stylex_create({`,
-                `  _: (${contextual.paramList.join(', ')}) => ({`,
-                `    ${propertyKey}: ${contextual.source},`,
-                `  }),`,
+                `(${contextual.paramList.join(', ')}) => ({`,
+                `  ${propertyKey}: ${contextual.source}`,
                 `})`,
               ].join('\n'),
             )
@@ -794,30 +813,30 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
 
       if (staticProps.length > 0) {
         const location = style.loc!
-
         const baseVariableName = `style_${location.start.line}_${location.start.column + 1}`
 
-        hoistedStyles.add(
-          [
-            `const ${baseVariableName} = __stylex_create({`,
-            `  _: {`,
-            staticProps.join(',\n'),
-            `  },`,
-            `})`,
-          ].join('\n'),
+        styleMap.set(
+          baseVariableName,
+          [`{`, staticProps.join(',\n'), `}`].join('\n'),
         )
 
         extraArgs.unshift(`${baseVariableName}._`)
       }
 
       if (isShortCircuited) {
-        return extraArgs.map(
-          (value) =>
-            `${code.slice(arg.left.start!, arg.left.end!)} && ${value}`,
-        )
+        return {
+          keys: extraArgs.map(
+            (value) =>
+              `${code.slice(arg.left.start!, arg.left.end!)} && ${value}`,
+          ),
+          map: styleMap,
+        }
       }
 
-      return extraArgs
+      return {
+        keys: extraArgs,
+        map: styleMap,
+      }
     }
   }
 }
