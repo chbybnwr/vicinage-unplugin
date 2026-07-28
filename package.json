@@ -85,7 +85,6 @@
     "@types/picomatch": "^4.0.3",
     "@typescript-eslint/parser": "^8.65.0",
     "@typescript/native": "npm:typescript@^7.0.2",
-    "@typescript/native-preview": "7.0.0-dev.20260614.1",
     "@vitest/coverage-v8": "^4.1.10",
     "@vitest/eslint-plugin": "^1.6.24",
     "cspell": "^10.0.1",
