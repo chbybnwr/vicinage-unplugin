@@ -33,7 +33,7 @@ importers:
         specifier: ^6.0.2
         version: 6.0.2
       magic-string:
-        specifier: ~1.0.0
+        specifier: ^1.0.0
         version: 1.0.0
       picomatch:
         specifier: ^4.0.5
