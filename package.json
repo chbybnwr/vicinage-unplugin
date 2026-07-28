@@ -98,7 +98,7 @@
     "eslint-plugin-unicorn": "^70.0.0",
     "globals": "^17.8.0",
     "prettier": "^3.9.6",
-    "solarwindcss": "~0.36.10",
+    "solarwindcss": "file:modules/solarwindcss-0.37.10.tgz",
     "styledeck": "file:modules/styledeck-0.8.22.tgz",
     "tsdown": "~0.22.14",
     "typescript": "npm:@typescript/typescript6@^6.0.2",

@@ -124,8 +124,8 @@ importers:
         specifier: ^3.9.6
         version: 3.9.6
       solarwindcss:
-        specifier: ~0.36.10
-        version: 0.36.10
+        specifier: file:modules/solarwindcss-0.37.10.tgz
+        version: file:modules/solarwindcss-0.37.10.tgz
       styledeck:
         specifier: file:modules/styledeck-0.8.22.tgz
         version: file:modules/styledeck-0.8.22.tgz
@@ -1212,9 +1212,6 @@ packages:
 
   '@stylexjs/shared@0.19.0':
     resolution: {integrity: sha512-7Yym70cQH5sPzJHgzJX3FkL9ZCptbC3IbiRijN9YLYU/5OywB/3c519Xv1DOzvxqjv8urSxh98/9HxLaPG7sDg==}
-
-  '@stylexjs/stylex@0.18.3':
-    resolution: {integrity: sha512-15gDzAJAorOE0yzxaWLNxldW2aqdmCiLG5QcPD8nmVCVqvrWp0Asgv45zk7LtN86WJb/4Ym9eQ6qT5MJW59tWQ==}
 
   '@stylexjs/stylex@0.19.0':
     resolution: {integrity: sha512-CnUFp7YMaDLDeemsWOfJgoC/gKM5P/yBNMcpJaE6ChJmXr7s0DJwSeGTTlHJcqqwN9OW1qGtmARWLFhGZN1pTA==}
@@ -3773,8 +3770,9 @@ packages:
     resolution: {integrity: sha512-PPlsspAZ4jbMBu5DMFhfUGDQLu/vrL4SyBROVS37x8ynnVmFIs1VPBz1Co8Xks3TvpIaZXmU85y4DrQ+UyVFoQ==}
     engines: {node: '>= 18'}
 
-  solarwindcss@0.36.10:
-    resolution: {integrity: sha512-3wjxfEk4WF0i/hrFrdTpXKxkbbHBhEn4V2zp7LCEzhI1lbNeBwq9fSCrhS3/m5Rn41VuOVScTgAIrPBaAqYDUA==}
+  solarwindcss@file:modules/solarwindcss-0.37.10.tgz:
+    resolution: {integrity: sha512-GORddfHXCW9WejzD/ora5KLKYG3nqmEsMQe5j2rYixSd/1xLZUApkX8m164PMX+WRiJW2oN6hvAo05hJfJqzkg==, tarball: file:modules/solarwindcss-0.37.10.tgz}
+    version: 0.37.10
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -5372,12 +5370,6 @@ snapshots:
       - supports-color
 
   '@stylexjs/shared@0.19.0': {}
-
-  '@stylexjs/stylex@0.18.3':
-    dependencies:
-      css-mediaquery: 0.1.2
-      invariant: 2.2.4
-      styleq: 0.2.1
 
   '@stylexjs/stylex@0.19.0':
     dependencies:
@@ -7990,9 +7982,9 @@ snapshots:
 
   smol-toml@1.7.1: {}
 
-  solarwindcss@0.36.10:
+  solarwindcss@file:modules/solarwindcss-0.37.10.tgz:
     dependencies:
-      '@stylexjs/stylex': 0.18.3
+      '@stylexjs/stylex': 0.19.0
 
   source-map-js@1.2.1: {}
 

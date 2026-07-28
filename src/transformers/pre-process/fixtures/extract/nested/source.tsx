@@ -5,7 +5,7 @@ function Example() {
     <div
       styleDeck={[
         [
-          lineClamp.base,
+          lineClamped,
           {
             WebkitLineClamp: 3,
           },
@@ -18,5 +18,5 @@ function Example() {
   )
 }
 
-import { lineClamp } from 'solarwindcss'
+import { lineClamped } from 'solarwindcss'
 //

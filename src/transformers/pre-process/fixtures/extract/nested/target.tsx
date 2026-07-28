@@ -1,12 +1,10 @@
 export { Example }
 
 function Example() {
-  return (
-    <div {...__stylex_props([lineClamp.base, style_9_11._], style_13_9._)} />
-  )
+  return <div {...__stylex_props([lineClamped, style_9_11._], style_13_9._)} />
 }
 
-import { lineClamp } from 'solarwindcss'
+import { lineClamped } from 'solarwindcss'
 //
 
 const style_9_11 = __stylex_create({
