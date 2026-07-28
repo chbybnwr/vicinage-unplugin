@@ -194,6 +194,61 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
 
           path.skip()
         },
+
+        CallExpression: (path) => {
+          const { node } = path
+
+          if (!(
+            isIdentifier(node.callee) && node.callee.name === 'defineStyleDeck'
+          )) {
+            return
+          }
+
+          const compiledStyleDeckArg = node.arguments.map((arg) => {
+            if (isTSSatisfiesExpression(arg)) {
+              return compileStyleDeckArg(arg.expression)
+            }
+
+            return compileStyleDeckArg(arg)
+          })
+          const finalArgs = compiledStyleDeckArg.flatMap(({ keys }) => keys)
+          const hoistedStyles = compiledStyleDeckArg
+            .flatMap(({ map }) => [...map])
+            .map(([key, value]) => {
+              return [
+                `const ${key} = __stylex_create({`,
+                `  _: ${value}`,
+                `})`,
+                //
+              ].join('\n')
+            })
+
+          const joined = finalArgs.join(',')
+
+          editor.overwrite(
+            node.start!,
+            node.end!,
+            [
+              '(() => {',
+              hoistedStyles.join('\n\n'),
+              '',
+              `  return ${finalArgs.length === 1 ? joined : `[${joined}]`}`,
+              '})()',
+              //
+            ].join('\n'),
+          )
+
+          if (hoistedStyles.length > 0) {
+            stylexImports.add(
+              `import { create as __stylex_create } from '@stylexjs/stylex'`,
+            )
+          }
+
+          editor.replaceAll(
+            `import { defineStyleDeck } from '${pluginName}'`,
+            '',
+          )
+        },
       })
 
       if (hoistedStyles.size > 0) {
@@ -930,6 +985,7 @@ import { isObjectExpression } from '@babel/types'
 import { isObjectMethod } from '@babel/types'
 import { isObjectProperty } from '@babel/types'
 import { isSpreadElement } from '@babel/types'
+import { isTSSatisfiesExpression } from '@babel/types'
 import type { JSXAttribute } from '@babel/types'
 import type { JSXIdentifier } from '@babel/types'
 import type { JSXMemberExpression } from '@babel/types'
