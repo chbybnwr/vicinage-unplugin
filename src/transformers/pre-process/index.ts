@@ -158,7 +158,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
 
           if (
             styleDeckAttr != null &&
-            (classAttr != null || hasSpreadAttr) &&
+            (hasSpreadAttr || classAttr != null) &&
             (!isComponent || isUnstyledComponent)
           ) {
             if (hasSpreadAttr) {
