@@ -191,6 +191,8 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
 
             editor.appendLeft(styleDeckAttr.start!, 'data-styledeck ')
           }
+
+          path.skip()
         },
       })
 
