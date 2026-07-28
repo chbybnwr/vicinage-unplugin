@@ -238,7 +238,7 @@ const createPostProcessFn = (options: Options | undefined = {}) => {
                 compiledAttribute.argument.start!,
                 compiledAttribute.argument.end!,
               ),
-            ].join(', ')})}`,
+            ].join(',')})}`,
           )
 
           helperImports.add(

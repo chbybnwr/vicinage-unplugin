@@ -146,7 +146,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
               )
             }
 
-            const joined = finalArgs.join(', ')
+            const joined = finalArgs.join(',')
 
             if (isComponent && !isUnstyledComponent) {
               editor.overwrite(
@@ -272,7 +272,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             sheetName,
             [
               '{',
-              `  ${propertyKey}: ${staticObjectValue ?? code.slice(node.start!, node.end!)},`,
+              `  ${propertyKey}: ${staticObjectValue ?? code.slice(node.start!, node.end!)}`,
               '}',
             ].join('\n'),
           ],
@@ -443,7 +443,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             [
               `{`,
               `  ${pseudoElementKey}: {`,
-              `    ${propertyKey}: ${code.slice(node.start!, node.end!)},`,
+              `    ${propertyKey}: ${code.slice(node.start!, node.end!)}`,
               `  }`,
               `}`,
             ].join('\n'),
@@ -472,7 +472,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
 
         return {
           keys: [
-            `${code.slice(arg.left.start!, arg.left.end!)} && [${keys.join(', ')}]`,
+            `${code.slice(arg.left.start!, arg.left.end!)} && [${keys.join(',')}]`,
           ],
           map: new Map(compiledArgs.flatMap(({ map }) => [...map])),
         }
@@ -485,7 +485,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
         const keys = compiledArgs.flatMap(({ keys }) => keys)
 
         return {
-          keys: [`[${keys.join(', ')}]`],
+          keys: [`[${keys.join(',')}]`],
           map: new Map(compiledArgs.flatMap(({ map }) => [...map])),
         }
       }
@@ -582,7 +582,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
               )
 
               extraArgs.push(
-                `${sheetName}._(${pseudoContextual.valueArgList.join(', ')})`,
+                `${sheetName}._(${pseudoContextual.valueArgList.join(',')})`,
               )
             } else {
               staticProps.push(
@@ -691,7 +691,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
                 styleMap.set(
                   pseudoSheetName,
                   [
-                    `(${pseudoContextual.paramList.join(', ')}) => ({`,
+                    `(${pseudoContextual.paramList.join(',')}) => ({`,
                     `  ${propertyKey}: {`,
                     `    ${pseudoPropertyKey}: ${pseudoContextual.source}`,
                     `  }`,
@@ -700,7 +700,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
                 )
 
                 extraArgs.push(
-                  `${pseudoSheetName}._(${pseudoContextual.valueArgList.join(', ')})`,
+                  `${pseudoSheetName}._(${pseudoContextual.valueArgList.join(',')})`,
                 )
               }
             }
@@ -713,8 +713,8 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
                 `{`,
                 `  ${propertyKey}: {`,
                 ...pseudoStaticPropertyList,
-                `  },`,
-                `},`,
+                `  }`,
+                `}`,
               ].join('\n'),
             )
           }
@@ -788,14 +788,14 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             styleMap.set(
               sheetName,
               [
-                `(${contextual.paramList.join(', ')}) => ({`,
+                `(${contextual.paramList.join(',')}) => ({`,
                 `  ${propertyKey}: ${contextual.source}`,
                 `})`,
               ].join('\n'),
             )
 
             extraArgs.push(
-              `${sheetName}._(${contextual.valueArgList.join(', ')})`,
+              `${sheetName}._(${contextual.valueArgList.join(',')})`,
             )
           } else {
             staticProps.push(
