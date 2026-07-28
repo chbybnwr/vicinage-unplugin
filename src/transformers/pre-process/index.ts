@@ -128,13 +128,9 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
               ? attr.value.expression.elements
               : [attr.value.expression]
 
-            const compiledStyleDeckArg = argList.map((arg) =>
-              compileStyleDeckArg(arg),
-            )
-            const finalArgs = compiledStyleDeckArg.flatMap(({ keys }) => keys)
-            const styleEntryList = compiledStyleDeckArg.flatMap(({ map }) => [
-              ...map,
-            ])
+            const compiledArgs = argList.map((arg) => compileStyleDeckArg(arg))
+            const finalArgs = compiledArgs.flatMap(({ keys }) => keys)
+            const styleEntryList = compiledArgs.flatMap(({ map }) => [...map])
 
             for (const [key, value] of styleEntryList) {
               hoistedStyles.add(
@@ -204,15 +200,15 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             return
           }
 
-          const compiledStyleDeckArg = node.arguments.map((arg) => {
+          const compiledArgs = node.arguments.map((arg) => {
             if (isTSSatisfiesExpression(arg)) {
               return compileStyleDeckArg(arg.expression)
             }
 
             return compileStyleDeckArg(arg)
           })
-          const finalArgs = compiledStyleDeckArg.flatMap(({ keys }) => keys)
-          const hoistedStyles = compiledStyleDeckArg
+          const finalArgs = compiledArgs.flatMap(({ keys }) => keys)
+          const hoistedStyles = compiledArgs
             .flatMap(({ map }) => [...map])
             .map(([key, value]) => {
               return [
