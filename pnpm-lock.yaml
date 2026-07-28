@@ -64,8 +64,8 @@ importers:
         specifier: ^4.5.0
         version: 4.5.0
       '@stylexjs/stylex':
-        specifier: ~0.18.3
-        version: 0.18.3
+        specifier: ~0.19.0
+        version: 0.19.0
       '@stylistic/eslint-plugin':
         specifier: ^5.10.0
         version: 5.10.0(eslint@10.8.0(jiti@2.7.0)(supports-color@8.1.1))
@@ -128,7 +128,7 @@ importers:
         version: 0.36.10
       styledeck:
         specifier: file:modules/styledeck-0.8.22.tgz
-        version: file:modules/styledeck-0.8.22.tgz(@stylexjs/stylex@0.18.3)
+        version: file:modules/styledeck-0.8.22.tgz
       tsdown:
         specifier: ~0.22.14
         version: 0.22.14(@typescript/native-preview@7.0.0-dev.20260614.1)(@typescript/typescript6@6.0.2)
@@ -3832,10 +3832,8 @@ packages:
     engines: {node: '>=12'}
 
   styledeck@file:modules/styledeck-0.8.22.tgz:
-    resolution: {integrity: sha512-vX2JdKI48j5Y3KQ7IGXtRLBkHGiRbYdO/0nQS/Zo3Z9q/yJn0m62/IdXCpSFI5zl/t+2yMBl06T/M2v/pHWEYg==, tarball: file:modules/styledeck-0.8.22.tgz}
+    resolution: {integrity: sha512-ZvW408l5eK3SJ+imwYRiX0Bilkqqmg2YGGHDuKavsNAR/gVvj+MZJacEaI/VGhNiv6t/83wDg6pxmS0iB8MatQ==, tarball: file:modules/styledeck-0.8.22.tgz}
     version: 0.8.22
-    peerDependencies:
-      '@stylexjs/stylex': ~0.18.3
 
   styleq@0.2.1:
     resolution: {integrity: sha512-L0TR0NQb+X4/ktDEKmjWyp27gla+LUYi/by5k5SjKXf6/pvZP7wbwEB5J+tqxdFVPgzbsuz+d4RTScO/QZquBw==}
@@ -8034,9 +8032,9 @@ snapshots:
 
   strip-indent@4.1.1: {}
 
-  styledeck@file:modules/styledeck-0.8.22.tgz(@stylexjs/stylex@0.18.3):
+  styledeck@file:modules/styledeck-0.8.22.tgz:
     dependencies:
-      '@stylexjs/stylex': 0.18.3
+      '@stylexjs/stylex': 0.19.0
       csstype: 3.2.3
 
   styleq@0.2.1: {}
