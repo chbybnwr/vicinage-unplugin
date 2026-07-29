@@ -27,29 +27,55 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       ast?: ParseResult
     },
   ) => {
+    const ast =
+      context?.ast ??
+      parse(code, {
+        sourceType: 'module',
+        plugins: ['typescript', 'jsx'],
+      })
+
+    const importDeclarationList = ast.program.body.filter((statement) =>
+      isImportDeclaration(statement),
+    )
+
+    const selectorMacroSet = new Set(
+      importDeclarationList.flatMap((declaration) => {
+        if (declaration.source.value === pluginName) {
+          const macroSpecifier = declaration.specifiers.find(
+            (specifier) =>
+              isImportSpecifier(specifier) &&
+              isIdentifier(specifier.imported) &&
+              specifier.imported.name === 'selector',
+          )
+
+          if (macroSpecifier != null) {
+            return [macroSpecifier.local.name]
+          }
+
+          return []
+        }
+
+        return []
+      }),
+    )
+
     return main()
 
     function main() {
-      const ast =
-        context?.ast ??
-        parse(code, {
-          sourceType: 'module',
-          plugins: ['typescript', 'jsx'],
-        })
-
       const editor = new MagicString(code)
       const stylexImports = new Set<string>()
       const hoistedStyles = new Set<string>()
 
       const unstyledComponentNameSet = new Set<string>(
-        ast.program.body.flatMap((statement) => {
+        importDeclarationList.flatMap((declaration) => {
           if (
-            isImportDeclaration(statement) &&
             unstyledComponentModuleGlobList.some((glob) =>
-              glob.match(statement.source.value),
+              glob.match(declaration.source.value),
             )
           ) {
-            return statement.specifiers.map((specifier) => specifier.local.name)
+            return declaration.specifiers.map(
+              (specifier) => specifier.local.name,
+            )
           }
 
           return []
@@ -253,7 +279,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
         )
       }
 
-      const footer = [
+      const appendices = [
         ...hoistedStyles,
         ...(stylexImports.size > 0
           ? [
@@ -264,8 +290,12 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
           : []),
       ]
 
-      if (footer.length > 0) {
-        editor.append(`\n${footer.join('\n\n')}\n`)
+      if (appendices.length > 0) {
+        editor.append(`\n${appendices.join('\n\n')}\n`)
+      }
+
+      if (selectorMacroSet.size > 0) {
+        editor.replaceAll(`import { selector } from '${pluginName}'`, '')
       }
 
       if (editor.hasChanged()) {
@@ -379,13 +409,14 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
         }
 
         const { key, computed } = property
-        const value = isObjectMethod(property) ? property : property.value
 
         if (isObjectMethod(property)) {
           throw new Error(
             `[${pluginName}] Dynamic style function body must be an expression.`,
           )
         }
+
+        const { value } = property
 
         if (isFunctionExpression(value)) {
           throw new Error(
@@ -394,7 +425,29 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
         }
 
         const rawKeySource = code.slice(key.start!, key.end!)
-        const propertyKey = computed ? `[${rawKeySource}]` : rawKeySource
+
+        let propertyKey = rawKeySource
+
+        if (computed) {
+          if (
+            isCallExpression(key) &&
+            isIdentifier(key.callee) &&
+            selectorMacroSet.has(key.callee.name)
+          ) {
+            const [firstArg] = key.arguments
+
+            if (
+              isStringLiteral(firstArg) &&
+              key.arguments.every((arg) => isStringLiteral(arg))
+            ) {
+              const selector = key.arguments.map((arg) => arg.value).join('')
+              propertyKey = `'${selector}'`
+            }
+          } else {
+            propertyKey = `[${rawKeySource}]`
+          }
+        }
+
         const nestedSourceLocation = `${sourceLocation}.${propertyKey}`
 
         if (isArrowFunctionExpression(value)) {
@@ -965,6 +1018,7 @@ import { getJSXAttributeSchema } from '#/jsx-attribute-schema.js'
 import { isArrayExpression } from '@babel/types'
 import { isArrowFunctionExpression } from '@babel/types'
 import { isBlockStatement } from '@babel/types'
+import { isCallExpression } from '@babel/types'
 import { isConditionalExpression } from '@babel/types'
 import { isFunctionExpression } from '@babel/types'
 import { isIdentifier } from '@babel/types'
@@ -981,6 +1035,7 @@ import { isObjectExpression } from '@babel/types'
 import { isObjectMethod } from '@babel/types'
 import { isObjectProperty } from '@babel/types'
 import { isSpreadElement } from '@babel/types'
+import { isStringLiteral } from '@babel/types'
 import { isTSSatisfiesExpression } from '@babel/types'
 import type { JSXAttribute } from '@babel/types'
 import type { JSXIdentifier } from '@babel/types'

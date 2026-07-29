@@ -168,6 +168,18 @@ test.each([
   expect(await format(result.code)).toBe(target)
 })
 
+test.each([
+  { label: 'selector/on-element' },
+  //
+])('$label', async ({ label }) => {
+  const transform = createPreProcessFn({ jsxAttributeSchema: 'dom-properties' })
+  const { source, target } = await fixtureLoader.load(label)
+  const result = transform(source)
+
+  expect.assert(result != null)
+  expect(await format(result.code)).toBe(target)
+})
+
 const fixtureLoader = createFixtureLoader({
   baseUrl: import.meta.url,
 })
