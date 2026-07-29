@@ -87,12 +87,15 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
 
         const { imported, local } = specifier
 
-        if (isMacro(imported.name)) {
+        if (declaration.source.value === pluginName && isMacro(imported.name)) {
           macroAlias[imported.name] = local.name
           macroImportDeclarationList.push(declaration)
         }
 
-        if (isStylexFn(imported.name)) {
+        if (
+          declaration.source.value === '@stylexjs/stylex' &&
+          isStylexFn(imported.name)
+        ) {
           stylexFnAlias[imported.name] = local.name
         }
       }
@@ -194,7 +197,9 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
               ? attr.value.expression.elements
               : [attr.value.expression]
 
-            const compiledArgs = argList.map((arg) => compileStyleDeckArg(arg))
+            const compiledArgs = argList.map((arg) =>
+              compileStyleDeckArg(arg, { path }),
+            )
             const finalArgs = compiledArgs.flatMap(({ keys }) => keys)
             const styleEntryList = compiledArgs.flatMap(({ map }) => [...map])
 
@@ -268,10 +273,10 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
 
           const compiledArgs = node.arguments.map((arg) => {
             if (isTSSatisfiesExpression(arg)) {
-              return compileStyleDeckArg(arg.expression)
+              return compileStyleDeckArg(arg.expression, { path })
             }
 
-            return compileStyleDeckArg(arg)
+            return compileStyleDeckArg(arg, { path })
           })
           const finalArgs = compiledArgs.flatMap(({ keys }) => keys)
           const hoistedStyles = compiledArgs
@@ -346,12 +351,23 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       node: Node,
       sheetPrefix: string,
       propertyKey: string,
+      context: { path: NodePath },
     ): { key: string; map: Map<string, string> } {
       if (isConditionalExpression(node)) {
         const { test } = node
         const condition = code.slice(test.start!, test.end!)
-        const consequent = shred(node.consequent, sheetPrefix, propertyKey)
-        const alternate = shred(node.alternate, sheetPrefix, propertyKey)
+        const consequent = shred(
+          node.consequent,
+          sheetPrefix,
+          propertyKey,
+          context,
+        )
+        const alternate = shred(
+          node.alternate,
+          sheetPrefix,
+          propertyKey,
+          context,
+        )
 
         return {
           key: `${condition} ? ${consequent.key} : ${alternate.key}`,
@@ -365,7 +381,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
         const { left, right } = node
 
         const condition = code.slice(left.start!, left.end!)
-        const consequent = shred(right, sheetPrefix, propertyKey)
+        const consequent = shred(right, sheetPrefix, propertyKey, context)
 
         return {
           key: `${condition} && ${consequent.key}`,
@@ -379,6 +395,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
         node,
         contextualClosureBaseLevel,
         propertyKey,
+        context,
       )
       const staticObjectValue =
         contextual?.paramList.length === 0 ? contextual.source : null
@@ -423,6 +440,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       node: Node,
       level: number,
       sourceLocation: string,
+      context: { path: NodePath },
     ): {
       source: string
       valueArgList: string[]
@@ -467,42 +485,52 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             isIdentifier(key.callee) &&
             key.callee.name === macroAlias.selector
           ) {
-            const [firstArg, ...restArgumentList] = key.arguments
-
-            if (isCallExpression(firstArg) && isIdentifier(firstArg.callee)) {
-              const { callee } = firstArg
-
-              const ancestryMacro = ancestryMacroList.find(
-                (macro) => macroAlias[macro] === callee.name,
+            if (
+              isImportSpecifier(
+                context.path.scope.getBinding(key.callee.name)?.path.node,
               )
+            ) {
+              const [firstArg, ...restArgumentList] = key.arguments
 
-              if (
-                ancestryMacro != null &&
-                restArgumentList.every((arg) => isStringLiteral(arg))
-              ) {
-                const selector = restArgumentList
-                  .map((arg) => arg.value)
-                  .join('')
+              if (isCallExpression(firstArg) && isIdentifier(firstArg.callee)) {
+                const { callee } = firstArg
 
-                const marker = firstArg.arguments[0]!
-
-                propertyKey =
-                  isCallExpression(marker) &&
-                  isIdentifier(marker.callee) &&
-                  marker.callee.name === stylexFnAlias.defaultMarker
-                    ? `[__stylex_when.${ancestryMacro}('${selector}')]`
-                    : `[__stylex_when.${ancestryMacro}('${selector}', ${code.slice(
-                        marker.start!,
-                        marker.end!,
-                      )})]`
-
-                stylexImports.add(
-                  `import { when as __stylex_when } from '@stylexjs/stylex'`,
+                const ancestryMacro = ancestryMacroList.find(
+                  (macro) => macroAlias[macro] === callee.name,
                 )
+
+                if (
+                  ancestryMacro != null &&
+                  restArgumentList.every((arg) => isStringLiteral(arg))
+                ) {
+                  const selector = restArgumentList
+                    .map((arg) => arg.value)
+                    .join('')
+
+                  const marker = firstArg.arguments[0]!
+
+                  propertyKey =
+                    isCallExpression(marker) &&
+                    isIdentifier(marker.callee) &&
+                    marker.callee.name === stylexFnAlias.defaultMarker &&
+                    isImportSpecifier(
+                      context.path.scope.getBinding(marker.callee.name)?.path
+                        .node,
+                    )
+                      ? `[__stylex_when.${ancestryMacro}('${selector}')]`
+                      : `[__stylex_when.${ancestryMacro}('${selector}', ${code.slice(
+                          marker.start!,
+                          marker.end!,
+                        )})]`
+
+                  stylexImports.add(
+                    `import { when as __stylex_when } from '@stylexjs/stylex'`,
+                  )
+                }
+              } else if (key.arguments.every((arg) => isStringLiteral(arg))) {
+                const selector = key.arguments.map((arg) => arg.value).join('')
+                propertyKey = `'${selector}'`
               }
-            } else if (key.arguments.every((arg) => isStringLiteral(arg))) {
-              const selector = key.arguments.map((arg) => arg.value).join('')
-              propertyKey = `'${selector}'`
             }
           } else {
             propertyKey = `[${propertyKey}]`
@@ -526,6 +554,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
           value,
           level + 1,
           nestedSourceLocation,
+          context,
         )
 
         if (nested != null) {
@@ -619,7 +648,10 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       }
     }
 
-    function compileStyleDeckArg(arg: Node | null): {
+    function compileStyleDeckArg(
+      arg: Node | null,
+      context: { path: NodePath },
+    ): {
       keys: string[]
       map: Map<string, string>
     } {
@@ -633,7 +665,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
         isArrayExpression(arg.right)
       ) {
         const compiledArgs = arg.right.elements.map((element) =>
-          compileStyleDeckArg(element),
+          compileStyleDeckArg(element, context),
         )
         const keys = compiledArgs.flatMap(({ keys }) => keys)
 
@@ -647,7 +679,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
 
       if (isArrayExpression(arg)) {
         const compiledArgs = arg.elements.map((element) =>
-          compileStyleDeckArg(element),
+          compileStyleDeckArg(element, context),
         )
         const keys = compiledArgs.flatMap(({ keys }) => keys)
 
@@ -732,6 +764,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
               value,
               contextualClosureBaseLevel,
               propertyKey,
+              context,
             )
 
             if (pseudoContextual == null) {
@@ -842,6 +875,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
                 pseudoValue,
                 contextualClosureBaseLevel + 1,
                 pseudoPropertyKey,
+                context,
               )
 
               if (pseudoContextual?.paramList.length === 0) {
@@ -895,7 +929,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
             isLogicalExpression(value) &&
             value.operator === '&&')
         ) {
-          const compiledArg = shred(value, sheetName, propertyKey)
+          const compiledArg = shred(value, sheetName, propertyKey, context)
 
           for (const [key, value] of compiledArg.map) {
             styleMap.set(key, value)
@@ -948,6 +982,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
           value,
           contextualClosureBaseLevel,
           propertyKey,
+          context,
         )
 
         if (contextual != null) {
@@ -1104,6 +1139,7 @@ import type { JSXIdentifier } from '@babel/types'
 import type { JSXMemberExpression } from '@babel/types'
 import { MagicString } from 'magic-string'
 import type { Node } from '@babel/types'
+import type { NodePath } from '@babel/core'
 import type { Options } from '#/options'
 import { parse } from '@babel/parser'
 import type { ParseResult } from '@babel/parser'
