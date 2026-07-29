@@ -305,11 +305,6 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
               `import { create as __stylex_create } from '@stylexjs/stylex'`,
             )
           }
-
-          editor.replaceAll(
-            `import { defineStyleDeck } from '${pluginName}'`,
-            '',
-          )
         },
       })
 
