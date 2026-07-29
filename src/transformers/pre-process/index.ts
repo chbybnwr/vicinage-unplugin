@@ -22,11 +22,21 @@ const macroList = [
 ] as const
 
 type Macro = typeof macroList extends readonly (infer U)[] ? U : never
-const macroSet: Set<string> = new Set(macroList) satisfies Set<Macro>
-const macroAlias: Partial<Record<Macro, string>> = {}
 
-for (const macro of macroList) {
-  macroAlias[macro] = macro
+const macroSet = new Set<string>(macroList)
+
+function isMacro(name: string): name is Macro {
+  return macroSet.has(name)
+}
+
+const stylexFnList = ['defaultMarker'] as const
+
+type StylexFn = typeof stylexFnList extends readonly (infer U)[] ? U : never
+
+const stylexFnSet = new Set<string>(stylexFnList)
+
+function isStylexFn(name: string): name is StylexFn {
+  return stylexFnSet.has(name)
 }
 
 const createPreProcessFn = (options: Options | undefined = {}) => {
@@ -57,26 +67,33 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
         plugins: ['typescript', 'jsx'],
       })
 
+    const macroAlias: Partial<Record<Macro, string>> = {}
+    const stylexFnAlias: Partial<Record<StylexFn, string>> = {}
+
     const importDeclarationList = ast.program.body.filter((statement) =>
       isImportDeclaration(statement),
     )
 
-    const macroImportDeclarationList = importDeclarationList.filter(
-      (declaration) =>
-        declaration.source.value === pluginName &&
-        declaration.specifiers.some(
-          (specifier) =>
-            isImportSpecifier(specifier) &&
-            isIdentifier(specifier.imported) &&
-            macroSet.has(specifier.imported.name),
-        ),
-    )
+    const macroImportDeclarationList: ImportDeclaration[] = []
 
-    for (const declaration of macroImportDeclarationList) {
+    for (const declaration of importDeclarationList) {
       for (const specifier of declaration.specifiers) {
-        if (isImportSpecifier(specifier) && isIdentifier(specifier.imported)) {
-          macroAlias[specifier.imported.name as keyof typeof macroAlias] =
-            specifier.local.name
+        if (!(
+          isImportSpecifier(specifier) && isIdentifier(specifier.imported)
+        )) {
+          // eslint-disable-next-line unicorn/no-break-in-nested-loop
+          continue
+        }
+
+        const { imported, local } = specifier
+
+        if (isMacro(imported.name)) {
+          macroAlias[imported.name] = local.name
+          macroImportDeclarationList.push(declaration)
+        }
+
+        if (isStylexFn(imported.name)) {
+          stylexFnAlias[imported.name] = local.name
         }
       }
     }
@@ -474,14 +491,17 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
                   .map((arg) => arg.value)
                   .join('')
 
-                const ancestryMacroArg = firstArg.arguments[0]!
+                const marker = firstArg.arguments[0]!
 
-                const marker = code.slice(
-                  ancestryMacroArg.start!,
-                  ancestryMacroArg.end!,
-                )
-
-                propertyKey = `[__stylex_when.${ancestryMacro}('${selector}', ${marker})]`
+                propertyKey =
+                  isCallExpression(marker) &&
+                  isIdentifier(marker.callee) &&
+                  marker.callee.name === stylexFnAlias.defaultMarker
+                    ? `[__stylex_when.${ancestryMacro}('${selector}')]`
+                    : `[__stylex_when.${ancestryMacro}('${selector}', ${code.slice(
+                        marker.start!,
+                        marker.end!,
+                      )})]`
 
                 stylexImports.add(
                   `import { when as __stylex_when } from '@stylexjs/stylex'`,
@@ -1063,6 +1083,7 @@ import type { Binding } from '@babel/traverse'
 import createGlobMatcher from 'picomatch'
 import type { FunctionExpression } from '@babel/types'
 import { getJSXAttributeSchema } from '#/jsx-attribute-schema.js'
+import type { ImportDeclaration } from '@babel/types'
 import { isArrayExpression } from '@babel/types'
 import { isArrowFunctionExpression } from '@babel/types'
 import { isBlockStatement } from '@babel/types'
