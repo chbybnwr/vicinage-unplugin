@@ -6,6 +6,29 @@ export { createPreProcessFn }
 const indentSize = 2
 const contextualClosureBaseLevel = 3
 
+const ancestryMacroList = [
+  'ancestor',
+  'anySibling',
+  'descendant',
+  'siblingAfter',
+  'siblingBefore',
+] as const
+
+const macroList = [
+  'defineStyleDeck',
+  'selector',
+  ...ancestryMacroList,
+  //
+] as const
+
+type Macro = typeof macroList extends readonly (infer U)[] ? U : never
+const macroSet: Set<string> = new Set(macroList) satisfies Set<Macro>
+const macroAlias: Partial<Record<Macro, string>> = {}
+
+for (const macro of macroList) {
+  macroAlias[macro] = macro
+}
+
 const createPreProcessFn = (options: Options | undefined = {}) => {
   const {
     jsxAttributeSchema = getJSXAttributeSchema(),
@@ -38,32 +61,32 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       isImportDeclaration(statement),
     )
 
-    const selectorMacroSet = new Set(
-      importDeclarationList.flatMap((declaration) => {
-        if (declaration.source.value === pluginName) {
-          const macroSpecifier = declaration.specifiers.find(
-            (specifier) =>
-              isImportSpecifier(specifier) &&
-              isIdentifier(specifier.imported) &&
-              specifier.imported.name === 'selector',
-          )
-
-          if (macroSpecifier != null) {
-            return [macroSpecifier.local.name]
-          }
-
-          return []
-        }
-
-        return []
-      }),
+    const macroImportDeclarationList = importDeclarationList.filter(
+      (declaration) =>
+        declaration.source.value === pluginName &&
+        declaration.specifiers.some(
+          (specifier) =>
+            isImportSpecifier(specifier) &&
+            isIdentifier(specifier.imported) &&
+            macroSet.has(specifier.imported.name),
+        ),
     )
+
+    for (const declaration of macroImportDeclarationList) {
+      for (const specifier of declaration.specifiers) {
+        if (isImportSpecifier(specifier) && isIdentifier(specifier.imported)) {
+          macroAlias[specifier.imported.name as keyof typeof macroAlias] =
+            specifier.local.name
+        }
+      }
+    }
+
+    const stylexImports = new Set<string>()
 
     return main()
 
     function main() {
       const editor = new MagicString(code)
-      const stylexImports = new Set<string>()
       const hoistedStyles = new Set<string>()
 
       const unstyledComponentNameSet = new Set<string>(
@@ -294,8 +317,8 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
         editor.append(`\n${appendices.join('\n\n')}\n`)
       }
 
-      if (selectorMacroSet.size > 0) {
-        editor.replaceAll(`import { selector } from '${pluginName}'`, '')
+      for (const declaration of macroImportDeclarationList) {
+        editor.remove(declaration.start!, declaration.end!)
       }
 
       if (editor.hasChanged()) {
@@ -432,14 +455,39 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
           if (
             isCallExpression(key) &&
             isIdentifier(key.callee) &&
-            selectorMacroSet.has(key.callee.name)
+            key.callee.name === macroAlias.selector
           ) {
-            const [firstArg] = key.arguments
+            const [firstArg, ...restArgumentList] = key.arguments
 
-            if (
-              isStringLiteral(firstArg) &&
-              key.arguments.every((arg) => isStringLiteral(arg))
-            ) {
+            if (isCallExpression(firstArg) && isIdentifier(firstArg.callee)) {
+              const { callee } = firstArg
+
+              const ancestryMacro = ancestryMacroList.find(
+                (macro) => macroAlias[macro] === callee.name,
+              )
+
+              if (
+                ancestryMacro != null &&
+                restArgumentList.every((arg) => isStringLiteral(arg))
+              ) {
+                const selector = restArgumentList
+                  .map((arg) => arg.value)
+                  .join('')
+
+                const ancestryMacroArg = firstArg.arguments[0]!
+
+                const marker = code.slice(
+                  ancestryMacroArg.start!,
+                  ancestryMacroArg.end!,
+                )
+
+                propertyKey = `[__stylex_when.${ancestryMacro}('${selector}', ${marker})]`
+
+                stylexImports.add(
+                  `import { when as __stylex_when } from '@stylexjs/stylex'`,
+                )
+              }
+            } else if (key.arguments.every((arg) => isStringLiteral(arg))) {
               const selector = key.arguments.map((arg) => arg.value).join('')
               propertyKey = `'${selector}'`
             }

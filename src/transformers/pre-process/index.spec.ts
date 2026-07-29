@@ -170,6 +170,7 @@ test.each([
 
 test.each([
   { label: 'selector/on-element' },
+  { label: 'selector/with-marker' },
   //
 ])('$label', async ({ label }) => {
   const transform = createPreProcessFn({ jsxAttributeSchema: 'dom-properties' })
