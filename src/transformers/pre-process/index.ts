@@ -459,9 +459,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
           )
         }
 
-        const rawKeySource = code.slice(key.start!, key.end!)
-
-        let propertyKey = rawKeySource
+        let propertyKey = code.slice(key.start!, key.end!)
 
         if (computed) {
           if (
@@ -507,7 +505,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
               propertyKey = `'${selector}'`
             }
           } else {
-            propertyKey = `[${rawKeySource}]`
+            propertyKey = `[${propertyKey}]`
           }
         }
 
