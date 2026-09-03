@@ -92,6 +92,7 @@ const eslintConfig = defineConfig([
         {
           ignore: [
             /fn/i,
+            /var(s)?/i,
             /arg(s)?/i,
             /param(s)?/i,
             /prop(s)?/i,
