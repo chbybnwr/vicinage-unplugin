@@ -267,6 +267,7 @@ const createPostProcessFn = (options: Options | undefined = {}) => {
 
     return {
       code: editor.toString(),
+      map: editor.generateMap(),
     }
   }
 }

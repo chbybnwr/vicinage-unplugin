@@ -341,6 +341,7 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
       if (editor.hasChanged()) {
         return {
           code: editor.toString(),
+          map: editor.generateMap(),
         }
       }
 
