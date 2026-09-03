@@ -6,7 +6,7 @@ function App() {
       styleDeck={{
         color: {
           default: null,
-          [selector(ancestor(defaultMarker()), ':hover', ':focus')]: 'red',
+          [ancestor(defaultMarker(), ':hover', ':focus')]: 'red',
         },
       }}
     />
@@ -15,5 +15,4 @@ function App() {
 
 import { ancestor } from 'styledeck'
 import { defaultMarker } from '@stylexjs/stylex'
-import { selector } from 'styledeck'
 //

@@ -7,7 +7,6 @@ function App() {
 }
 
 import { defineMarker } from '@stylexjs/stylex'
-
 //
 
 const style_8_18 = __stylex_create({

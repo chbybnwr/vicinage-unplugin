@@ -1,17 +1,19 @@
 export { App }
 
+const marker = defineMarker()
+
 function App() {
-  return <div {...__stylex_props(style_6_18._)} />
+  return <div {...__stylex_props(style_8_18._)} />
 }
 
-import { defaultMarker } from '@stylexjs/stylex'
+import { defineMarker } from '@stylexjs/stylex'
 //
 
-const style_6_18 = __stylex_create({
+const style_8_18 = __stylex_create({
   _: {
     color: {
       default: null,
-      [__stylex_when.ancestor(':hover:focus')]: 'red',
+      [__stylex_when.ancestor(':is(*)', marker)]: 'red',
     },
   },
 })

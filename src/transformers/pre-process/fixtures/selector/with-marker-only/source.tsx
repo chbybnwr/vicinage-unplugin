@@ -8,7 +8,7 @@ function App() {
       styleDeck={{
         color: {
           default: null,
-          [ancestor(marker, ':hover', ':focus')]: 'red',
+          [ancestor(marker)]: 'red',
         },
       }}
     />

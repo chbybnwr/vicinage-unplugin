@@ -480,34 +480,37 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
         let propertyKey = code.slice(key.start!, key.end!)
 
         if (computed) {
-          if (
-            isCallExpression(key) &&
-            isIdentifier(key.callee) &&
-            key.callee.name === macroAlias.selector
-          ) {
+          if (isCallExpression(key) && isIdentifier(key.callee)) {
+            const { callee } = key
+
             if (
               isImportSpecifier(
                 context.path.scope.getBinding(key.callee.name)?.path.node,
               )
             ) {
-              const [firstArg, ...restArgumentList] = key.arguments
+              if (key.callee.name === macroAlias.selector) {
+                if (key.arguments.every((arg) => isStringLiteral(arg))) {
+                  const selector = key.arguments
+                    .map((arg) => arg.value)
+                    .join('')
 
-              if (isCallExpression(firstArg) && isIdentifier(firstArg.callee)) {
-                const { callee } = firstArg
-
+                  propertyKey = `'${selector}'`
+                }
+              } else {
                 const ancestryMacro = ancestryMacroList.find(
                   (macro) => macroAlias[macro] === callee.name,
                 )
+
+                const [marker, ...restArgumentList] = key.arguments
 
                 if (
                   ancestryMacro != null &&
                   restArgumentList.every((arg) => isStringLiteral(arg))
                 ) {
-                  const selector = restArgumentList
-                    .map((arg) => arg.value)
-                    .join('')
-
-                  const marker = firstArg.arguments[0]!
+                  const selector =
+                    restArgumentList.length === 0
+                      ? ':is(*)'
+                      : restArgumentList.map((arg) => arg.value).join('')
 
                   propertyKey =
                     isCallExpression(marker) &&
@@ -519,17 +522,14 @@ const createPreProcessFn = (options: Options | undefined = {}) => {
                     )
                       ? `[__stylex_when.${ancestryMacro}('${selector}')]`
                       : `[__stylex_when.${ancestryMacro}('${selector}', ${code.slice(
-                          marker.start!,
-                          marker.end!,
+                          marker!.start!,
+                          marker!.end!,
                         )})]`
 
                   stylexImports.add(
                     `import { when as __stylex_when } from '@stylexjs/stylex'`,
                   )
                 }
-              } else if (key.arguments.every((arg) => isStringLiteral(arg))) {
-                const selector = key.arguments.map((arg) => arg.value).join('')
-                propertyKey = `'${selector}'`
               }
             }
           } else {
