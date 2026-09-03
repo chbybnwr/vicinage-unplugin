@@ -2,8 +2,10 @@ Chabib
 chbybnwr
 esbuild
 farmfe
+lightningcss
 mjsx
 mtsx
+oxlint
 qwik
 rspack
 solarwindcss
