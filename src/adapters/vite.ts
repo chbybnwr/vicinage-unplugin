@@ -1,13 +1,24 @@
 export { createPlugin as default }
 
-function createPlugin(options: Options & Partial<UserOptions>) {
+function createPlugin(options: Options & Partial<UserOptions> = {}) {
   const { jsxAttributeSchema, unstyledComponentModules, ...stylexOptions } =
     options
+  const { lightningcssOptions } = stylexOptions
   const styledeckOptions = { jsxAttributeSchema, unstyledComponentModules }
 
   return [
     preProcess(styledeckOptions, null),
-    stylex(stylexOptions) as Plugin,
+    stylex({
+      classNamePrefix: 's',
+      useCSSLayers: true,
+      lightningcssOptions: {
+        minify:
+          lightningcssOptions?.minify ??
+          process.env['NODE_ENV'] !== 'development',
+        ...lightningcssOptions,
+      },
+      ...stylexOptions,
+    }) as Plugin,
     postProcess(styledeckOptions, null),
   ]
 }
