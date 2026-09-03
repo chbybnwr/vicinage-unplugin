@@ -39,8 +39,8 @@
     "#/*": "./dist/*"
   },
   "scripts": {
-    "prepack": "npm run build && npm pkg delete scripts packageManager devDependencies",
-    "check": "npm run typecheck && npm run test -- --coverage && npm run lint && npm run format -- --check && npm run spellcheck",
+    "prepack": "pn run build && npm pkg delete scripts packageManager devDependencies",
+    "check": "pn run typecheck && pn run test --coverage && pn run lint && pn run format --check && pn run spellcheck",
     "build": "tsdown",
     "compile": "tsc --project tsconfig.build.json",
     "typecheck": "tsc --build",
