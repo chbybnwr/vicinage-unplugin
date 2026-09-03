@@ -14,29 +14,29 @@ function getJSXAttributeSchema(): JSXAttributeSchema {
     return cache.jsxAttributeSchema
   }
 
-  const rootConfigPath = findConfigFile('./', (fileName) =>
-    sys.fileExists(fileName),
+  const rootConfigPath = ts.findConfigFile('./', (fileName) =>
+    ts.sys.fileExists(fileName),
   )
 
   if (typeof rootConfigPath !== 'string') {
     console.info(
-      `[styledeck] jsxAttributeSchema is set to ${defaultJSXAttributeSchema}`,
+      `[styledeck] tsconfig not found, jsxAttributeSchema is set to ${defaultJSXAttributeSchema}`,
     )
 
     return defaultJSXAttributeSchema
   }
 
-  const rootConfig = getParsedCommandLineOfConfigFile(
+  const rootConfig = ts.getParsedCommandLineOfConfigFile(
     rootConfigPath,
     {},
     // @ts-expect-error let me in pls
-    sys,
+    ts.sys,
   )
 
   const configPathList = [
     rootConfigPath,
     ...(rootConfig?.projectReferences ?? []).map((reference) =>
-      resolveProjectReferencePath(reference),
+      ts.resolveProjectReferencePath(reference),
     ),
   ]
 
@@ -44,12 +44,20 @@ function getJSXAttributeSchema(): JSXAttributeSchema {
 
   const jsxAttributeSchemaSet = new Set(
     configPathList.flatMap((configPath) => {
-      const config = getParsedCommandLineOfConfigFile(
-        configPath,
-        {},
-        // @ts-expect-error let me in pls
-        sys,
-      )
+      const config = (() => {
+        try {
+          return ts.getParsedCommandLineOfConfigFile(
+            configPath,
+            {},
+            // @ts-expect-error let me in pls
+            ts.sys,
+          )
+        } catch {
+          console.warn(`[styledeck] File not found. Skipping ${configPath}`)
+
+          return
+        }
+      })()
 
       if (config == null) {
         return []
@@ -75,16 +83,27 @@ function getJSXAttributeSchema(): JSXAttributeSchema {
 
   if (jsxAttributeSchemaSet.size > 1) {
     throw new Error(
-      '[styledeck] Unable to determine `jsxAttributeSchema`. Set it manually in config!',
+      '[styledeck] Unable to determine jsxAttributeSchema. Set it manually in config!',
     )
   }
 
-  cache.jsxAttributeSchema =
-    jsxAttributeSchemaSet.values().next().value ?? defaultJSXAttributeSchema
+  cache.jsxAttributeSchema = (() => {
+    const jsxAttributeSchema = jsxAttributeSchemaSet.values().next().value
 
-  console.info(
-    `[styledeck] jsxAttributeSchema is set to ${cache.jsxAttributeSchema}`,
-  )
+    if (jsxAttributeSchema == null) {
+      console.warn(
+        `[styledeck] Unable to determine jsxAttributeSchema, falling back to ${defaultJSXAttributeSchema}`,
+      )
+
+      return defaultJSXAttributeSchema
+    }
+
+    console.info(
+      `[styledeck] jsxAttributeSchema is set to ${jsxAttributeSchema}`,
+    )
+
+    return jsxAttributeSchema
+  })()
 
   return cache.jsxAttributeSchema
 }
@@ -104,8 +123,5 @@ const jsxAttributeSchemaByImportSource = new Map<string, JSXAttributeSchema>([
   ['vue', 'html-attributes'],
 ])
 
-import { findConfigFile } from '@typescript/typescript6'
-import { getParsedCommandLineOfConfigFile } from '@typescript/typescript6'
-import { resolveProjectReferencePath } from '@typescript/typescript6'
-import { sys } from '@typescript/typescript6'
+import ts from '@typescript/typescript6'
 //
