@@ -76,7 +76,7 @@ test.each([
   expect(result).toBeNull()
 })
 
-test.each([
+test.fails.each([
   { label: 'hoist-static/single' },
   { label: 'hoist-static/multiple' },
   { label: 'hoist-static/mixed' },

@@ -2,8 +2,17 @@
 
 export { createPostProcessFn }
 
-const createPostProcessFn = (options: Options | undefined = {}) => {
-  const { jsxAttributeSchema = getJSXAttributeSchema() } = options
+const createPostProcessFn = (
+  options:
+    | (Options & {
+        isHoistingStaticStyles?: boolean
+      })
+    | undefined = {},
+) => {
+  const {
+    jsxAttributeSchema = getJSXAttributeSchema(),
+    isHoistingStaticStyles = false,
+  } = options
   const htmlClass =
     jsxAttributeSchema === 'dom-properties' ? 'className' : 'class'
   const mergeClassFnName =
@@ -52,6 +61,7 @@ const createPostProcessFn = (options: Options | undefined = {}) => {
           }
 
           if (
+            isHoistingStaticStyles &&
             (attributeIdentifier.name === 'styleDeck' ||
               attributeIdentifier.name.endsWith('StyleDeck')) &&
             isJSXExpressionContainer(attribute.value)
