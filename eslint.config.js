@@ -103,6 +103,7 @@ const eslintConfig = defineConfig([
         },
       ],
       'unicorn/prefer-simplified-conditions': 'off',
+      'unicorn/single-line-block-comment-style': 'off',
     },
   },
 
